@@ -69,3 +69,4 @@ class CrawlingSpider(scrapy.Spider):
     #             "title": title.strip()  # Xóa khoảng trắng thừa nếu có
     #         }
             
+
