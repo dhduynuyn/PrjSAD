@@ -19,10 +19,16 @@ class Database:
         self.cursor = self.conn.cursor()
 
     def execute_query(self, query, params=None):
-        """ Execute SELECT queries and return fetched results. """
-        self.cursor.execute(query, params)
-        return self.cursor.fetchall()
-
+        try:
+            self.cursor.execute(query, params)
+            if query.strip().lower().startswith("select"):
+                return self.cursor.fetchall()
+            self.conn.commit()  # Commit only if there was no error
+        except Exception as e:
+            self.conn.rollback()  # Rollback to fix failed transaction
+            print(f"Database Error: {e}")
+            raise e
+        
     def execute_non_query(self, query, params=None):
         try:
             """ Execute INSERT, UPDATE, DELETE queries. """
