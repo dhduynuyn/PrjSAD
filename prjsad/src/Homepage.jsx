@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import CategoryNav from "./CategoryNav";
 import FeaturedSection from "./FeaturedSection";
@@ -7,9 +7,19 @@ import CreativeStoriesSection from "./CreativeStoriesSection";
 import CompletedStoriesSection from "./CompletedStoriesSection";
 import CategoryGrid from "./CategoryGrid";
 import Footer from "./Footer";
+import { getStories } from "./api/storyApi"; // 👈 Import API
 
 export default function HomePage() {
+  const [completedStories, setCompletedStories] = useState([]);
+
+  useEffect(() => {
     console.log("Homepage is rendering...");
+    getStories()
+      .then((res) => {
+        setCompletedStories(res.data); // ✅ không cần lọc nữa
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <div className="flex flex-col justify-center py-px">
@@ -19,7 +29,7 @@ export default function HomePage() {
         <FeaturedSection />
         <UpdatedStoriesSection />
         <CreativeStoriesSection />
-        <CompletedStoriesSection />
+        <CompletedStoriesSection stories={completedStories} /> {/* 👈 Truyền props */}
         <CategoryGrid />
       </main>
       <Footer />
