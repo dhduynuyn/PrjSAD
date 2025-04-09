@@ -13,6 +13,7 @@ def get_all_stories():
 @app.route('/stories/<int:story_id>', methods=['GET'])
 def get_story_by_id(story_id):
     """Get a story by ID"""
+    
     story = story_bus.get_story_by_id(story_id)
     if story:
         return jsonify(story), 200

@@ -14,18 +14,7 @@ class StoryDAO:
         
         stories = []
         for row in results:
-            story = StoryDTO(
-                story_id=row[0],
-                title=row[1],
-                author=row[2],
-                category=row[3],  # Convert stored JSON string to a list
-                status=row[4],
-                description=row[5],
-                views=row[6],
-                likes=row[7],
-                follows=row[8],
-                last_updated=row[9]
-            )
+            story = StoryDTO(*row)
             stories.append(story)
         return stories
 
@@ -37,18 +26,7 @@ class StoryDAO:
         
         if result:
             row = result[0]
-            return StoryDTO(
-                story_id=row[0],
-                title=row[1],
-                author=row[2],
-                category=row[3],  # Convert JSON string to list
-                status=row[4],
-                description=row[5],
-                views=row[6],
-                likes=row[7],
-                follows=row[8],
-                last_updated=row[9]
-            )
+            return StoryDTO(*row)
         return None
 
     def add_story(self, title, author, category, status, description):
