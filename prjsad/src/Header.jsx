@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Header() {
   return (
-    <header className="justify-start items-center border-solid border-b-[1px] border-b-[#F0F0F0] bg-white flex h-[60px] w-full px-[400px] pb-[1px] max-md:px-5">
+    <header className="justify-start items-center border-solid border-b-[1px] border-b-[#F0F0F0] bg-white flex h-[60px] w-full px-[100px] pb-[1px] max-md:px-5">
       <nav className="flex flex-row w-14 flex-none shrink gap-5 justify-start self-stretch px-6 my-auto w-full basis-0 max-w-[1320px] min-w-60 max-md:px-5">
         <div className="flex flex-nowrap gap-4 max-md:max-w-full">
           <div className="items-start border-solid border-r-[1px] border-r-[#F0F0F0] flex min-h-[60px] pr-[21px] py-[15px]">
