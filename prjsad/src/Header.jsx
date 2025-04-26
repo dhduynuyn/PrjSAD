@@ -1,59 +1,99 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
+import { FiSearch, FiBell } from "react-icons/fi"; // Ví dụ dùng react-icons
 
 export default function Header() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Thường không cần div bao ngoài cùng này trừ khi có lý do cụ thể khác
+  // <div className="flex flex-col justify-center py-px">
+
+  // Header: Chịu trách nhiệm border dưới và chiều cao tổng thể
+  // Bỏ padding ngang lớn (px-[300px]), việc căn giữa sẽ do mx-auto của container bên trong đảm nhiệm
   return (
-    <header className="justify-start items-center border-solid border-b-[1px] border-b-[#F0F0F0] bg-white flex h-[60px] w-full px-[100px] pb-[1px] max-md:px-5">
-      <nav className="flex flex-row w-14 flex-none shrink gap-5 justify-start self-stretch px-6 my-auto w-full basis-0 max-w-[1320px] min-w-60 max-md:px-5">
-        <div className="flex flex-nowrap gap-4 max-md:max-w-full">
-          <div className="items-start border-solid border-r-[1px] border-r-[#F0F0F0] flex min-h-[60px] pr-[21px] py-[15px]">
-            <div className="flex flex-col justify-center self-stretch my-auto w-[120px]">
-              <img
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/9a52c1448950e884661b826d947e970eb22a3e3b?placeholderIfAbsent=true&apiKey=741f47dd65dd4c5584bc71eba79f2904"
-                alt="Website Logo"
-                className="object-contain w-full aspect-[3.88]"
-              />
+    <header className="border-solid border-b border-b-gray-200 h-[60px] bg-white shadow-sm"> {/* Thêm bg-white và shadow nếu muốn nền header trắng */}
+      {/* Container cho nội dung: Giới hạn chiều rộng, căn giữa, chứa nền trắng */}
+      <div className="max-w-[1320px] mx-auto h-full px-4 sm:px-6 lg:px-8"> {/* px-* để có khoảng đệm nhỏ ở màn hình nhỏ */}
+        {/* Nav: flex layout cho các mục bên trong container */}
+        <nav
+          className="flex items-center justify-between h-full" // items-center để căn dọc, justify-between để đẩy logo/search và buttons ra 2 bên
+          aria-label="Main navigation"
+        >
+          {/* Phần bên trái: Logo và Search */}
+          <div className="flex items-center gap-4"> {/* items-center căn dọc logo và search */}
+            {/* Logo */}
+            <div className="flex-shrink-0"> {/* Ngăn logo bị co lại */}
+              {/* Có thể bỏ border-r nếu không cần thiết */}
+              <a href="/" aria-label="Trang chủ">
+                <img
+                  // Đặt chiều cao cố định hoặc max-height thay vì aspect-ratio phức tạp
+                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/b40865568aeafdd7562b3e8c22cfe92486a1cd7d?placeholderIfAbsent=true&apiKey=741f47dd65dd4c5584bc71eba79f2904"
+                  alt="Company Logo"
+                  className="h-8 w-auto" // Ví dụ: cao 32px, rộng tự động
+                />
+              </a>
+            </div>
+
+            {/* Search */}
+            <div className="hidden md:block"> {/* Ẩn search trên màn hình nhỏ nếu muốn */}
+              <form className="relative" role="search" onSubmit={(e) => e.preventDefault()}>
+                <label htmlFor="search" className="sr-only">
+                  Tìm truyện
+                </label>
+                {/* Icon đặt absolute bên trong input relative */}
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiSearch className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                </div>
+                <input
+                  type="search"
+                  id="search"
+                  // class input gọn gàng hơn
+                  className="block w-full pl-10 pr-3 py-1.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+                  placeholder="Tìm truyện"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {/* Button submit ẩn nhưng vẫn có thể dùng để submit form */}
+                 <button type="submit" className="sr-only">Search</button>
+              </form>
             </div>
           </div>
-          <div className="grow shrink-0 py-0.5 my-auto text-xl text-black basis-0 w-fit">
-            <div className="relative">
-              <input
-                type="search"
-                placeholder="Tìm truyện"
-                className="pr-36 pl-48 rounded-lg border-solid bg-white border border-[#DEE2E6] w-40 max-md:px-5"
-                aria-label="Search stories"
-              />
+
+          {/* Phần bên phải: Notifications và Auth Buttons */}
+          <div className="flex items-center gap-4">
+             {/* Nút search cho mobile (nếu cần) */}
+             <button className="md:hidden p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500">
+                <span className="sr-only">Tìm kiếm</span>
+                <FiSearch className="h-6 w-6" aria-hidden="true" />
+            </button>
+
+            {/* Notifications */}
+            <button
+              className="p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+              aria-label="Thông báo"
+            >
+              <FiBell className="h-6 w-6" aria-hidden="true" />
+            </button>
+
+            {/* Auth Buttons */}
+            <div className="flex items-center gap-1.5 text-sm">
               <button
-                aria-label="Search"
-                className="absolute right-4 top-1/2 transform -translate-y-1/2"
+                className="px-3 py-1.5 bg-sky-500 text-white rounded hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+                onClick={() => {}}
               >
-                <img
-                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/c59ef70897f9baffff032bfd84ed7b9ae0f1f5e2?placeholderIfAbsent=true&apiKey=741f47dd65dd4c5584bc71eba79f2904"
-                  alt=""
-                  className="w-[25px] aspect-square"
-                />
+                Đăng nhập
+              </button>
+              <button
+                className="px-3 py-1.5 bg-sky-500 text-white rounded hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+                onClick={() => {}}
+              >
+                Đăng ký
               </button>
             </div>
           </div>
-        </div>
-        <div className="flex gap-4 my-auto">
-          <button className="flex justify-center items-center p-2.5 rounded-3xl min-h-[42px]">
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/460ebbbfb1f5fd0be1ea0a42e1357c0160b34dfd?placeholderIfAbsent=true&apiKey=741f47dd65dd4c5584bc71eba79f2904"
-              alt="Notifications"
-              className="w-[22px] aspect-square"
-            />
-          </button>
-          <div className="flex gap-1.5 my-auto text-sm tracking-wide text-center text-white">
-            <button className="px-2.5 py-1.5 bg-sky-500 rounded border border-sky-500 min-h-[30px]">
-              Đăng nhập
-            </button>
-            <button className="px-2.5 py-1.5 bg-sky-500 rounded border border-sky-500 min-h-[30px]">
-              Đăng ký
-            </button>
-          </div>
-        </div>
-      </nav>
+        </nav>
+      </div>
     </header>
+    // </div > // Kết thúc div bao ngoài (nếu có)
   );
 }

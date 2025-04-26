@@ -1,81 +1,152 @@
+import React, { useState, useRef, useEffect } from 'react';
+// Import các icon cần thiết từ BoxIcons (bx) trong react-icons
+import { BsListOl, BsChevronDown, BsStar, BsPeople, BsVolumeUp } from 'react-icons/bs'; // Hoặc sử dụng các icon tương ứng từ react-icons/bi nếu muốn giống hệt Boxicons
+
+// Dữ liệu thể loại (ví dụ, bạn có thể lấy từ API hoặc hardcode)
+const categories = [
+    { name: "Bách Hợp", href: "https://www.monkeyd.com.vn/the-loai/bach-hop.html" },
+    { name: "BE", href: "https://www.monkeyd.com.vn/the-loai/be.html" },
+    { name: "Chữa Lành", href: "https://www.monkeyd.com.vn/the-loai/chua-lanh.html" },
+    // ... Thêm các thể loại khác vào đây
+    { name: "Xuyên Sách", href: "https://www.monkeyd.com.vn/the-loai/xuyen-sach.html" },
+];
+
 export default function CategoryNav() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null); // Ref để phát hiện click bên ngoài dropdown
+
+  // Đóng dropdown khi click ra ngoài
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    // Thêm event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Dọn dẹp event listener
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
+
   return (
-    <nav className="pt-10 pb-11 text-6xl border-solid shadow-sm bg-white border-b-[1px] border-b-[#E4E4E4] font-normal px-[312px] text-black tracking-[0.5px] w-full max-md:px-5">
-      <div className="flex flex-wrap flex-1 shrink gap-1.5 pr-20 pl-px basis-0 min-w-60 size-full max-md:pr-5">
-        <div className="flex flex-auto gap-px items-center">
-          <a
-            href="#"
-            className="self-stretch px-3 py-1 my-auto rounded-md hover:bg-gray-100"
-          >
-            Trang chủ
-          </a>
-          <a
-            href="#"
-            className="self-stretch px-3 py-1 my-auto rounded-md hover:bg-gray-100"
-          >
-            Truyện mới
-          </a>
-          <button className="flex gap-2 items-center self-stretch px-3 py-2 rounded-md hover:bg-gray-100">
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/b2cd1e29281e49fa367a8bdde26938aad130b4e6?placeholderIfAbsent=true&apiKey=741f47dd65dd4c5584bc71eba79f2904"
-              alt=""
-              className="w-[21px] aspect-[1.05]"
-            />
-            <span>Thể loại</span>
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/8382b617550d26a2c36ee251e611feeaa130db62?placeholderIfAbsent=true&apiKey=741f47dd65dd4c5584bc71eba79f2904"
-              alt=""
-              className="w-4 aspect-square"
-            />
-          </button>
-        </div>
-        <div className="flex flex-wrap flex-auto max-md:max-w-full">
-          <a
-            href="#"
-            className="self-stretch px-3 py-1 my-auto rounded-md hover:bg-gray-100"
-          >
-            Truyện Full
-          </a>
-          <a
-            href="#"
-            className="self-stretch px-3 py-1 my-auto rounded-md hover:bg-gray-100"
-          >
-            Truyện Dài
-          </a>
-          <a
-            href="#"
-            className="flex items-center px-3 py-2 rounded-md hover:bg-gray-100"
-          >
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/0084fe4aed8936ec32bfc6c459db69800b0d66f6?placeholderIfAbsent=true&apiKey=741f47dd65dd4c5584bc71eba79f2904"
-              alt=""
-              className="w-5 aspect-square mr-2"
-            />
-            Truyện Sáng Tác
-          </a>
-          <a
-            href="#"
-            className="flex gap-2 items-center px-3 py-2 rounded-md hover:bg-gray-100"
-          >
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/c01e7daeb75ce0fbc423d9550b304081fb99bd87?placeholderIfAbsent=true&apiKey=741f47dd65dd4c5584bc71eba79f2904"
-              alt=""
-              className="w-[21px] aspect-[1.05]"
-            />
-            Team
-          </a>
-          <a
-            href="#"
-            className="flex gap-2 items-center px-3 py-2 rounded-md hover:bg-gray-100"
-          >
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/447285ae86907b5e0d6137ad9faf335ebf1bf477?placeholderIfAbsent=true&apiKey=741f47dd65dd4c5584bc71eba79f2904"
-              alt=""
-              className="w-[21px] aspect-[1.05]"
-            />
-            Nghe Audio
-          </a>
-        </div>
+    // Sử dụng padding và border giống bản gốc hơn
+    <nav className="bg-white shadow-sm border-b border-gray-200">
+      {/* Container để căn giữa và giới hạn chiều rộng */}
+      <div className="container mx-auto px-4"> {/* Điều chỉnh px-4 nếu cần */}
+        {/* Sử dụng ul và flex để sắp xếp các mục menu */}
+        <ul className="flex items-center space-x-1 text-sm font-medium text-gray-700 h-14"> {/* Giảm cỡ chữ, thêm chiều cao cố định nếu muốn */}
+
+          {/* Trang chủ */}
+          <li className="nav-item">
+            <a
+              href="https://www.monkeyd.com.vn"
+              className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
+            >
+              Trang chủ
+            </a>
+          </li>
+
+          {/* Truyện mới */}
+          <li className="nav-item">
+            <a
+              href="https://www.monkeyd.com.vn/truyen-moi.html"
+              className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
+            >
+              Truyện mới
+            </a>
+          </li>
+
+          {/* Thể loại (Dropdown) */}
+          <li className="nav-item relative" ref={dropdownRef}> {/* Thêm relative và ref */}
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150 w-full text-left"
+            >
+              <BsListOl size={18} /> {/* Icon Thể loại */}
+              <span>Thể loại</span>
+              <BsChevronDown size={16} className={`ml-auto transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} /> {/* Icon Dropdown */}
+            </button>
+
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <ul className="dropdown-menu absolute left-0 mt-1 w-60 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200 max-h-80 overflow-y-auto"> {/* Kiểu dáng dropdown */}
+                {categories.map((category) => (
+                   <li key={category.name}>
+                     <a
+                       className="dropdown-item flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                       href={category.href}
+                     >
+                       {/* Bạn có thể thêm icon '>' nếu muốn giống hệt */}
+                       {/* <BsChevronRight className="mr-2" size={12} /> */}
+                       <span className="ml-2">{category.name}</span> {/* Thêm ml-2 nếu dùng icon */}
+                     </a>
+                   </li>
+                ))}
+              </ul>
+            )}
+          </li>
+
+          {/* Truyện Full */}
+          <li className="nav-item">
+            <a
+              href="https://www.monkeyd.com.vn/truyen-hoan-thanh.html"
+              className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
+            >
+              Truyện Full
+            </a>
+          </li>
+
+          {/* Truyện Dài */}
+          <li className="nav-item">
+            <a
+              href="https://monkeydtruyen.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
+            >
+              Truyện Dài
+            </a>
+          </li>
+
+          {/* Truyện Sáng Tác */}
+          <li className="nav-item">
+            <a
+              href="https://www.monkeyd.com.vn/truyen-sang-tac.html"
+              className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
+            >
+              <BsStar size={18} /> {/* Icon Sáng tác */}
+              Truyện Sáng Tác
+            </a>
+          </li>
+
+          {/* Team */}
+          <li className="nav-item">
+            <a
+              href="https://www.monkeyd.com.vn/danh-sach-nhom-dich"
+              className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
+            >
+              <BsPeople size={18} /> {/* Icon Team */}
+              Team
+            </a>
+          </li>
+
+          {/* Nghe Audio */}
+          <li className="nav-item">
+            <a
+              href="https://monkeyd.audio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
+            >
+              <BsVolumeUp size={18} /> {/* Icon Audio */}
+              Nghe Audio
+            </a>
+          </li>
+
+        </ul>
       </div>
     </nav>
   );
