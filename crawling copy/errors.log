@@ -1,6 +1,0 @@
-DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): generativelanguage.googleapis.com:443
-DEBUG:urllib3.connectionpool:https://huggingface.co:443 "HEAD /keepitreal/vietnamese-sbert/resolve/refs%2Fpr%2F8/model.safetensors.index.json HTTP/1.1" 404 0
-DEBUG:urllib3.connectionpool:https://huggingface.co:443 "HEAD /keepitreal/vietnamese-sbert/resolve/refs%2Fpr%2F8/model.safetensors HTTP/1.1" 302 0
-DEBUG:urllib3.connectionpool:https://generativelanguage.googleapis.com:443 "POST /v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDSzdkOUD4glBUBLI0Gxgbupttdpg8E-Ac HTTP/1.1" 200 None
-DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): generativelanguage.googleapis.com:443
-DEBUG:urllib3.connectionpool:https://generativelanguage.googleapis.com:443 "POST /v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDSzdkOUD4glBUBLI0Gxgbupttdpg8E-Ac HTTP/1.1" 200 None
