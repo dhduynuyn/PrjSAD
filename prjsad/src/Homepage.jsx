@@ -23,7 +23,6 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col justify-center py-px">
-      <Header />
       <CategoryNav />
       <main className="flex flex-col self-center px-3 pb-96 max-w-full w-[1320px] max-md:pb-24">
         <FeaturedSection />
@@ -32,7 +31,6 @@ export default function HomePage() {
         <CompletedStoriesSection stories={completedStories} /> {/* 👈 Truyền props */}
         <CategoryGrid />
       </main>
-      <Footer />
     </div>
   );
 }
