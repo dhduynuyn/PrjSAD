@@ -5,13 +5,13 @@ class UserDAO:
     def __init__(self):
         self.db = Database()
 
-    def login(self, username, password):
+    def login(self, gmail, password):
         """ Check user credentials and return a UserDTO if found. """
-        query = 'SELECT user_id, username, password, full_name FROM public."Users" WHERE username=%s AND password=%s'
-        result = self.db.execute_query(query, (username, password))
+        query = 'SELECT user_id, username, gmail FROM public."Users" WHERE gmail=%s AND password=%s'
+        result = self.db.execute_query(query, (gmail, password))
         return UserDTO(*result[0]) if result else None
 
-    def signup(self, username, password, full_name):
+    def signup(self, gmail, password, username):
         """ Register a new user. """
-        query = 'INSERT INTO public."Users" (username, password, full_name) VALUES (%s, %s, %s)'
-        return self.db.execute_non_query(query, (username, password, full_name))
+        query = 'INSERT INTO public."Users" (gmail, password, username) VALUES (%s, %s, %s)'
+        return self.db.execute_non_query(query, (gmail, password, username))

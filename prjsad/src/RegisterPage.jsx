@@ -23,26 +23,39 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     if (formData.password !== formData.password_confirmation) {
       alert("Mật khẩu nhập lại không khớp!");
       return;
     }
-    console.log('Dữ liệu gửi đi:', formData);
-
-    // 2. Gọi API đăng ký
+  
     try {
-      // const response = await yourRegisterApiFunction(formData); // Thay bằng hàm gọi API thật
-      // console.log('Đăng ký thành công:', response);
-      alert('Đăng ký thành công! (Đây là thông báo giả)'); // Thông báo tạm thời
-      // 3. Điều hướng sau khi thành công (ví dụ: về trang đăng nhập hoặc trang chủ)
-      navigate('/login'); // Chuyển đến trang đăng nhập sau khi đăng ký
+      const response = await fetch('http://localhost:5000/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          gmail: formData.email,
+          password: formData.password,
+          username: formData.name,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert('Đăng ký thành công!');
+        navigate('/login');
+      } else {
+        alert(`Đăng ký thất bại: ${data.error || data.message}`);
+      }
     } catch (error) {
       console.error('Lỗi đăng ký:', error);
-      // Hiển thị lỗi cho người dùng nếu cần
       alert('Đăng ký thất bại. Vui lòng thử lại.');
     }
-    // ---------------------------------
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">

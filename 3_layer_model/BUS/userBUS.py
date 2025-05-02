@@ -4,10 +4,10 @@ class UserBUS:
     def __init__(self):
         self.user_dao = UserDAO()
 
-    def login(self, username, password):
+    def login(self, gmail, password):
         """Handles user login."""
-        return self.user_dao.login(username, password)
+        return self.user_dao.login(gmail, password)
 
-    def signup(self, username, password, full_name):
+    def signup(self, gmail, password, username):
         """Handles user signup."""
-        return self.user_dao.signup(username, password, full_name)
+        return self.user_dao.signup(gmail, password, username)

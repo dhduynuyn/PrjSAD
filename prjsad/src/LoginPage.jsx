@@ -21,24 +21,36 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-        alert("Vui lòng nhập email và mật khẩu.");
-        return;
+      alert("Vui lòng nhập email và mật khẩu.");
+      return;
     }
-    console.log('Dữ liệu gửi đi:', formData);
 
-    // 2. Gọi API đăng nhập
     try {
-      // const response = await yourLoginApiFunction(formData); // Thay bằng hàm gọi API thật
-      // console.log('Đăng nhập thành công:', response);
-      alert('Đăng nhập thành công! (Đây là thông báo giả)'); // Thông báo tạm thời
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          gmail: formData.email,   // Flask backend expects 'username'
+          password: formData.password
+        }),
+      });
 
-      // --- Ví dụ: Lưu thông tin user/token vào localStorage/context ---
-      // localStorage.setItem('userToken', response.token);
+      const data = await response.json();
 
-      navigate('/'); // Chuyển về trang chủ sau khi đăng nhập
+      if (response.ok) {
+        alert('Đăng nhập thành công!');
+        // Ví dụ: lưu thông tin user
+        // localStorage.setItem('user', JSON.stringify(data));
+
+        navigate('/'); // chuyển đến trang chính sau đăng nhập
+      } else {
+        alert(`Đăng nhập thất bại: ${data.error || 'Sai thông tin đăng nhập'}`);
+      }
     } catch (error) {
       console.error('Lỗi đăng nhập:', error);
-      alert('Đăng nhập thất bại. Vui lòng kiểm tra lại email hoặc mật khẩu.');
+      alert('Đăng nhập thất bại. Vui lòng thử lại sau.');
     }
   };
 
