@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
 from BUS.storyBUS import StoryBUS
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 story_bus = StoryBUS()
 
 @app.route('/stories', methods=['GET'])
@@ -48,6 +50,14 @@ def delete_story(story_id):
     if success:
         return jsonify({"message": "Story deleted successfully"}), 200
     return jsonify({"error": "Story not found"}), 404
+
+@app.route('/stories/status/<string:status>', methods=['GET'])
+def get_stories_by_status(status):
+    """Get stories by status"""
+    stories = story_bus.get_stories_by_status(status)
+    if stories:
+        return jsonify(stories), 200
+    return jsonify({"error": "No stories found with the given status"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)

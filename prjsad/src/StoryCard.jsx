@@ -1,39 +1,36 @@
-// src/components/StoryCard.js
 import React from "react";
-import { BsEye, BsBookmark } from "react-icons/bs"; // Import icons
+import { BsEye, BsBookmark } from "react-icons/bs";
 
-// Placeholder cho lazy loading và error handling đơn giản
-const ImageWithFallback = ({ src, alt, ...props }) => {
-  const [imgSrc, setImgSrc] = React.useState(src);
-  const placeholder = "https://monkeyd.net.vn/img/ajax-loading.gif"; // Hoặc ảnh placeholder của bạn
-  const errorPlaceholder = "https://monkeyd.net.vn/img/no-image.png"; // Ảnh lỗi
+// Component hiển thị ảnh từ base64 hoặc URL
+const ImageWithFallback = ({ src, alt, isBase64 = false, ...props }) => {
+  const placeholder = "https://monkeyd.net.vn/img/ajax-loading.gif";
+  const errorPlaceholder = "https://monkeyd.net.vn/img/no-image.png";
+  const [imgSrc, setImgSrc] = React.useState(
+    isBase64 && src ? `data:image/jpeg;base64,${src}` : src
+  );
 
   React.useEffect(() => {
-    setImgSrc(src); // Cập nhật src khi prop thay đổi
-  }, [src]);
-
-  const handleLoad = (e) => {
-     // Optional: Nếu muốn làm gì đó khi ảnh load thành công
-  };
+    if (isBase64 && src) {
+      setImgSrc(`data:image/jpeg;base64,${src}`);
+    } else {
+      setImgSrc(src);
+    }
+  }, [src, isBase64]);
 
   const handleError = () => {
     setImgSrc(errorPlaceholder);
   };
 
-  // Sử dụng src placeholder ban đầu nếu muốn hiệu ứng loading
-  // Hoặc trực tiếp dùng imgSrc nếu không cần placeholder loading
   return (
     <img
-      src={imgSrc || placeholder} // Hiển thị placeholder nếu imgSrc chưa có (hoặc dùng src trực tiếp)
+      src={imgSrc || placeholder}
       alt={alt}
       onError={handleError}
-      onLoad={handleLoad} // Optional
-      loading="lazy" // Bật lazy loading của trình duyệt
+      loading="lazy"
       {...props}
     />
   );
 };
-
 
 export default function StoryCard({
   image,
@@ -41,22 +38,21 @@ export default function StoryCard({
   chapter,
   time,
   views,
-  bookmarks, // Thêm prop bookmarks
+  bookmarks,
   isFull,
-  storyUrl = "#", // Thêm URL cho truyện
-  chapterUrl = "#", // Thêm URL cho chương
+  storyUrl = "#",
+  chapterUrl = "#",
 }) {
   return (
     <div className="bg-white rounded-md overflow-hidden shadow-sm border border-gray-100 h-full flex flex-col">
       {/* Phần ảnh */}
       <div className="relative">
-        <a href={storyUrl} className="block aspect-[3/4]"> {/* Tỷ lệ khung hình 3:4 */}
+        <a href={storyUrl} className="block aspect-[3/4]">
           <ImageWithFallback
             src={image}
             alt={title}
-            className="w-full h-full object-cover" // Đảm bảo ảnh cover đúng tỷ lệ
-            // width="200" // Có thể bỏ width/height nếu dùng aspect ratio
-            // height="260"
+            isBase64={true} // ✅ quan trọng: bật chế độ base64
+            className="w-full h-full object-cover"
           />
         </a>
 
@@ -80,22 +76,21 @@ export default function StoryCard({
             </span>
           </div>
         )}
-         {/* Bạn có thể thêm các huy hiệu khác như HOT, NEW tương tự */}
       </div>
 
-      {/* Phần nội dung text */}
-      <div className="p-2 flex flex-col flex-grow"> {/* flex-grow để đẩy phần dưới cùng xuống */}
-         <h3 className="text-sm font-semibold text-gray-800 hover:text-blue-600 mb-1 line-clamp-2" title={title}>
-           <a href={storyUrl}>{title}</a>
-         </h3>
-         <div className="mt-auto text-xs text-gray-500"> {/* mt-auto để đẩy xuống đáy */}
-           <div className="flex justify-between items-center">
-             <span className="block truncate hover:text-blue-600" title={chapter}>
-                <a href={chapterUrl}>{chapter}</a>
-             </span>
-             <span className="flex-shrink-0 ml-2">{time}</span>
-           </div>
-         </div>
+      {/* Nội dung text */}
+      <div className="p-2 flex flex-col flex-grow">
+        <h3 className="text-sm font-semibold text-gray-800 hover:text-blue-600 mb-1 line-clamp-2" title={title}>
+          <a href={storyUrl}>{title}</a>
+        </h3>
+        <div className="mt-auto text-xs text-gray-500">
+          <div className="flex justify-between items-center">
+            <span className="block truncate hover:text-blue-600" title={chapter}>
+              <a href={chapterUrl}>{chapter}</a>
+            </span>
+            <span className="flex-shrink-0 ml-2">{time}</span>
+          </div>
+        </div>
       </div>
     </div>
   );

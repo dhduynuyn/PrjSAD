@@ -54,23 +54,50 @@ with open('stories.json', 'r', encoding='utf-8') as f:
 # cursor.close()
 # conn.close()
 
+# for story_id, story in stories.items():
+#     chapters = story.get('chapters', [])
+    
+#     for chapter in chapters:
+#         chapter_title = chapter.get('title', '').strip()
+#         chapter_content = chapter.get('content', '').strip()
+
+#         sql = """
+#             INSERT INTO public."Chapter" (storyid, title, content, last_updated)
+#             VALUES (%s, %s, %s, NOW())
+#             ON CONFLICT DO NOTHING; -- Nếu cần tránh insert trùng
+#         """
+#         cursor.execute(sql, (int(story_id), chapter_title, chapter_content))
+
+# conn.commit()
+# cursor.close()
+# conn.close()
+# print("✅ Insert chapters thành công!")
+
+# print("Insert stories thành công!")
+
+# Duyệt từng câu chuyện và insert chapter
 for story_id, story in stories.items():
     chapters = story.get('chapters', [])
     
+    # Đảo ngược thứ tự chapters
+    chapters.reverse()
+    
+    chapterid = 1  # Khởi tạo chapterid cho mỗi story
+
     for chapter in chapters:
         chapter_title = chapter.get('title', '').strip()
         chapter_content = chapter.get('content', '').strip()
 
         sql = """
-            INSERT INTO public."Chapter" (storyid, title, content, last_updated)
-            VALUES (%s, %s, %s, NOW())
+            INSERT INTO public."Chapter" (storyid, chapterid, title, content, last_updated)
+            VALUES (%s, %s, %s, %s, NOW())
             ON CONFLICT DO NOTHING; -- Nếu cần tránh insert trùng
         """
-        cursor.execute(sql, (int(story_id), chapter_title, chapter_content))
+        cursor.execute(sql, (int(story_id), chapterid, chapter_title, chapter_content))
+        chapterid += 1  # Tăng chapterid cho chương tiếp theo
 
 conn.commit()
 cursor.close()
 conn.close()
-print("✅ Insert chapters thành công!")
 
-print("Insert stories thành công!")
+print("✅ Insert chapters thành công!")
