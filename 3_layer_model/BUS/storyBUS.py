@@ -25,8 +25,8 @@ class StoryBUS:
         """Delete a story"""
         return self.dao.delete_story(story_id)
     
-    def get_stories_by_status(self, status):
+    def get_stories_by_status(self, status, limit=20):
         # Ví dụ giả sử self.stories là danh sách các dict truyện
-        stories = self.dao.get_stories_by_status(status)
+        stories = self.dao.get_stories_by_status(status, limit)
         return [story.to_dict() for story in stories]
 

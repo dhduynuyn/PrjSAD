@@ -1,6 +1,7 @@
 from DAO.DataProvider import Database
 from DTO.storyDTO import StoryDTO
 import json
+from datetime import date
 
 class StoryDAO:
     def __init__(self):
@@ -8,8 +9,17 @@ class StoryDAO:
 
     def get_all_stories(self):
         """Fetch all stories from the database"""
-        query = '''SELECT id, title, author, category, state, description, views, likes, follows, last_updated 
-                   FROM public."Story"'''
+        query = '''SELECT s.id, s.title, s.author, s.category, s.state, s.description, 
+                    s.views, s.likes, s.follows, s.last_updated, s.image_data,
+                    c.title AS latest_chapter
+                FROM public."Story" s
+                LEFT JOIN LATERAL (
+                    SELECT title FROM public."Chapter"
+                    WHERE storyid = s.id
+                    ORDER BY chapterid DESC
+                    LIMIT 1
+                ) c ON true
+                ORDER BY s.last_updated DESC'''
         results = self.db.execute_query(query)
         
         stories = []
@@ -29,7 +39,7 @@ class StoryDAO:
             return StoryDTO(*row)
         return None
 
-    def get_stories_by_status(self, status):
+    def get_stories_by_status(self, status, limit=20):
         """Fetch stories by status"""
         query = '''SELECT s.id, s.title, s.author, s.category, s.state, s.description, 
                     s.views, s.likes, s.follows, s.last_updated, s.image_data,
@@ -42,8 +52,9 @@ class StoryDAO:
                     LIMIT 1
                 ) c ON true
                 WHERE s.state = %s
-                ORDER BY s.last_updated DESC'''
-        results = self.db.execute_query(query, (status,))
+                ORDER BY s.last_updated DESC
+                LIMIT %s'''
+        results = self.db.execute_query(query, (status,limit,))
         
         stories = []
         for row in results:
@@ -87,4 +98,30 @@ class StoryDAO:
         """Delete a story by ID"""
         query = '''DELETE FROM public."Story" WHERE id = %s'''
         return self.db.execute_non_query(query, (int(story_id),))
-    
+
+    def increase_view(self, story_id):
+        """Increase the view count for a story for today's date"""
+        today = date.today()
+
+        # Kiểm tra xem dòng đã tồn tại chưa
+        check_query = '''
+            SELECT view_count FROM public.story_view_stats
+            WHERE story_id = %s AND view_date = %s
+        '''
+        result = self.db.execute_query(check_query, (story_id, today))
+
+        if result:
+            # Nếu có rồi, tăng thêm 1
+            update_query = '''
+                UPDATE public.story_view_stats
+                SET view_count = view_count + 1
+                WHERE story_id = %s AND view_date = %s
+            '''
+            self.db.execute_non_query(update_query, (story_id, today))
+        else:
+            # Nếu chưa có, tạo mới
+            insert_query = '''
+                INSERT INTO public.story_view_stats (story_id, view_date, view_count)
+                VALUES (%s, %s, 1)
+            '''
+            self.db.execute_non_query(insert_query, (story_id, today))

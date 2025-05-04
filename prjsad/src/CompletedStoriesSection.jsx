@@ -6,10 +6,10 @@ export default function CompletedStoriesSection() {
   const viewMoreUrl = 'https://monkeyd.net.vn/truyen-hoan-thanh.html';
 
   useEffect(() => {
-    fetch('http://localhost:5000/stories/status/Đã đủ bộ')
+    fetch('http://localhost:5000/stories/status/Đã đủ bộ?limit=6')
       .then(res => res.json())
       .then(data => {
-        const mapped = data.slice(0, 6).map(story => ({
+        const mapped = data.map(story => ({
           id: story.id,
           image: story.image_data,
           title: story.title,
