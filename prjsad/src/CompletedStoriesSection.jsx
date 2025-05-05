@@ -2,14 +2,30 @@ import React, { useEffect, useState } from 'react';
 import StoryCard from './StoryCard';
 
 export default function CompletedStoriesSection() {
+  
   const [completedStories, setCompletedStories] = useState([]);
+  const [error, setError] = useState(null);
   const viewMoreUrl = 'https://monkeyd.net.vn/truyen-hoan-thanh.html';
 
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
   useEffect(() => {
-    fetch('http://localhost:5000/stories/status/Đã đủ bộ?limit=6')
-      .then(res => res.json())
-      .then(data => {
-        const mapped = data.map(story => ({
+    const fetchCompletedStories = async () => {
+      await delay(5000);  // 3000ms = 3 giây
+      try {
+        const res = await fetch('http://localhost:5000/stories/status/Đã đủ bộ');
+        if (!res.ok) {
+          throw new Error(`API returned status ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("✅ Completed stories API response:", data);
+
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid data format from API');
+        }
+
+        const mappedStories = data.map((story) => ({
           id: story.id,
           image: story.image_data,
           title: story.title,
@@ -17,17 +33,22 @@ export default function CompletedStoriesSection() {
           time: story.last_updated,
           views: story.views,
           bookmarks: story.follows,
-          isFull: story.status == 'Đã đủ bộ',
+          isFull: story.status === 'Đã đủ bộ',
           storyUrl: `/stories/${story.id}`,
           chapterUrl: `/stories/${story.id}/chapters/latest`,
         }));
-        setCompletedStories(mapped);
-      })
-      .catch(err => {
-        console.error('Error fetching completed stories:', err);
-      });
+
+        setCompletedStories(mappedStories);
+        setError(null);
+      } catch (err) {
+        console.error('❌ Error fetching completed stories:', err);
+        setError(err.message);
+        setCompletedStories([]);
+      }
+    };
+
+    fetchCompletedStories();
   }, []);
-  
 
   return (
     <section className="mt-6 md:mt-8">
@@ -43,11 +64,17 @@ export default function CompletedStoriesSection() {
         </a>
       </div>
       <hr className="border-t border-gray-300 mb-4" />
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
-        {completedStories.map((story) => (
-          <StoryCard key={story.id} {...story} />
-        ))}
-      </div>
+
+      {error ? (
+        <p className="text-red-600 text-sm mb-4">Lỗi: {error}</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
+          {completedStories.map((story) => (
+            <StoryCard key={story.id} {...story} />
+          ))}
+        </div>
+      )}
+
       <div className="text-center mt-6 mb-4">
         <a
           href={viewMoreUrl}
