@@ -61,7 +61,7 @@ export default function UpdatedStoriesSection() {
         <hr className="mt-2 mb-4 border-t border-gray-300" />
 
         {error ? (
-          <p className="text-red-600 text-sm mb-4">Lỗi: {error}</p>
+          <p className="text-red-600 text-sm mb-4"></p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {stories.map(story => (
