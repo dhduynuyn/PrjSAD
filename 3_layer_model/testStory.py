@@ -1,12 +1,8 @@
 from flask import Flask, request, jsonify
 from BUS.storyBUS import StoryBUS
 from flask_cors import CORS
-from flask_caching import Cache
-
 app = Flask(__name__)
 CORS(app)
-story_bus = StoryBUS()
-cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 300})
 story_bus = StoryBUS()
 
 @app.route('/stories', methods=['GET'])
@@ -24,26 +20,6 @@ def get_story_by_id(story_id):
         return jsonify(story), 200
     return jsonify({"error": "Story not found"}), 404
 
-def refresh_cache_page_1():
-    """Manually refresh cached page 1 stories"""
-    per_page = 20
-    all_stories = story_bus.get_all_stories()
-    total_stories = len(all_stories)
-    total_pages = (total_stories + per_page - 1) // per_page
-    page = 1
-
-    start = 0
-    end = per_page
-    paginated_stories = all_stories[start:end]
-
-    result = {
-        "stories": paginated_stories,
-        "total_pages": total_pages,
-        "current_page": page
-    }
-
-    cache.set('stories_page_1', result)
-
 @app.route('/stories', methods=['POST'])
 def add_story():
     """Add a new story"""
@@ -57,27 +33,27 @@ def add_story():
     story_id = story_bus.add_story(title, author, category, status, description)
     return jsonify({"message": "Story added successfully", "story_id": story_id}), 201
 
+PER_PAGE = 12
+
 @app.route('/stories/paginated', methods=['GET'])
 def get_paginated_stories():
-    """Get stories with pagination. Cache only page 1."""
-    page = int(request.args.get('page', 1))
-    per_page = 12
-
-    # Nếu là page 1 và đã cache sẵn
-    if page == 1:
-        cached_data = cache.get('stories_page_1')
-        if cached_data:
-            return jsonify(cached_data), 200
+    """Get stories with pagination (no cache)."""
+    try:
+        page = int(request.args.get('page', 1))
+        if page < 1:
+            raise ValueError
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid page number"}), 400
 
     all_stories = story_bus.get_all_stories()
     total_stories = len(all_stories)
-    total_pages = (total_stories + per_page - 1) // per_page
+    total_pages = (total_stories + PER_PAGE - 1) // PER_PAGE
 
-    if page < 1 or page > total_pages:
+    if page > total_pages:
         return jsonify({"error": "Page out of range"}), 400
 
-    start = (page - 1) * per_page
-    end = start + per_page
+    start = (page - 1) * PER_PAGE
+    end = start + PER_PAGE
     paginated_stories = all_stories[start:end]
 
     result = {
@@ -85,10 +61,6 @@ def get_paginated_stories():
         "total_pages": total_pages,
         "current_page": page
     }
-
-    # Cache riêng page 1
-    if page == 1:
-        cache.set('stories_page_1', result)
 
     return jsonify(result), 200
 
@@ -113,7 +85,7 @@ def delete_story(story_id):
 @app.route('/stories/status/<string:status>', methods=['GET'])
 def get_stories_by_status(status):
     """Get stories by status with optional limit"""
-    limit = request.args.get('limit', default=None, type=int)
+    limit = request.args.get('limit', default=6, type=int)
 
     stories = story_bus.get_stories_by_status(status, limit)
     if stories:

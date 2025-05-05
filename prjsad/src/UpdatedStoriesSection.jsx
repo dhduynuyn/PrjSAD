@@ -1,20 +1,32 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import StoryCard from './StoryCard';
 import Pagination from './Pagination';
 
 export default function UpdatedStoriesSection() {
+  const [searchParams] = useSearchParams();
   const [stories, setStories] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState(null);
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const currentPage = parseInt(urlParams.get('page') || '1', 10);
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/stories/paginated?page=${currentPage}`)
-      .then(res => res.json())
-      .then(data => {
-        // Giả sử API trả về { stories: [...], total_pages: N }
-        const mapped = data.stories.map(story => ({
+    const fetchStories = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/stories/paginated?page=${currentPage}`);
+        if (!res.ok) {
+          throw new Error(`API returned status ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("✅ Updated stories API response:", data);
+
+        if (!data || !Array.isArray(data.stories)) {
+          throw new Error('Invalid data format from API');
+        }
+
+        const mappedStories = data.stories.map(story => ({
           id: story.id,
           image: story.image_data,
           title: story.title,
@@ -26,12 +38,18 @@ export default function UpdatedStoriesSection() {
           storyUrl: `/stories/${story.id}`,
           chapterUrl: `/stories/${story.id}/chapters/latest`,
         }));
-        setStories(mapped);
-        setTotalPages(data.total_pages);
-      })
-      .catch(err => {
-        console.error('Error fetching updated stories:', err);
-      });
+
+        setStories(mappedStories);
+        setTotalPages(data.total_pages || 1);
+        setError(null);
+      } catch (err) {
+        console.error("❌ Error fetching updated stories:", err);
+        setError(err.message);
+        setStories([]);
+      }
+    };
+
+    fetchStories();
   }, [currentPage]);
 
   return (
@@ -42,11 +60,15 @@ export default function UpdatedStoriesSection() {
         </h2>
         <hr className="mt-2 mb-4 border-t border-gray-300" />
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {stories.map(story => (
-            <StoryCard key={story.id} {...story} />
-          ))}
-        </div>
+        {error ? (
+          <p className="text-red-600 text-sm mb-4">Lỗi: {error}</p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {stories.map(story => (
+              <StoryCard key={story.id} {...story} />
+            ))}
+          </div>
+        )}
 
         <div className="mt-6 flex justify-center">
           <Pagination currentPage={currentPage} totalPages={totalPages} />
