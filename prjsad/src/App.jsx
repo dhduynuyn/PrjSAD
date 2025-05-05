@@ -2,10 +2,11 @@ import React from 'react';
 import HomePage from "./Homepage";
 
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
-
-// --- Giả sử bạn đã tổ chức lại các components vào các thư mục ---
-// --- Nếu chưa, hãy điều chỉnh đường dẫn import cho phù hợp ---
-import RegisterPage from './RegisterPage'; // Trang đăng ký bạn vừa tạo
+import { AuthProvider } from './AuthContext'; 
+import StoryListPage from './StoryListPage'; 
+import StoryDetailPage from './StoryDetailPage'; 
+//import ChapterPage from './ChapterPage'; 
+import RegisterPage from './RegisterPage'; 
 import LoginPage from './LoginPage';    
 import Header from './Header';      
 import Footer from './Footer';       
@@ -31,21 +32,22 @@ function MinimalLayout() {
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
-        </Route>
-
-        <Route element={<MinimalLayout />}> 
+            <Route path="/stories/:categorySlug" element={<StoryListPage />} />
+             <Route path="/truyen/:storySlug" element={<StoryDetailPage />} />
+             {/*<Route path="/truyen/:storySlug/:chapterSlug" element={<ChapterPage />} />*/}
+          </Route>
+          <Route element={<MinimalLayout />}>
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
-        </Route>
-
-
-        
-      </Routes>
-    </BrowserRouter>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider> 
   );
 }
 

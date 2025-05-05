@@ -1,25 +1,21 @@
-// src/components/Pagination.js
 import React from 'react';
 
 export default function Pagination({ currentPage, totalPages, onPageChange }) {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
-      // Thực tế bạn sẽ điều hướng hoặc gọi API ở đây
       console.log(`Changing to page ${page}`);
-      // onPageChange(page); // Gọi callback nếu cần
-      window.location.href = `?page=${page}`; // Giống cách web mẫu dùng link trực tiếp
+      window.location.href = `?page=${page}`; 
     }
   };
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
-    const maxPagesToShow = 5; // Số lượng trang hiển thị tối đa (trừ first/last/ellipsis)
+    const maxPagesToShow = 5; 
     const halfPagesToShow = Math.floor(maxPagesToShow / 2);
 
     let startPage = Math.max(1, currentPage - halfPagesToShow);
     let endPage = Math.min(totalPages, currentPage + halfPagesToShow);
 
-    // Điều chỉnh nếu số trang hiển thị ít hơn maxPagesToShow do ở gần đầu/cuối
     if (currentPage - halfPagesToShow < 1) {
       endPage = Math.min(totalPages, maxPagesToShow);
     }
@@ -84,8 +80,6 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
     return pageNumbers;
   };
 
-  // Thêm CSS để giống Bootstrap (hoặc dùng Tailwind/component library)
-  // Ví dụ đơn giản inline style, bạn nên dùng CSS file hoặc Tailwind
   const paginationStyle = `
     .pagination { display: flex; padding-left: 0; list-style: none; border-radius: .25rem; }
     .page-item { margin: 0 2px; }
