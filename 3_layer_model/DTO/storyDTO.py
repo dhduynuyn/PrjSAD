@@ -35,7 +35,7 @@ def humanize_time_diff(past_time):
 
 class StoryDTO:
     def __init__(self, story_id, title, author, category, status, description,
-                 views=0, likes=0, follows=0, last_updated=None, image_data=None, latest_chapter=None):
+                 views=0, likes=0, follows=0, last_updated=None, image_data=None, genres=None, latest_chapter=None):
         self.story_id = story_id
         self.title = title
         self.author = author
@@ -46,6 +46,7 @@ class StoryDTO:
         self.likes = likes
         self.follows = follows
         self.last_updated = last_updated
+        self.genres = genres if genres else []  # Danh sách thể loại
         self.image_data = image_data  # Có thể None hoặc chuỗi base64
         self.latest_chapter = latest_chapter
 
@@ -60,6 +61,23 @@ class StoryDTO:
             "views": self.views,
             "likes": self.likes,
             "follows": self.follows,
+            "last_updated": humanize_time_diff(self.last_updated),
+            "image_data": base64.b64encode(self.image_data).decode('utf-8') if self.image_data else None,
+            "latest_chapter": self.latest_chapter
+        }
+
+    def to_dict2(self):
+        print(self.category)
+        return {
+            "id": self.story_id,
+            "title": self.title,
+            "author": {"name":self.author},
+            "genres": self.genres,
+            "status": self.status,
+            "description": self.description,
+            "views": self.views,
+            "favorites": self.likes,
+            "followers": self.follows,
             "last_updated": humanize_time_diff(self.last_updated),
             "image_data": base64.b64encode(self.image_data).decode('utf-8') if self.image_data else None,
             "latest_chapter": self.latest_chapter

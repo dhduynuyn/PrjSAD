@@ -2,6 +2,7 @@ from DAO.DataProvider import Database
 from DTO.storyDTO import StoryDTO
 import json
 from datetime import date
+from flask import jsonify
 
 class StoryDAO:
     def __init__(self):
@@ -10,7 +11,7 @@ class StoryDAO:
     def get_all_stories(self):
         """Fetch all stories from the database"""
         query = '''SELECT s.id, s.title, s.author, s.category, s.state, s.description, 
-                    s.views, s.likes, s.follows, s.last_updated, s.image_data,
+                    s.views, s.likes, s.follows, s.last_updated, s.image_data, s.genres,
                     c.title AS latest_chapter
                 FROM public."Story" s
                 LEFT JOIN LATERAL (
@@ -30,8 +31,17 @@ class StoryDAO:
 
     def get_story_by_id(self, story_id):
         """Fetch a story by ID"""
-        query = '''SELECT id, title, author, category, state, description, views, likes, follows, last_updated 
-                   FROM public."Story" WHERE id = %s'''
+        query = '''SELECT s.id, s.title, s.author, s.category, s.state, s.description, 
+                    s.views, s.likes, s.follows, s.last_updated, s.image_data, s.genres,
+                    c.title AS latest_chapter
+                FROM public."Story" s
+                LEFT JOIN LATERAL (
+                    SELECT title FROM public."Chapter"
+                    WHERE storyid = s.id
+                    ORDER BY chapterid DESC
+                    LIMIT 1
+                ) c ON true
+                WHERE id = %s'''
         result = self.db.execute_query(query, (story_id,))
         
         if result:
@@ -39,10 +49,32 @@ class StoryDAO:
             return StoryDTO(*row)
         return None
 
+
+    def get_chapter_by_id(self, story_id):
+        """Fetch chapters by story ID and return as JSON"""
+        query = '''SELECT chapterid, title
+                FROM public."Chapter"
+                WHERE storyid = %s
+                ORDER BY chapterid ASC'''
+        
+        result = self.db.execute_query(query, (story_id,))
+        
+        if result:
+            chapters = [
+                {
+                    "id": row[0],
+                    "title": row[1],
+                    "slug": f"chuong-{row[0]}"
+                }
+                for row in result
+            ]
+            return chapters
+        return []
+
     def get_stories_by_status(self, status, limit=20):
         """Fetch stories by status"""
         query = '''SELECT s.id, s.title, s.author, s.category, s.state, s.description, 
-                    s.views, s.likes, s.follows, s.last_updated, s.image_data,
+                    s.views, s.likes, s.follows, s.last_updated, s.image_data, s.genres,
                     c.title AS latest_chapter
                 FROM public."Story" s
                 LEFT JOIN LATERAL (
