@@ -92,5 +92,54 @@ def get_stories_by_status(status):
         return jsonify(stories), 200
     return jsonify({"error": "No stories found with the given status"}), 404
 
+@app.route('/stories/slug/<string:story_slug>', methods=['GET'])
+def get_story_details_by_slug(story_slug):
+    story = story_bus.get_story_by_id(story_slug)
+    if story:
+        return jsonify(story), 200
+    return jsonify({"error": "Story not found"}), 404
+
+
+@app.route('/stories/slug/<string:story_slug>/chapters', methods=['GET'])
+def get_story_chapters(story_slug):
+    chapter = story_bus.get_chapter_by_id(story_slug)
+    if chapter:
+        return jsonify(chapter), 200
+    return jsonify({"error": "Story not found"}), 404
+
+@app.route('/stories/slug/<string:story_slug>/related', methods=['GET'])
+def get_related_stories(story_slug):
+    """Get related stories"""
+    return jsonify([
+        {"id": 2, "title": "Truyện liên quan 1", "coverUrl": "https://via.placeholder.com/100"},
+        {"id": 3, "title": "Truyện liên quan 2", "coverUrl": "https://via.placeholder.com/100"},
+    ]), 200
+
+@app.route('/stories/<int:story_id>/favorite', methods=['POST'])
+def toggle_favorite(story_id):
+    """Toggle favorite story"""
+    return jsonify({"message": "Toggled favorite successfully"}), 200
+
+@app.route('/stories/<int:story_id>/bookmark', methods=['POST'])
+def toggle_bookmark(story_id):
+    """Toggle bookmark story"""
+    return jsonify({"message": "Toggled bookmark successfully"}), 200
+
+@app.route('/stories/<int:story_id>/report', methods=['POST'])
+def report_story(story_id):
+    """Report a story"""
+    data = request.json
+    reason = data.get('reason', '')
+    return jsonify({"message": f"Reported story with reason: {reason}"}), 200
+
+@app.route('/stories/<string:story_slug>/user_status', methods=['GET'])
+def get_user_story_status(story_slug):
+    """Get user's story status (favorited, bookmarked)"""
+    return jsonify({
+        "isFavorited": True,
+        "isBookmarked": False
+    }), 200
+
+
 if __name__ == '__main__':
     app.run(debug=True)

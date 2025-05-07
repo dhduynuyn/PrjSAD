@@ -11,7 +11,12 @@ class StoryBUS:
     def get_story_by_id(self, story_id):
         """Get a story by ID"""
         story = self.dao.get_story_by_id(story_id)
-        return story.to_dict() if story else None
+        return story.to_dict2() if story else None
+    
+    def get_chapter_by_id(self, story_id):
+        """Get a story by ID"""
+        chapter = self.dao.get_chapter_by_id(story_id)
+        return chapter if chapter else None
 
     def add_story(self, title, author, category, status, description=None):
         """Add a new story"""
