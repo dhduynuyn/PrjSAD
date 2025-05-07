@@ -73,8 +73,8 @@ export default function StoryDetailPage() {
       }
 
     } catch (err) {
-      console.error("❌ Error fetching story details:", err);
-      setError("Không thể tải thông tin truyện. Vui lòng thử lại sau.");
+      // console.error("❌ Error fetching story details:", err);
+      // setError("Không thể tải thông tin truyện. Vui lòng thử lại sau.");
     } finally {
       setIsLoading(false);
     }
