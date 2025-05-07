@@ -1,20 +1,31 @@
-import React, { createContext, useState, useContext } from 'react';
-const AuthContext = createContext(null);
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Ban đầu chưa đăng nhập, user là null
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
-  // Hàm để gọi khi đăng nhập thành công
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+
+  // Khi mở app, đọc user từ localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   const login = (userData) => {
     setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData)); // Lưu xuống localStorage
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('user'); // Xóa khỏi localStorage
   };
 
   const value = {
-    user,          
-    isAuthenticated: !!user, 
+    user,
+    isAuthenticated: !!user,
     login,
     logout,
   };

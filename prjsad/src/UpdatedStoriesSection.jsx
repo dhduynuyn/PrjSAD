@@ -35,8 +35,8 @@ export default function UpdatedStoriesSection() {
           views: story.views,
           bookmarks: story.follows,
           isFull: story.status === 'Đã đủ bộ',
-          storyUrl: `/stories/${story.id}`,
-          chapterUrl: `/stories/${story.id}/chapters/latest`,
+          storyUrl: `/truyen/${story.id}`,
+          chapterUrl: `/truyen/${story.id}/chapters/latest`,
         }));
 
         setStories(mappedStories);

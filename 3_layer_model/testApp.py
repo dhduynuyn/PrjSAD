@@ -104,6 +104,7 @@ def get_stories_by_status(status):
 @app.route('/stories/slug/<string:story_slug>', methods=['GET'])
 def get_story_details_by_slug(story_slug):
     story = story_bus.get_story_by_id(story_slug)
+    print(story.get('description'))
     if story:
         return jsonify(story), 200
     return jsonify({"error": "Story not found"}), 404
@@ -161,8 +162,14 @@ def login():
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
-        response = make_response(jsonify({"message": "Login successful"}))
-        response.set_cookie('token', token, httponly=True)  # chỉ frontend không đọc được
+        user_info = {
+            "user_id": user.user_id,
+            "gmail": user.gmail,
+            "name": user.username  # Thêm nếu có
+        }
+
+        response = make_response(jsonify({"message": "Login successful", "user": user_info}))
+        response.set_cookie('token', token, httponly=True)
         return response, 200
     else:
         return jsonify({"error": "Invalid credentials"}), 401
@@ -194,12 +201,31 @@ def token_required(f):
     return decorated
 
 
-# API để lấy user_id hiện tại
+from flask import request, jsonify
+import jwt
+
 @app.route('/current_user', methods=['GET'])
-@token_required
-def get_current_user(payload):
-    user_id = payload['user_id']
-    return jsonify({"user_id": user_id}), 200
+def get_current_user():
+    token = request.cookies.get('token')
+    if not token:
+        return jsonify({'error': 'Không có token'}), 401
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        user_id = payload.get('user_id')
+        user = user_bus.get_user_by_id(user_id)
+        if not user:
+            return jsonify({'error': 'Người dùng không tồn tại'}), 404
+
+        return jsonify({
+            'user_id': user.user_id,
+            'gmail': user.gmail,
+            'name': user.name
+        }), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({'error': 'Token hết hạn'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'error': 'Token không hợp lệ'}), 401
+
 
 @app.route('/signup', methods=['POST'])
 def signup():
