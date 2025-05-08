@@ -67,7 +67,6 @@ class StoryDTO:
         }
 
     def to_dict2(self):
-        print(self.category)
         return {
             "id": self.story_id,
             "title": self.title,

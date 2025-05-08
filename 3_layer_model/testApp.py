@@ -11,7 +11,7 @@ SECRET_KEY = "your_secret_key"
 from flask import make_response
 user_bus = UserBUS()
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 story_bus = StoryBUS()
 
 @app.route('/stories', methods=['GET'])
@@ -104,7 +104,6 @@ def get_stories_by_status(status):
 @app.route('/stories/slug/<string:story_slug>', methods=['GET'])
 def get_story_details_by_slug(story_slug):
     story = story_bus.get_story_by_id(story_slug)
-    print(story.get('description'))
     if story:
         return jsonify(story), 200
     return jsonify({"error": "Story not found"}), 404
@@ -124,11 +123,6 @@ def get_related_stories(story_slug):
         {"id": 2, "title": "Truyện liên quan 1", "coverUrl": "https://via.placeholder.com/100"},
         {"id": 3, "title": "Truyện liên quan 2", "coverUrl": "https://via.placeholder.com/100"},
     ]), 200
-
-@app.route('/stories/<int:story_id>/favorite', methods=['POST'])
-def toggle_favorite(story_id):
-    """Toggle favorite story"""
-    return jsonify({"message": "Toggled favorite successfully"}), 200
 
 @app.route('/stories/<int:story_id>/bookmark', methods=['POST'])
 def toggle_bookmark(story_id):
@@ -168,8 +162,15 @@ def login():
             "name": user.username  # Thêm nếu có
         }
 
-        response = make_response(jsonify({"message": "Login successful", "user": user_info}))
+        response = make_response(jsonify({
+            "message": "Login successful", 
+            "user": user_info, 
+            "token": token  # Thêm token vào phản hồi
+        }))
+        
+        # Lưu token vào cookie (giữ cookie để sử dụng cho các yêu cầu sau)
         response.set_cookie('token', token, httponly=True)
+        
         return response, 200
     else:
         return jsonify({"error": "Invalid credentials"}), 401
@@ -226,6 +227,26 @@ def get_current_user():
     except jwt.InvalidTokenError:
         return jsonify({'error': 'Token không hợp lệ'}), 401
 
+def get_current_user_id():
+    token = request.headers.get('Authorization')
+    if not token:
+        token = request.cookies.get('token')
+
+    if not token:
+        return None, 'Token is missing'
+
+    if token.startswith("Bearer "):
+        token = token.split(" ")[1]
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        user_id = payload.get('user_id')
+        return user_id, None
+    except jwt.ExpiredSignatureError:
+        return None, 'Token expired'
+    except jwt.InvalidTokenError:
+        return None, 'Invalid token'
+
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -233,12 +254,9 @@ def signup():
     user_bus.signup(data['gmail'], data['password'], data['username'])
     return jsonify({"message": "User registered successfully"}), 201
 
-@app.route('/user/story-status/<story_slug>', methods=['GET', 'OPTIONS'])
+@app.route('/user/story-status/<story_slug>', methods=['GET'])
 @token_required
 def get_story_status(payload, story_slug):
-    if request.method == 'OPTIONS':
-        return '', 200
-
     user_id = payload['user_id']
     result = user_bus.get_story_status_for_user(user_id, story_slug)
 
@@ -246,6 +264,55 @@ def get_story_status(payload, story_slug):
         return jsonify({"error": "Story or user not found"}), 404
 
     return jsonify(result), 200
+
+@app.route('/stories/<int:story_id>/favorite', methods=['POST'])
+@token_required
+def toggle_favorite(payload, story_id):
+    """Toggle favorite status of a story"""
+    user_id = payload['user_id']
+
+    # Kiểm tra xem truyện có tồn tại không
+    story = story_bus.get_story_by_id(story_id)
+    if not story:
+        return jsonify({"error": "Story not found"}), 404
+
+    story['favorites'] += 1  # Tăng số lượng yêu thích
+    
+    # Cập nhật số lượng yêu thích trong cơ sở dữ liệu
+    user_bus.add_favorite(user_id, story_id)
+    story_bus.update_story_favorites(story)
+    message = "Đã thêm truyện vào danh sách yêu thích"
+
+    # Trả về kết quả cho client
+    return jsonify({
+        "message": message,
+        "updatedFavorites": story['favorites']  # Cập nhật số lượng yêu thích
+    }), 200
+    
+@app.route('/stories/<int:story_id>/toggle-bookmark', methods=['POST'])
+@token_required
+def toggle_follow(payload, story_id):
+    """Toggle favorite status of a story"""
+    user_id = payload['user_id']
+
+    # Kiểm tra xem truyện có tồn tại không
+    story = story_bus.get_story_by_id(story_id)
+    if not story:
+        return jsonify({"error": "Story not found"}), 404
+
+    story['followers'] += 1  # Tăng số lượng yêu thích
+    
+    # Cập nhật số lượng yêu thích trong cơ sở dữ liệu
+    user_bus.add_follow(user_id, story_id)
+    story_bus.update_story_follows(story)
+    message = "Đã thêm truyện vào danh sách theo dõi"
+
+    # Trả về kết quả cho client
+    return jsonify({
+        "message": message,
+        "updatedFollowers": story['followers']  # Cập nhật số lượng yêu thích
+    }), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

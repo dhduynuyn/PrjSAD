@@ -3,29 +3,26 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-
-  // Khi mở app, đọc user từ localStorage
-  useEffect(() => {
+  const [user, setUser] = useState(() => {
+    // Khi khởi tạo useState, đọc luôn từ localStorage
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData)); // Lưu xuống localStorage
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user'); // Xóa khỏi localStorage
+    localStorage.removeItem('user');
+    localStorage.removeItem('token'); // 🔥 Nếu bạn lưu token riêng thì cũng xóa
   };
 
   const value = {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: Boolean(user), // viết rõ ràng hơn
     login,
     logout,
   };
@@ -35,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

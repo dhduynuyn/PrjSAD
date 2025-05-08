@@ -35,3 +35,10 @@ class StoryBUS:
         stories = self.dao.get_stories_by_status(status, limit)
         return [story.to_dict() for story in stories]
 
+    def update_story_favorites(self, story):
+        """Update story favorite status"""
+        return self.dao.update_story_favorite(story)
+    
+    def update_story_follows(self, story):
+        """Update story favorite status"""
+        return self.dao.update_story_follow(story)

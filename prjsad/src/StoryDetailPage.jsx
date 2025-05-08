@@ -59,18 +59,56 @@ export default function StoryDetailPage() {
       setChapters(chaptersData || []);
       setRelatedStories(relatedData || []);
 
+      console.log("AUTHEN: ", isAuthenticated);
+
       // Nếu cần lấy trạng thái yêu thích/theo dõi thì gọi thêm fetch nữa.
       if (isAuthenticated) {
-        const userStatusRes = await fetch(`http://localhost:5000/user/story-status/${storySlug}`);
-        if (userStatusRes.ok) {
-          const userStatus = await userStatusRes.json();
-          setIsFavorited(userStatus.isFavorited);
-          setIsBookmarked(userStatus.isBookmarked);
+        const token = localStorage.getItem('token'); // 🔥 Lấy token ra
+      
+        if (token) {  // Kiểm tra xem token có tồn tại không
+          const userStatusRes = await fetch(`http://localhost:5000/user/story-status/${storySlug}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+      
+          // Kiểm tra mã trạng thái HTTP
+          if (userStatusRes.ok) {
+            const userStatus = await userStatusRes.json();
+      
+            // Kiểm tra dữ liệu trả về có hợp lệ không (ví dụ: check các thuộc tính cần thiết)
+            if (userStatus && userStatus.hasOwnProperty('isFavorited') && userStatus.hasOwnProperty('isBookmarked')) {
+              setIsFavorited(userStatus.isFavorited);
+              setIsBookmarked(userStatus.isBookmarked);
+              console.log("DEBUG: ", userStatus.isFavorited, userStatus.isBookmarked);  // Ghi log khi dữ liệu hợp lệ
+            } else {
+              console.error("Dữ liệu trả về không hợp lệ:", userStatus);
+              setIsFavorited(false);
+              setIsBookmarked(false);
+            }
+          } else {
+            // Nếu response không thành công (status code khác 2xx)
+            console.error(`Lỗi API: ${userStatusRes.status} - ${userStatusRes.statusText}`);
+            alert(`Không thể lấy trạng thái người dùng. Mã lỗi: ${userStatusRes.status}`);
+            setIsFavorited(false);
+            setIsBookmarked(false);
+          }
+        } else {
+          // Token không tồn tại trong localStorage
+          console.error("Token không tồn tại");
+          alert("Bạn cần đăng nhập để thực hiện hành động này.");
+          setIsFavorited(false);
+          setIsBookmarked(false);
         }
       } else {
+        // Nếu người dùng chưa đăng nhập
         setIsFavorited(false);
         setIsBookmarked(false);
       }
+      
+      
 
     } catch (err) {
       // console.error("❌ Error fetching story details:", err);
@@ -91,43 +129,94 @@ export default function StoryDetailPage() {
       navigate('/login');
       return;
     }
+  
+    // Kiểm tra trạng thái isFavorited ngay lập tức
+    if (isFavorited) {
+      alert("Truyện này đã được thêm vào danh sách yêu thích.");
+      return;  // Nếu đã yêu thích thì không cần thực hiện hành động gì thêm
+    }
+  
     try {
-      await fetch(`http://localhost:5000/stories/${storySlug}/toggle-favorite`, {
+      // Gửi yêu cầu tới backend để toggle favorite
+      const token = localStorage.getItem('token'); // 🔥 Lấy token ra
+      const response = await fetch(`http://localhost:5000/stories/${storySlug}/favorite`, {
         method: 'POST',
-        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
-      setIsFavorited(prev => !prev);
-      setStory(prev => ({
-        ...prev,
-        favorites: isFavorited ? prev.favorites - 1 : prev.favorites + 1,
-      }));
+  
+      // Kiểm tra phản hồi từ backend
+      if (response.ok) {
+        const result = await response.json();
+  
+        // Cập nhật trạng thái `isFavorited` và số lượng yêu thích
+        setIsFavorited(true);
+        setStory(prev => ({
+          ...prev,
+          favorites: result.updatedFavorites,  // Cập nhật số lượng yêu thích từ phản hồi backend
+        }));
+  
+        alert("Đã thêm truyện vào danh sách yêu thích!");
+      } else {
+        // Nếu có lỗi, hiển thị thông báo
+        const error = await response.json();
+        alert(error.message || "Đã xảy ra lỗi. Vui lòng thử lại.");
+      }
     } catch (err) {
       console.error("❌ Failed to toggle favorite:", err);
       alert("Đã xảy ra lỗi. Vui lòng thử lại.");
     }
   };
-
+  
   const handleBookmarkToggle = async () => {
     if (!isAuthenticated) {
       alert("Vui lòng đăng nhập để theo dõi truyện!");
       navigate('/login');
       return;
     }
+  
+    // Kiểm tra trạng thái bookmark ngay lập tức
+    if (isBookmarked) {
+      alert("Truyện này đã được thêm vào danh sách theo dõi.");
+      return;  // Nếu đã bookmark thì không cần thực hiện hành động gì thêm
+    }
+  
     try {
-      await fetch(`http://localhost:5000/stories/${storySlug}/toggle-bookmark`, {
+      // Gửi yêu cầu tới backend để toggle bookmark
+      const token = localStorage.getItem('token'); // 🔥 Lấy token ra
+      const response = await fetch(`http://localhost:5000/stories/${storySlug}/toggle-bookmark`, {
         method: 'POST',
-        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
-      setIsBookmarked(prev => !prev);
-      setStory(prev => ({
-        ...prev,
-        followers: isBookmarked ? prev.followers - 1 : prev.followers + 1,
-      }));
+  
+      // Kiểm tra phản hồi từ backend
+      if (response.ok) {
+        const result = await response.json();
+  
+        // Cập nhật trạng thái `isBookmarked` và số lượng theo dõi
+        setIsBookmarked(true);
+        setStory(prev => ({
+          ...prev,
+          followers: result.updatedFollowers,  // Cập nhật số lượng followers từ phản hồi backend
+        }));
+  
+        alert("Đã thêm truyện vào danh sách theo dõi!");
+      } else {
+        // Nếu có lỗi, hiển thị thông báo
+        const error = await response.json();
+        alert(error.message || "Đã xảy ra lỗi. Vui lòng thử lại.");
+      }
     } catch (err) {
       console.error("❌ Failed to toggle bookmark:", err);
       alert("Đã xảy ra lỗi. Vui lòng thử lại.");
     }
   };
+  
 
   const handleReport = async () => {
     if (!isAuthenticated) {

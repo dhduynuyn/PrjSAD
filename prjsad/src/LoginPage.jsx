@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { useAuth } from './AuthContext'; // <== thêm dòng này
+import { useAuth } from './AuthContext'; // <== Thêm dòng này
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); // <== thêm dòng này
+  const { login } = useAuth(); // <== Thêm dòng này
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,11 +36,15 @@ export default function LoginPage() {
       if (response.ok) {
         alert('Đăng nhập thành công!');
 
+        // Lưu token vào localStorage
+        const token = data.token; // Giả sử server trả về { token: "your-token-here" }
+        localStorage.setItem('token', token); // Lưu token vào localStorage
+
         // Cập nhật AuthContext với thông tin người dùng
         login(data.user); // Giả sử server trả về { user: {...} }
         console.log("🎯 Trạng thái isAuthenticated:", data.user);
 
-        navigate('/'); // chuyển hướng
+        navigate('/'); // chuyển hướng về trang chủ
       } else {
         alert(`Đăng nhập thất bại: ${data.error || 'Sai thông tin đăng nhập'}`);
       }

@@ -25,6 +25,7 @@ class UserDAO:
             return None  # Không tìm thấy người dùng
 
         like_story, follow_story = user_result[0]
+        story_slug = int(story_slug)
 
         # Step 3: Kiểm tra xem story_id có nằm trong 2 mảng không
         is_favorited = story_slug in like_story if like_story else False
@@ -34,3 +35,23 @@ class UserDAO:
             "isFavorited": is_favorited,
             "isBookmarked": is_bookmarked
         }
+        
+    def add_favorite(self, user_id, story_id):
+        """Thêm story_id vào like_story, không kiểm tra gì cả"""
+        query = '''
+            UPDATE public."Users"
+            SET like_story = array_append(like_story, %s)
+            WHERE user_id = %s
+        '''
+        self.db.execute_non_query(query, (story_id, user_id))
+        return True
+
+    def add_follow(self, user_id, story_id):
+        """Thêm story_id vào like_story, không kiểm tra gì cả"""
+        query = '''
+            UPDATE public."Users"
+            SET follow_story = array_append(follow_story, %s)
+            WHERE user_id = %s
+        '''
+        self.db.execute_non_query(query, (story_id, user_id))
+        return True

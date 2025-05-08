@@ -157,3 +157,23 @@ class StoryDAO:
                 VALUES (%s, %s, 1)
             '''
             self.db.execute_non_query(insert_query, (story_id, today))
+            
+    def update_story_favorite(self, story):
+        """Update story favorite status"""
+        query = '''
+            UPDATE public."Story"
+            SET likes = %s
+            WHERE id = %s
+        '''
+        self.db.execute_non_query(query, (story['favorites'], story['id']))
+        return True
+    
+    def update_story_follow(self, story):
+        """Update story favorite status"""
+        query = '''
+            UPDATE public."Story"
+            SET follows = %s
+            WHERE id = %s
+        '''
+        self.db.execute_non_query(query, (story['followers'], story['id']))
+        return True
