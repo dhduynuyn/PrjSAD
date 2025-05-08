@@ -30,20 +30,33 @@ class StoryDAO:
         return stories
 
     def get_story_by_id(self, story_id):
-        """Fetch a story by ID"""
-        query = '''SELECT s.id, s.title, s.author, s.category, s.state, s.description, 
-                    s.views, s.likes, s.follows, s.last_updated, s.image_data, s.genres,
-                    c.title AS latest_chapter
-                FROM public."Story" s
-                LEFT JOIN LATERAL (
-                    SELECT title FROM public."Chapter"
-                    WHERE storyid = s.id
-                    ORDER BY chapterid DESC
-                    LIMIT 1
-                ) c ON true
-                WHERE id = %s'''
+        """Fetch a story by ID, including team members"""
+        query = '''
+            SELECT 
+                s.id, s.title, s.author, s.category, s.state, s.description, 
+                s.views, s.likes, s.follows, s.last_updated, s.image_data, s.genres,
+                c.title AS latest_chapter,
+                s.team AS team_ids,
+                ARRAY_REMOVE(ARRAY_AGG(u.username), NULL) AS team_names
+            FROM public."Story" s
+            LEFT JOIN LATERAL (
+                SELECT title FROM public."Chapter"
+                WHERE storyid = s.id
+                ORDER BY chapterid DESC
+                LIMIT 1
+            ) c ON true
+            LEFT JOIN public."Users" u ON u.user_id = ANY(s.team)
+            WHERE s.id = %s
+            GROUP BY s.id, c.title
+            '''
         result = self.db.execute_query(query, (story_id,))
         
+        if result:
+            row = result[0]
+            return StoryDTO(*row)
+        return None
+
+            
         if result:
             row = result[0]
             return StoryDTO(*row)

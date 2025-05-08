@@ -54,6 +54,7 @@ export default function StoryDetailPage() {
         followers: storyData.followers || 0,
         status: storyData.status || '',
         description: storyData.description || '',
+        translatorTeam: storyData.translatorTeam || null,
       });
 
       setChapters(chaptersData || []);
