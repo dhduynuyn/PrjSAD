@@ -30,20 +30,33 @@ class StoryDAO:
         return stories
 
     def get_story_by_id(self, story_id):
-        """Fetch a story by ID"""
-        query = '''SELECT s.id, s.title, s.author, s.category, s.state, s.description, 
-                    s.views, s.likes, s.follows, s.last_updated, s.image_data, s.genres,
-                    c.title AS latest_chapter
-                FROM public."Story" s
-                LEFT JOIN LATERAL (
-                    SELECT title FROM public."Chapter"
-                    WHERE storyid = s.id
-                    ORDER BY chapterid DESC
-                    LIMIT 1
-                ) c ON true
-                WHERE id = %s'''
+        """Fetch a story by ID, including team members"""
+        query = '''
+            SELECT 
+                s.id, s.title, s.author, s.category, s.state, s.description, 
+                s.views, s.likes, s.follows, s.last_updated, s.image_data, s.genres,
+                c.title AS latest_chapter,
+                s.team AS team_ids,
+                ARRAY_REMOVE(ARRAY_AGG(u.username), NULL) AS team_names
+            FROM public."Story" s
+            LEFT JOIN LATERAL (
+                SELECT title FROM public."Chapter"
+                WHERE storyid = s.id
+                ORDER BY chapterid DESC
+                LIMIT 1
+            ) c ON true
+            LEFT JOIN public."Users" u ON u.user_id = ANY(s.team)
+            WHERE s.id = %s
+            GROUP BY s.id, c.title
+            '''
         result = self.db.execute_query(query, (story_id,))
         
+        if result:
+            row = result[0]
+            return StoryDTO(*row)
+        return None
+
+            
         if result:
             row = result[0]
             return StoryDTO(*row)
@@ -157,3 +170,23 @@ class StoryDAO:
                 VALUES (%s, %s, 1)
             '''
             self.db.execute_non_query(insert_query, (story_id, today))
+            
+    def update_story_favorite(self, story):
+        """Update story favorite status"""
+        query = '''
+            UPDATE public."Story"
+            SET likes = %s
+            WHERE id = %s
+        '''
+        self.db.execute_non_query(query, (story['favorites'], story['id']))
+        return True
+    
+    def update_story_follow(self, story):
+        """Update story favorite status"""
+        query = '''
+            UPDATE public."Story"
+            SET follows = %s
+            WHERE id = %s
+        '''
+        self.db.execute_non_query(query, (story['followers'], story['id']))
+        return True

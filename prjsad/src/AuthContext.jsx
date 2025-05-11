@@ -81,6 +81,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('authUser');
     setToken(null);
     setUser(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token'); // 🔥 Nếu bạn lưu token riêng thì cũng xóa
   };
 
   // Hàm để cập nhật thông tin user (ví dụ sau khi chỉnh sửa profile)
@@ -104,7 +106,7 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

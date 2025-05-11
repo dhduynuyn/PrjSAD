@@ -11,7 +11,7 @@ export default function CompletedStoriesSection() {
 
   useEffect(() => {
     const fetchCompletedStories = async () => {
-      await delay(5000);  // 3000ms = 3 giây
+      await delay(7000);  // 3000ms = 3 giây
       try {
         const res = await fetch('http://localhost:5000/stories/status/Đã đủ bộ');
         if (!res.ok) {
@@ -34,8 +34,8 @@ export default function CompletedStoriesSection() {
           views: story.views,
           bookmarks: story.follows,
           isFull: story.status === 'Đã đủ bộ',
-          storyUrl: `/stories/${story.id}`,
-          chapterUrl: `/stories/${story.id}/chapters/latest`,
+          storyUrl: `/truyen/${story.id}`,
+          chapterUrl: `/truyen/${story.id}/chapters/latest`,
         }));
 
         setCompletedStories(mappedStories);

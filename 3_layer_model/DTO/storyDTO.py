@@ -2,6 +2,11 @@ import base64
 from datetime import datetime, timezone, date
 import pytz
 
+class TranslatorTeamDTO:
+    def __init__(self, id, names):
+        self.id = id
+        self.name = ", ".join(names) if names else ""
+
 def humanize_time_diff(past_time):
     # Đặt múi giờ Việt Nam (Asia/Ho_Chi_Minh)
     vietnam_tz = pytz.timezone('Asia/Ho_Chi_Minh')
@@ -35,7 +40,7 @@ def humanize_time_diff(past_time):
 
 class StoryDTO:
     def __init__(self, story_id, title, author, category, status, description,
-                 views=0, likes=0, follows=0, last_updated=None, image_data=None, genres=None, latest_chapter=None):
+                 views=0, likes=0, follows=0, last_updated=None, image_data=None, genres=None, latest_chapter=None, team_ids=None, team_names=None):
         self.story_id = story_id
         self.title = title
         self.author = author
@@ -49,6 +54,12 @@ class StoryDTO:
         self.genres = genres if genres else []  # Danh sách thể loại
         self.image_data = image_data  # Có thể None hoặc chuỗi base64
         self.latest_chapter = latest_chapter
+
+        if team_ids and team_names:
+            # Lấy team đầu tiên làm ID (hoặc có thể customize theo ý bạn)
+            self.translatorTeam = TranslatorTeamDTO(team_ids[0], team_names)
+        else:
+            self.translatorTeam = None
 
     def to_dict(self):
         return {
@@ -67,7 +78,6 @@ class StoryDTO:
         }
 
     def to_dict2(self):
-        print(self.category)
         return {
             "id": self.story_id,
             "title": self.title,
@@ -80,5 +90,9 @@ class StoryDTO:
             "followers": self.follows,
             "last_updated": humanize_time_diff(self.last_updated),
             "image_data": base64.b64encode(self.image_data).decode('utf-8') if self.image_data else None,
-            "latest_chapter": self.latest_chapter
+            "latest_chapter": self.latest_chapter,
+            "translatorTeam": {
+                "id": self.translatorTeam.id,
+                "name": self.translatorTeam.name
+            } if self.translatorTeam else None
         }
