@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ChapterHeader from './Chapter/ChapterHeader';
-import ChapterContent from './Chapter/ChapterContent';
-//import ChapterNavigation from './Chapter/ChapterNavigation';
-//import ChapterSettings from './Chapter/ChapterSetting';
+import ChapterHeader from '../Chapter/ChapterHeader';
+import ChapterContent from '../Chapter/ChapterContent';
+import ChapterNavigation from '../Chapter/ChapterNavigation';
+import ChapterSettings from '../Chapter/ChapterSetting';
 //import { getChapterDetailsApi, recordChapterViewApi } from '../api/chapterApi'; // Giả sử có API
 import { FiLoader } from 'react-icons/fi';
 
@@ -22,8 +22,8 @@ const loadSettingsFromStorage = () => {
     fontSize: 18,
     lineHeight: 1.8,
     fontFamily: 'inherit',
-    backgroundColor: '#FFFFFF', // Mặc định nền trắng
-  };
+    backgroundColor: '#000000', // Đặt nền đen mặc định  
+    };
 };
 
 // Hàm lưu cài đặt vào localStorage

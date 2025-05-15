@@ -22,7 +22,7 @@ const loadSettingsFromStorage = () => {
     fontSize: 18,
     lineHeight: 1.8,
     fontFamily: 'inherit',
-    backgroundColor: '#FFFFFF', // Mặc định nền trắng
+    backgroundColor: '#000000', // Đặt nền đen mặc định
   };
 };
 
