@@ -14,6 +14,14 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 story_bus = StoryBUS()
 
+@app.route('/truyen/<story_slug>/chapters', methods=['GET'])
+def get_chapters(story_slug):
+    try:
+        chapters = story_bus.get_chapters_by_story_slug(story_slug)
+        return jsonify(chapters), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 @app.route('/stories', methods=['GET'])
 def get_all_stories():
     """Get all stories"""
@@ -46,6 +54,7 @@ PER_PAGE = 12
 
 @app.route('/stories/paginated', methods=['GET'])
 def get_paginated_stories():
+    print("CALLLINGGGGGGGGGGGGGGGGG")
     """Get stories with pagination (no cache)."""
     try:
         page = int(request.args.get('page', 1))
@@ -55,10 +64,12 @@ def get_paginated_stories():
         return jsonify({"error": "Invalid page number"}), 400
 
     all_stories = story_bus.get_all_stories()
+    print("DEBUG @: ", len(all_stories))
     total_stories = len(all_stories)
     total_pages = (total_stories + PER_PAGE - 1) // PER_PAGE
 
     if page > total_pages:
+        print("Error: Page out of range")
         return jsonify({"error": "Page out of range"}), 400
 
     start = (page - 1) * PER_PAGE

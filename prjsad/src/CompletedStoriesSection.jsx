@@ -11,7 +11,7 @@ export default function CompletedStoriesSection() {
 
   useEffect(() => {
     const fetchCompletedStories = async () => {
-      await delay(7000);  // 3000ms = 3 giây
+      await delay(3000);  // 3000ms = 3 giây
       try {
         const res = await fetch('http://localhost:5000/stories/status/Đã đủ bộ');
         if (!res.ok) {

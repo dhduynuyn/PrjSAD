@@ -4,10 +4,10 @@ import HomePage from "./Homepage";
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { AuthProvider } from './AuthContext'; 
 import StoryListPage from './StoryListPage'; 
-//import StoryDetailPage from './StoryDetailPage'; 
-import StoryDetailPage from './Demo/StoryDetailPage-demo'; 
-//import ChapterPage from './ChapterPage'; 
-import ChapterPage from './Demo/ChapterPage-demo'; 
+import StoryDetailPage from './StoryDetailPage'; 
+//import StoryDetailPage from './Demo/StoryDetailPage-demo'; 
+import ChapterPage from './ChapterPage'; 
+//import ChapterPage from './Demo/ChapterPage-demo'; 
 
 import RegisterPage from './RegisterPage'; 
 import LoginPage from './LoginPage';    

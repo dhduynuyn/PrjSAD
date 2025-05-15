@@ -158,6 +158,7 @@ export default function StoryDetailPage() {
       console.log("✅ Story details:", storyData);
       console.log("✅ Chapters:", chaptersData);
       console.log("✅ Related stories:", relatedData);
+      console.log("?????????????????");
 
       setStory({
         id: storyData.id,
