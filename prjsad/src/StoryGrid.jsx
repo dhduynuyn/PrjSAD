@@ -1,5 +1,5 @@
 import React from 'react';
-import StoryCard from './StoryCard';
+import StoryCard from './StoryCard-reuse';
 
 export default function StoryGrid({ stories }) {
   if (!stories || stories.length === 0) {
