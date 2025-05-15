@@ -324,6 +324,23 @@ export default function StoryDetailPage() {
                 ))}
               </dd>
 
+              {story.translatorTeam && story.translatorTeam.name && (
+                <>
+                  <dt className="col-span-3 sm:col-span-2 font-medium">Team</dt>
+                  <dd className="col-span-9 sm:col-span-10">
+                    {story.translatorTeam.url ? (
+                       <a href={story.translatorTeam.url} target="_blank" rel="noopener noreferrer" className="text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 bg-sky-100 dark:bg-sky-900 px-2 py-1 rounded text-xs">
+                         {story.translatorTeam.name}
+                       </a>
+                    ) : (
+                       <span className="inline-block bg-sky-100 dark:bg-sky-900 text-sky-700 dark:text-sky-200 px-2 py-1 mr-2 mb-2 rounded text-xs">
+                        {story.translatorTeam.name}
+                       </span>
+                    )}
+                  </dd>
+                </>
+              )}
+
               <dt className="col-span-3 sm:col-span-2 font-medium">Lượt xem</dt>
               <dd className="col-span-9 sm:col-span-10">{story.views.toLocaleString()}</dd>
 
