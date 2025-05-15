@@ -1,24 +1,27 @@
 import React from 'react';
 import HomePage from "./Homepage";
 
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, Link} from 'react-router-dom';
 import { AuthProvider } from './AuthContext'; 
 import StoryListPage from './StoryListPage'; 
 //import StoryDetailPage from './StoryDetailPage'; 
 import StoryDetailPage from './Demo/StoryDetailPage-demo'; 
 //import ChapterPage from './ChapterPage'; 
 import ChapterPage from './Demo/ChapterPage-demo'; 
-
+import AdvancedSearchPage from './AdvancedSearchPage';
 import RegisterPage from './RegisterPage'; 
+import CategoryNav from "./CategoryNav";
 import LoginPage from './LoginPage';    
 import Header from './Header';      
 import Footer from './Footer';       
 
 function MainLayout() {
   return (
-    <div className="flex flex-col min-h-screen"> 
+    <div className="flex flex-col min-h-screen w-full"> 
       <Header />
-      <main className="flex-grow"> 
+      <CategoryNav />
+
+      <main className="flex-grow w-full"> 
         <Outlet /> 
       </main>
       <Footer />
@@ -43,8 +46,9 @@ const App = () => {
             <Route path="/stories/:categorySlug" element={<StoryListPage />} />
              <Route path="/truyen/:storySlug" element={<StoryDetailPage />} />
              <Route path="/truyen/:storySlug/:chapterSlug" element={<ChapterPage />} />
-          </Route>
-          <Route element={<MinimalLayout />}>
+             <Route path="/tim-kiem-nang-cao" element={<AdvancedSearchPage />} />
+          {/*</Route>
+          <Route element={<MinimalLayout />}>*/}
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
           </Route>

@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from "react-router-dom";
+
 // Import các icon cần thiết từ BoxIcons (bx) trong react-icons
 import { BsListOl, BsChevronDown, BsStar, BsPeople, BsVolumeUp } from 'react-icons/bs'; // Hoặc sử dụng các icon tương ứng từ react-icons/bi nếu muốn giống hệt Boxicons
 
@@ -79,8 +81,6 @@ export default function CategoryNav() {
                        className="dropdown-item flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                        href={category.href}
                      >
-                       {/* Bạn có thể thêm icon '>' nếu muốn giống hệt */}
-                       {/* <BsChevronRight className="mr-2" size={12} /> */}
                        <span className="ml-2">{category.name}</span> {/* Thêm ml-2 nếu dùng icon */}
                      </a>
                    </li>
@@ -96,18 +96,6 @@ export default function CategoryNav() {
               className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
             >
               Truyện Full
-            </a>
-          </li>
-
-          {/* Truyện Dài */}
-          <li className="nav-item">
-            <a
-              href="https://monkeydtruyen.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
-            >
-              Truyện Dài
             </a>
           </li>
 
@@ -132,6 +120,17 @@ export default function CategoryNav() {
               Team
             </a>
           </li>
+
+          {/* Tìm kiếm nâng cao */}
+          <li className="nav-item">
+            <Link
+              to="/tim-kiem-nang-cao"
+              className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
+            >
+              Tìm kiếm nâng cao
+            </Link>
+          </li>
+
 
           {/* Nghe Audio */}
           <li className="nav-item">

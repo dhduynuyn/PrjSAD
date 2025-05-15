@@ -12,7 +12,6 @@ const getPageTitle = (slug) => {
         case 'truyen-hoan-thanh': return 'Truyện Full';
         case 'truyen-moi': return 'Truyện Mới Cập Nhật';
         case 'truyen-sang-tac': return 'Truyện Sáng Tác';
-        case 'truyen-dai': return 'Truyện Dài';
         default: return 'Danh sách truyện';
     }
 };

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function MainNav() {
     return (
       <nav className="pt-10 pb-11 text-6xl border-solid shadow-sm bg-white border-b-[1px] border-b-[#E4E4E4] font-[400] px-[312px] text-black tracking-[0.5px] w-full max-md:px-5 max-md:max-w-full">
@@ -38,12 +40,6 @@ export default function MainNav() {
             </a>
             <a
               href="#"
-              className="self-stretch px-3 py-1 my-auto rounded-md hover:bg-gray-100"
-            >
-              Truyện Dài
-            </a>
-            <a
-              href="#"
               className="flex items-center px-3 pt-2 pb-2 rounded-md hover:bg-gray-100"
             >
               <img
@@ -64,6 +60,17 @@ export default function MainNav() {
               />
               <span>Team</span>
             </a>
+
+            <li className="nav-item">
+              <Link
+                to="/tim-kiem-nang-cao"
+                className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
+              >
+                Tìm kiếm nâng cao
+              </Link>
+            </li>
+
+
             <a
               href="#"
               className="flex gap-2 items-center px-3 py-2 rounded-md hover:bg-gray-100"
