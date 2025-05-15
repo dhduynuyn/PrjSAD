@@ -289,6 +289,24 @@ export default function StoryDetailPage() {
           <div className="p-4 md:p-6 flex-grow flex flex-col">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">{story.title}</h1>
             <dl className="grid grid-cols-12 gap-x-4 gap-y-2 text-sm text-gray-700 dark:text-gray-200">
+              {story.updatedAtText && (
+                <>
+                  <dt className="col-span-3 sm:col-span-2 font-medium">Cập nhật</dt>
+                  <dd className="col-span-9 sm:col-span-10">{story.updatedAtText}</dd>
+                </>
+              )}
+              {story.storyType && (
+                <>
+                  <dt className="col-span-3 sm:col-span-2 font-medium">Loại</dt>
+                  <dd className="col-span-9 sm:col-span-10">
+                     <span className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 px-2 py-1 mr-2 mb-2 rounded text-xs">
+                        {story.storyType}
+                     </span>
+                  </dd>
+                </>
+              )}
+
+
               <dt className="col-span-3 sm:col-span-2 font-medium">Tác giả</dt>
               <dd className="col-span-9 sm:col-span-10">{story.author?.name}</dd>
 

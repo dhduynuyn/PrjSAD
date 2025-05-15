@@ -4,8 +4,11 @@ import HomePage from "./Homepage";
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { AuthProvider } from './AuthContext'; 
 import StoryListPage from './StoryListPage'; 
-import StoryDetailPage from './StoryDetailPage'; 
+//import StoryDetailPage from './StoryDetailPage'; 
+import StoryDetailPage from './Demo/StoryDetailPage-demo'; 
 //import ChapterPage from './ChapterPage'; 
+import ChapterPage from './Demo/ChapterPage-demo'; 
+
 import RegisterPage from './RegisterPage'; 
 import LoginPage from './LoginPage';    
 import Header from './Header';      
@@ -39,7 +42,7 @@ const App = () => {
           <Route index element={<HomePage />} />
             <Route path="/stories/:categorySlug" element={<StoryListPage />} />
              <Route path="/truyen/:storySlug" element={<StoryDetailPage />} />
-             {/*<Route path="/truyen/:storySlug/:chapterSlug" element={<ChapterPage />} />*/}
+             <Route path="/truyen/:storySlug/:chapterSlug" element={<ChapterPage />} />
           </Route>
           <Route element={<MinimalLayout />}>
             <Route path="/register" element={<RegisterPage />} />

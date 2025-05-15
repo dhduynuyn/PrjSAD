@@ -48,43 +48,39 @@ export default function ChapterPage() {
   const [readerSettings, setReaderSettings] = useState(loadSettingsFromStorage());
 
 
-  const fetchChapter = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    console.log(`Fetching chapter: ${storySlug}/${chapterSlug}`);
-    try {
-      // Thay bằng API thật ---
-      // const data = await getChapterDetailsApi(storySlug, chapterSlug);
-      // Giả lập API response
-      const data = await new Promise(resolve => setTimeout(() => resolve({
-        story: {
-          title: `Truyện ${storySlug.replace(/-/g, ' ')}`,
-          slug: storySlug,
-        },
-        chapter: {
-          title: `Chương ${chapterSlug.split('-').pop()}: Tên Chương Giả Lập`,
-          content: `<p>Đây là nội dung của chương truyện. <strong>Rất hấp dẫn!</strong></p><p>Nội dung có thể dài và có nhiều đoạn văn.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>`.repeat(3), // Lặp lại nội dung cho dài
-          updatedAtISO: new Date().toISOString(),
-          views: Math.floor(Math.random() * 1000) + 50, // Lượt xem giả
-          // Thông tin chương trước/sau
-          prevChapterSlug: parseInt(chapterSlug.split('-').pop()) > 1 ? `chuong-${parseInt(chapterSlug.split('-').pop()) - 1}` : null,
-          nextChapterSlug: `chuong-${parseInt(chapterSlug.split('-').pop()) + 1}`, // Giả sử luôn có chương sau để test
-        }
-      }), 800));
+ const fetchChapter = useCallback(async () => {
+  setIsLoading(true);
+  setError(null);
 
-      setChapterDetails(data);
+  try {
+    // GIẢ LẬP DỮ LIỆU THẬT
+    const data = await new Promise(resolve => setTimeout(() => resolve({
+      story: {
+        title: `Truyện ${storySlug.replace(/-/g, ' ')}`,
+        slug: storySlug,
+      },
+      chapter: {
+        title: `Chương 1: Trọng Sinh`,
+        content: `
+<p>Khương Dao trọng sinh rồi.</p>
+<p>Cô ngồi xổm trên bờ ruộng, nhìn vào bóng mình phản chiếu dưới dòng suối trong.</p>
+<p>Trong nước phản chiếu hình ảnh của một bé gái khoảng bảy, tám tuổi, đôi mắt to tròn long lanh, khuôn mặt vẫn còn chút bầu bĩnh trẻ con, nhưng có thể thấy rõ, các nét trên khuôn mặt cô bé rất thanh tú và xinh đẹp.</p>
+<p>Dù mặc quần áo vải thô, nhưng cả người cô bé được chăm chút rất gọn gàng sạch sẽ, quần áo không có lỗ thủng, chắp vá nào, tóc được tết thành hai bím đuôi sam bằng dây màu, cổ đeo một chiếc khóa bạc bình an, mỗi khi đi lại, trang sức bạc va chạm tạo thành âm thanh leng keng, vừa nhìn đã biết là đứa trẻ được chăm sóc kỹ lưỡng.</p>
+<p>Cô có chút không thể tin nổi, vốc nước lên vỗ vào mặt mình.</p>
+<p>Nước suối mùa xuân vẫn còn chút lạnh, thấm vào da, khiến người ta tỉnh táo ngay lập tức.</p>
+<p>Cô chớp chớp mắt, đây không phải là mơ.</p>
+`
+      }
+    }), 1000)); // Delay 1 giây mô phỏng gọi API
 
-      // Ghi nhận lượt xem (không chặn hiển thị nếu lỗi)
-      recordChapterViewApi(storySlug, chapterSlug).catch(err => console.warn("Failed to record view:", err));
+    setChapterDetails(data);
+  } catch (err) {
+    setError('Không thể tải nội dung chương.');
+  } finally {
+    setIsLoading(false);
+  }
+}, [storySlug, chapterSlug]);
 
-    } catch (err) {
-      console.error("Failed to fetch chapter:", err);
-      setError("Không thể tải nội dung chương. Vui lòng thử lại.");
-      setChapterDetails(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [storySlug, chapterSlug]);
 
   useEffect(() => {
     fetchChapter();

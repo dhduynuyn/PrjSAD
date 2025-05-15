@@ -1,12 +1,10 @@
 import React from "react";
 import Slider from "react-slick";
 
-// Import CSS cho react-slick
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-// Import icon (ví dụ dùng react-icons, bạn cần cài đặt: npm install react-icons)
-import { FaUser } from "react-icons/fa"; // Hoặc dùng icon khác bạn thích
+import { FaUser } from "react-icons/fa"; 
 
 // Dữ liệu mẫu (Trong thực tế, bạn sẽ fetch dữ liệu này từ API)
 const storiesData = [
@@ -17,7 +15,9 @@ const storiesData = [
     description: "Xuyên không đến thời cổ đại, Khương Dao nhận được một thân thế đầy buff: một người cha mỹ mạo nh..",
     authorName: "Thế Giới Tiểu Thuyết",
     authorUrl: "https://monkeyd.net.vn/nhom-dich/44605",
-    storyUrl: "https://monkeyd.net.vn/cha-my-nhan-cua-ta-hac-hoa-roi.html",
+    slug: "cha-my-nhan-cua-ta-hac-hoa-roi", 
+    storyUrl: "/truyen/cha-my-nhan-cua-ta-hac-hoa-roi", 
+
   },
   {
     id: 2,

@@ -32,10 +32,10 @@ export default function ChapterListTab({ chapters = [], storySlug }) {
           to={`/truyen/${storySlug}/${chapter.slug}`}
           className="flex justify-between items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
         >
-          <span className="text-sm text-gray-800 dark:text-gray-200 truncate pr-4" title={chapter.name}>
+          <span className="text-sm text-white truncate pr-4" title={chapter.name}>
             {chapter.name}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
+          <span className="text-xs text-white flex-shrink-0">
             {formatRelativeTime(chapter.updatedAtISO)}
           </span>
         </Link>
