@@ -6,7 +6,15 @@ class StoryBUS:
 
     def get_all_stories(self):
         """Get all stories"""
-        return [story.to_dict() for story in self.dao.get_all_stories()]
+        stories = self.dao.get_all_stories()
+        print(f"BUS: {len(stories)}")
+        res = [story.to_dict() for story in stories]
+        print(f"BUS1: {len(res)}")
+        return res
+    
+    def get_chapters_by_story_slug(self, story_slug):
+        story = self.dao.get_story_by_id(story_slug)
+        return story.chapters
 
     def get_story_by_id(self, story_id):
         """Get a story by ID"""

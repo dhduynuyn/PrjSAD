@@ -28,10 +28,11 @@ class StoryDAO:
             story = StoryDTO(*row)
             stories.append(story)
         return stories
-
+    
     def get_story_by_id(self, story_id):
-        """Fetch a story by ID, including team members"""
-        query = '''
+        """Fetch a story by ID, including team members and all chapters"""
+        # Truy vấn thông tin truyện
+        story_query = '''
             SELECT 
                 s.id, s.title, s.author, s.category, s.state, s.description, 
                 s.views, s.likes, s.follows, s.last_updated, s.image_data, s.genres,
@@ -48,24 +49,40 @@ class StoryDAO:
             LEFT JOIN public."Users" u ON u.user_id = ANY(s.team)
             WHERE s.id = %s
             GROUP BY s.id, c.title
-            '''
-        result = self.db.execute_query(query, (story_id,))
-        
-        if result:
-            row = result[0]
-            return StoryDTO(*row)
-        return None
+        '''
+        story_result = self.db.execute_query(story_query, (story_id,))
 
+        if not story_result:
+            return None
+
+        story_row = story_result[0]
+        story_dto = StoryDTO(*story_row)
+        
+
+        # Truy vấn toàn bộ chương
+        chapter_query = '''
+            SELECT chapterid, title, content, last_updated, storyid
+            FROM public."Chapter"
+            WHERE storyid = %s
+            ORDER BY chapterid ASC
+        '''
+        
+        chapter_result = self.db.execute_query(chapter_query, (story_id,))
+
+        columns = ['chapterid', 'title', 'content', 'created_at']
+
+        story_dto.chapters = []
+        for row in chapter_result:
+            row_dict = dict(zip(columns, row))
+            story_dto.chapters.append(row_dict)
             
-        if result:
-            row = result[0]
-            return StoryDTO(*row)
-        return None
+        return story_dto
+
 
 
     def get_chapter_by_id(self, story_id):
         """Fetch chapters by story ID and return as JSON"""
-        query = '''SELECT chapterid, title
+        query = '''SELECT chapterid, title, last_updated
                 FROM public."Chapter"
                 WHERE storyid = %s
                 ORDER BY chapterid ASC'''
@@ -75,9 +92,9 @@ class StoryDAO:
         if result:
             chapters = [
                 {
-                    "id": row[0],
-                    "title": row[1],
-                    "slug": f"chuong-{row[0]}"
+                    "slug": row[0],
+                    "name": row[1],
+                    "updatedAtISO": row[2]
                 }
                 for row in result
             ]

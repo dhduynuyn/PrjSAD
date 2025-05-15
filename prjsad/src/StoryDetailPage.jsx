@@ -47,17 +47,20 @@ export default function StoryDetailPage() {
         id: storyData.id,
         title: storyData.title,
         coverUrl: storyData.coverUrl || (storyData.image_data ? `data:image/jpeg;base64,${storyData.image_data}` : ''),
+        updatedAtText: storyData.last_updated || "",
         author: storyData.author || { name: 'N/A' },
         genres: storyData.genres || [],
         views: storyData.views || 0,
         favorites: storyData.favorites || 0,
         followers: storyData.followers || 0,
         status: storyData.status || '',
+        chapter: storyData.chapters || [],
         description: storyData.description || '',
         translatorTeam: storyData.translatorTeam
           ? {
               name: storyData.translatorTeam.name || 'N/A',
-              url: storyData.translatorTeam.url || '',
+              url: "nhom-dich/" + storyData.translatorTeam.url || '',
+              id: storyData.translatorTeam.id || '',
             }
           : null,
       });
@@ -65,7 +68,7 @@ export default function StoryDetailPage() {
       setChapters(chaptersData || []);
       setRelatedStories(relatedData || []);
 
-      console.log("AUTHEN: ", isAuthenticated);
+      console.log("CHECK: ", isAuthenticated);
 
       // Nếu cần lấy trạng thái yêu thích/theo dõi thì gọi thêm fetch nữa.
       if (isAuthenticated) {
