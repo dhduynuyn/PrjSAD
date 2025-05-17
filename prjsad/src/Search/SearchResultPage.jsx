@@ -70,7 +70,7 @@ export default function SearchResultPage() {
   const handlePageChange = (page) => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('page', page.toString());
-    navigate(`?${newSearchParams.toString()}`, { replace: true }); // { replace: true } để không tạo entry mới trong history
+    navigate(`?${newSearchParams.toString()}`, { replace: true }); 
     window.scrollTo(0, 0);
   };
 

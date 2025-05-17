@@ -1,6 +1,7 @@
 import React from 'react';
 import HomePage from "./Homepage";
 
+import TeamListPage from './TeamListPage';
 import { BrowserRouter, Routes, Route, Outlet, Link} from 'react-router-dom';
 import { AuthProvider } from './AuthContext'; 
 import StoryListPage from './StoryListPage'; 
@@ -49,6 +50,7 @@ const App = () => {
              <Route path="/truyen/:storySlug/:chapterSlug" element={<ChapterPage />} />
              <Route path="/tim-kiem-nang-cao" element={<AdvancedSearchPage />} />
              <Route path="/search-results" element={<SearchResultPage />} /> 
+             <Route path="/teams" element={<TeamListPage />} /> 
           {/*</Route>
           <Route element={<MinimalLayout />}>*/}
             <Route path="/register" element={<RegisterPage />} />

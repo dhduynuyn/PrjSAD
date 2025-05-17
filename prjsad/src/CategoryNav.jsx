@@ -112,13 +112,13 @@ export default function CategoryNav() {
 
           {/* Team */}
           <li className="nav-item">
-            <a
-              href="https://www.monkeyd.com.vn/danh-sach-nhom-dich"
+            <Link
+              to="/teams"
               className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
             >
               <BsPeople size={18} /> {/* Icon Team */}
               Team
-            </a>
+            </Link>
           </li>
 
           {/* Tìm kiếm nâng cao */}
