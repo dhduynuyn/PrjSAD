@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import StoryGrid from '../StoryGrid'; 
 import Pagination from '../Pagination';
-import SidebarRankings from '../SidebarRankings'; 
-import {getGenresApi, getTagsApi } from './searchApi';
+import {searchStoriesAdvancedApi, getGenresApi, getTagsApi } from './searchApi';
 import { FiLoader } from 'react-icons/fi';
 
 export default function SearchResultPage() {
@@ -43,7 +42,7 @@ export default function SearchResultPage() {
             apiParams[key] = searchParams.get(key);
         }
     }
-    apiParams.page = pageToFetch; 
+    apiParams.page = page;
     setSearchQueryDisplay(apiParams.q || '');
 
      console.log(`Fetching search results with params:`, apiParams);
@@ -115,7 +114,6 @@ export default function SearchResultPage() {
           )}
         </div>
         <div className="w-full md:w-1/3 lg:w-1/4">
-          <SidebarRankings />
         </div>
       </div>
     </div>
