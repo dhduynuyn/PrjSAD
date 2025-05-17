@@ -77,8 +77,6 @@ const ALL_MOCK_STORIES = Array.from({ length: 100 }, (_, i) => {
     const genresForStory = MOCK_GENRES.filter(() => Math.random() > 0.7).slice(0, 3); // Ngẫu nhiên 0-3 thể loại
     const tagsForStory = MOCK_TAGS.filter(() => Math.random() > 0.6).slice(0, 4); // Ngẫu nhiên 0-4 tags
 
-    console.log("Genres for story:", genresForStory);
-
     return {
         id: `story-id-${i + 1}`,
         slug: `truyen-gia-lap-${i + 1}`,
@@ -103,103 +101,171 @@ const ALL_MOCK_STORIES = Array.from({ length: 100 }, (_, i) => {
 
 // Số lượng truyện mỗi trang
 const ITEMS_PER_PAGE = 12;
-
+import axios from 'axios';
 
 export const searchStoriesAdvancedApi = async (params) => {
-  console.log("API Call (Mocked): searchStoriesAdvancedApi with params", params);
+  console.log("API Call (Updated): searchStoriesAdvancedApi with params", params);
 
-  return new Promise(resolve => setTimeout(() => {
-    let filteredStories = [...ALL_MOCK_STORIES];
+  const CATEGORY_KEYS = [
+    'status',
+    'official',
+    'genderTarget',
+    'age',
+    'ending',
+    'genres',
+    'tags',
+    'excludedTags'
+  ];
 
-    // 1. Lọc theo keyword (tên truyện hoặc tác giả)
-    if (params.q) {
-      const keywordLower = params.q.toLowerCase();
-      filteredStories = filteredStories.filter(story =>
-        story.title.toLowerCase().includes(keywordLower) ||
-        story.author.name.toLowerCase().includes(keywordLower)
-      );
+const filteredStories = (id) => {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", `http://localhost:5000/categories/${id}`, false); // false = đồng bộ
+  try {
+    xhr.send(null);
+    if (xhr.status === 200) {
+      const json = JSON.parse(xhr.responseText);
+      // Nếu json là mảng, trả về luôn, nếu là object có property storyIds thì trả về property đó
+      return Array.isArray(json) ? json : (json.storyIds || []);
+    } else {
+      console.error(`Error fetching category ${id}: status ${xhr.status}`);
+      return [];
+    }
+  } catch (error) {
+    console.error(`Error fetching category ${id}:`, error);
+    return [];
+  }
+};
+
+  const allCategoryStoryIdSets = [];
+
+  // 1. Lặp qua từng key chứa ID
+  for (const key of CATEGORY_KEYS) {
+  const ids = params[key];
+  if (ids && ids.length > 0) {
+    const storyIdLists = ids.map(id => {
+      return filteredStories(id);
+    });
+    const mergedIds = storyIdLists.reduce((acc, list) => acc.concat(list), []);
+  
+    if (key === 'excludedTags') {
+      allCategoryStoryIdSets.push({ exclude: true, ids: new Set(mergedIds) });
+    } else {
+      allCategoryStoryIdSets.push({ exclude: false, ids: new Set(mergedIds) });
+    }
+  }
+}
+
+  console.log("All category story ID sets:", allCategoryStoryIdSets);
+
+  // 2. Giao nhau các danh sách storyId
+  let finalStoryIds = null;
+
+  for (const entry of allCategoryStoryIdSets) {
+    if (entry.exclude) continue; // Bỏ qua lúc này, sẽ xử lý sau
+
+    if (finalStoryIds === null) {
+      finalStoryIds = new Set(entry.ids);
+    } else {
+      finalStoryIds = new Set([...finalStoryIds].filter(id => entry.ids.has(id)));
     }
 
-    // 2. Lọc theo status (Tình trạng)
-    if (params.status && params.status.length > 0) {
-      filteredStories = filteredStories.filter(story => params.status.includes(story.status));
-    }
+    console.log(`After processing ${entry.exclude ? 'excludedTags' : 'included tags'}:`, finalStoryIds);
+  }
 
-    // 3. Lọc theo officialType (Tính chất)
-    if (params.official && params.official.length > 0) {
-      filteredStories = filteredStories.filter(story => params.official.includes(story.officialType));
-    }
+  if (!finalStoryIds) {
+    finalStoryIds = new Set(); // Nếu không có filter nào => rỗng
+  }
 
-    // 4. Lọc theo genderTarget (Loại truyện)
-    if (params.genderTarget && params.genderTarget.length > 0) {
-      filteredStories = filteredStories.filter(story => params.genderTarget.includes(story.genderTarget));
+  // 3. Trừ excludedTags
+  for (const entry of allCategoryStoryIdSets) {
+    if (entry.exclude) {
+      finalStoryIds = new Set([...finalStoryIds].filter(id => !entry.ids.has(id)));
     }
+  }
 
-    // 5. Lọc theo age (Thời đại)
-    if (params.age && params.age.length > 0) {
-      filteredStories = filteredStories.filter(story => params.age.includes(story.age));
-    }
+  console.log("Final story IDs after filtering:", finalStoryIds);
 
-    // 6. Lọc theo ending (Kết thúc)
-    if (params.ending && params.ending.length > 0) {
-      filteredStories = filteredStories.filter(story => params.ending.includes(story.ending));
+  const fetchStoryByIdSync = (id) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", `http://localhost:5000/stories/${id}`, false); // false = đồng bộ
+    try {
+      xhr.send(null);
+      if (xhr.status === 200) {
+        const data = JSON.parse(xhr.responseText);
+        return {
+          id: data.id,
+          slug: data.id,
+          title: data.title,
+          coverUrl: data.coverUrl || (data.image_data ? `data:image/jpeg;base64,${data.image_data}` : ''),
+          views: data.views,
+          bookmarks: data.followers,
+          latestChapter: { name: data.latestChapter },
+          // Thêm các thuộc tính để filter
+          status: data.status,
+          totalChaptersNum: data.chapters.length,
+          author: { name: `Tác Giả ${data.author}` }
+        };
+      } else {
+        console.error(`Error fetching story ${id}: status ${xhr.status}`);
+        return null;
+      }
+    } catch (error) {
+      console.error(`Error fetching story ${id}:`, error);
+      return null;
     }
+  };
 
-    // 7. Lọc theo genres (Thể loại - truyện phải chứa TẤT CẢ các genre đã chọn)
-    if (params.genres && params.genres.length > 0) {
-      filteredStories = filteredStories.filter(story =>
-        params.genres.every(genreId => story.genres.includes(genreId))
-      );
-    }
+  const storyDetails = [];
+  for (const id of finalStoryIds) {
+    const story = fetchStoryByIdSync(id);
+    if (story) storyDetails.push(story);
+  }
 
-    // 8. Lọc theo tags (bao gồm - truyện phải chứa TẤT CẢ các tag đã chọn)
-    if (params.tags && params.tags.length > 0) {
-      filteredStories = filteredStories.filter(story =>
-        params.tags.every(tagId => story.tags.includes(tagId))
-      );
-    }
+  console.log("Fetched story details:", storyDetails);
 
-    // 9. Lọc theo excludedTags (loại trừ - truyện KHÔNG ĐƯỢC chứa BẤT KỲ tag nào đã chọn)
-    if (params.excludedTags && params.excludedTags.length > 0) {
-      filteredStories = filteredStories.filter(story =>
-        !params.excludedTags.some(tagId => story.tags.includes(tagId))
-      );
-    }
 
-    // 10. Lọc theo totalChapters (Độ dài)
-    if (params.tc) {
-        const tcValue = parseInt(params.tc);
-        filteredStories = filteredStories.filter(story => {
-            switch(tcValue) {
-                case 1: return story.totalChaptersNum >= 1 && story.totalChaptersNum <= 20;
-                case 2: return story.totalChaptersNum >= 21 && story.totalChaptersNum <= 50;
-                case 3: return story.totalChaptersNum >= 51 && story.totalChaptersNum <= 100;
-                case 4: return story.totalChaptersNum >= 101 && story.totalChaptersNum <= 200;
-                case 5: return story.totalChaptersNum >= 201 && story.totalChaptersNum <= 300;
-                case 6: return story.totalChaptersNum >= 301 && story.totalChaptersNum <= 500;
-                case 7: return story.totalChaptersNum >= 501 && story.totalChaptersNum <= 1000;
-                case 8: return story.totalChaptersNum > 1000;
-                default: return true;
-            }
-        });
-    }
+  // // 5. Lọc theo keyword (tên truyện hoặc tác giả)
+  // if (params.q) {
+  //   const keywordLower = params.q.toLowerCase();
+  //   filteredStories = filteredStories.filter(story =>
+  //     story.title.toLowerCase().includes(keywordLower) ||
+  //     story.author.name.toLowerCase().includes(keywordLower)
+  //   );
+  // }
+
+  // // 6. Lọc theo độ dài truyện (tc)
+  // if (params.tc) {
+  //   const tcValue = parseInt(params.tc);
+  //   filteredStories = filteredStories.filter(story => {
+  //     switch(tcValue) {
+  //       case 1: return story.totalChaptersNum >= 1 && story.totalChaptersNum <= 20;
+  //       case 2: return story.totalChaptersNum >= 21 && story.totalChaptersNum <= 50;
+  //       case 3: return story.totalChaptersNum >= 51 && story.totalChaptersNum <= 100;
+  //       case 4: return story.totalChaptersNum >= 101 && story.totalChaptersNum <= 200;
+  //       case 5: return story.totalChaptersNum >= 201 && story.totalChaptersNum <= 300;
+  //       case 6: return story.totalChaptersNum >= 301 && story.totalChaptersNum <= 500;
+  //       case 7: return story.totalChaptersNum >= 501 && story.totalChaptersNum <= 1000;
+  //       case 8: return story.totalChaptersNum > 1000;
+  //       default: return true;
+  //     }
+  //   });
+  // }
 
     // Phân trang
     const page = parseInt(params.page || '1');
-    const totalItems = filteredStories.length;
+    const totalItems = storyDetails.length;
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
     const startIndex = (page - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    const paginatedStories = filteredStories.slice(startIndex, endIndex);
+    const paginatedStories = storyDetails.slice(startIndex, endIndex);
 
-    resolve({
-      data: paginatedStories,
-      meta: {
-        currentPage: page,
-        lastPage: totalPages,
-        totalItems: totalItems,
-        perPage: ITEMS_PER_PAGE
-      }
-    });
-  }, 800)); // Giả lập độ trễ mạng
+  return {
+    data: paginatedStories,
+    meta: {
+      currentPage: page,
+      lastPage: totalPages,
+      totalItems: totalItems,
+      perPage: ITEMS_PER_PAGE
+    }
+  };
 };

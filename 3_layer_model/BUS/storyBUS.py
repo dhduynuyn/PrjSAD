@@ -56,3 +56,7 @@ class StoryBUS:
     
     def get_categories_by_defined(self, defined):
         return self.dao.get_categories_by_defined(defined)
+    
+    def get_stories_id_by_category(self, category_id):
+        """Get stories by category ID"""
+        return self.dao.get_stories_id_by_category(category_id)

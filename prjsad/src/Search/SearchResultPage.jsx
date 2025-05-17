@@ -100,7 +100,7 @@ export default function SearchResultPage() {
              <p className="text-center text-gray-500 dark:text-gray-400">Không tìm thấy truyện nào.</p>
           )}
            {!isLoading && !error && stories.length === 0 && !searchQueryDisplay && (
-             <p className="text-center text-gray-500 dark:text-gray-400">Vui lòng nhập từ khóa hoặc chọn bộ lọc để tìm kiếm.</p>
+             <p className="text-center text-gray-500 dark:text-gray-400"></p>
           )}
           {!isLoading && !error && stories.length > 0 && (
             <>

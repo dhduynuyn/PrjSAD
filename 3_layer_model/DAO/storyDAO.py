@@ -238,3 +238,14 @@ class StoryDAO:
             } for row in results
         ]
         return categories
+    
+    def get_stories_id_by_category(self, category_id):
+        """Get stories by category ID"""
+        query = '''SELECT stories
+                FROM public."StoryCategory"
+                WHERE id = %s'''
+        
+        results = self.db.execute_query(query, (category_id,))
+        
+        stories = results[0][0] if results else None
+        return stories

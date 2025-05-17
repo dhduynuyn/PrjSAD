@@ -50,6 +50,14 @@ def add_story():
     story_id = story_bus.add_story(title, author, category, status, description)
     return jsonify({"message": "Story added successfully", "story_id": story_id}), 201
 
+@app.route('/categories/<int:categoryid>', methods=['GET'])
+def get_stories_id_by_category(categoryid):
+    """Get stories by category ID"""
+    stories = story_bus.get_stories_id_by_category(categoryid)
+    if stories:
+        return jsonify(stories), 200
+    return jsonify([]), 404
+
 PER_PAGE = 12
 
 @app.route('/stories/paginated', methods=['GET'])
@@ -333,7 +341,6 @@ def get_categories():
 def get_tags():
     result = story_bus.get_categories_by_defined(True)
     return jsonify(result), 200
-
 
 if __name__ == '__main__':
     app.run(debug=True)
