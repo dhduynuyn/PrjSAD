@@ -210,12 +210,31 @@ class StoryDAO:
     
     def get_categories(self):
         """Fetch stories by status"""
-        query = '''SELECT DISTINCT UNNEST(genres) AS genre
-                FROM public."Story" 
-                WHERE genres IS NOT NULL'''
+        query = '''SELECT id, categoryname
+                FROM public."StoryCategory" '''
         results = self.db.execute_query(query)
-        
+
+        categories = [
+            {
+                "id": row[0],
+                "label": row[1]    
+            } for row in results
+        ]
+        return categories
+    
+    def get_categories_by_defined(self, defined):
+        """Fetch stories by status"""
+        query = '''SELECT id, categoryname
+                FROM public."StoryCategory" 
+                WHERE user_defined = %s'''
+        results = self.db.execute_query(query, (defined,))
+
         print(results)
         
-        categories = [row[0] for row in results]
+        categories = [
+            {
+                "id": row[0],
+                "label": row[1]    
+            } for row in results
+        ]
         return categories

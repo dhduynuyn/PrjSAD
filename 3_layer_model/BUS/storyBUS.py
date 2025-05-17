@@ -53,3 +53,6 @@ class StoryBUS:
     
     def get_categories(self):
         return self.dao.get_categories()
+    
+    def get_categories_by_defined(self, defined):
+        return self.dao.get_categories_by_defined(defined)

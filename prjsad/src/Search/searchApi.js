@@ -1,29 +1,14 @@
 // --- Dữ liệu giả lập cho Genres và Tags ---
 const MOCK_GENRES = [
-  { id: 6, label: 'Xuyên Sách' },
-  { id: 7, label: 'Trọng Sinh' },
-  { id: 8, label: 'Xuyên Không' },
-  { id: 9, label: 'Hệ Thống' },
-  { id: 10, label: 'Showbiz' },
-  { id: 11, label: 'Sảng Văn' },
-  { id: 12, label: 'Ngược' },
-  { id: 13, label: 'Ngược Luyến Tàn Tâm' },
-  { id: 14, label: 'Đọc Tâm' },
-];
-
-const MOCK_TAGS = [
-  { id: 'he-thong', name: 'Hệ Thống', count: 123 },
-  { id: 'cung-dau', name: 'Cung Đấu', count: 88 },
-  { id: 'nu-cuong', name: 'Nữ Cường', count: 210 },
-  { id: 'sung', name: 'Sủng', count: 190 },
-  { id: 'nguoc', name: 'Ngược', count: 70 },
-  { id: '1v1', name: '1v1', count: 350 },
-  { id: 'he', name: 'HE', count: 400 },
-  { id: 'se', name: 'SE', count: 30 },
-  { id: 'xuyen-thu', name: 'Xuyên thư', count: 95 },
-  { id: 'mat-the', name: 'Mạt thế', count: 60 },
-  { id: 'di-nang', name: 'Dị năng', count: 110 },
-  { id: 'manh-bao', name: 'Manh bảo', count: 75 },
+  { id: 3, label: 'Xuyên Sách' },
+  { id: 4, label: 'Trọng Sinh' },
+  { id: 5, label: 'Xuyên Không' },
+  { id: 6, label: 'Hệ Thống' },
+  { id: 7, label: 'Showbiz' },
+  { id: 8, label: 'Sảng Văn' },
+  { id: 9, label: 'Ngược' },
+  { id: 10, label: 'Ngược Luyến Tàn Tâm' },
+  { id: 11, label: 'Đọc Tâm' },
 ];
 
 export const getGenresApi = async () => {
@@ -31,43 +16,68 @@ export const getGenresApi = async () => {
   return new Promise(resolve => setTimeout(() => resolve(MOCK_GENRES), 200));
 };
 
+let MOCK_TAGS = [];
+
 export const getTagsApi = async () => {
-  console.log("API Call (Mocked): getTagsApi");
-  return new Promise(resolve => setTimeout(() => resolve(MOCK_TAGS), 250));
+  try {
+    const response = await fetch('http://localhost:5000/stories/tags');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    MOCK_TAGS = data; // Gán vào biến toàn cục
+    return MOCK_TAGS;
+  } catch (error) {
+    console.error("Lỗi khi gọi API getTagsApi:", error);
+    return MOCK_TAGS; // Trả về cái hiện có (có thể rỗng)
+  }
 };
+
+// Cho phép module khác truy cập MOCK_TAGS nếu cần
+export { MOCK_TAGS };
 
 // --- MOVE THESE CONSTANTS UP ---
 const STATUS_OPTIONS = [
-  { id: 'completed', label: 'Hoàn thành' },
-  { id: 'ongoing', label: 'Còn tiếp' },
-  { id: 'paused', label: 'Tạm ngưng' },
+  { id: 28, label: 'Đã đủ bộ' },
+  { id: 35, label: 'Đang phát hành' },
+  { id: 36, label: 'Tạm ngưng' },
 ];
+
 const OFFICIAL_OPTIONS = [
-  { id: 'original', label: 'Nguyên sang' },
-  { id: 'derivative', label: 'Diễn sinh' },
+  { id: 1, label: 'Nguyên sang' },
+  { id: 2, label: 'Diễn sinh' },
+
 ];
+
 const GENDER_TARGET_OPTIONS = [
-  { id: 'ngon-tinh', label: 'Ngôn tình' },
-  { id: 'nam-sinh', label: 'Nam sinh' },
-  { id: 'dam-my', label: 'Đam mỹ' },
-  { id: 'bach-hop', label: 'Bách hợp' },
+  { id: 12, label: 'Ngôn Tình' },
+  { id: 13, label: 'Đam Mỹ' },
+  { id: 14, label: 'Bách Hợp' },
+  { id: 15, label: 'Nam sinh' },
+  { id: 16, label: 'Không CP' },
 ];
+
 const AGE_OPTIONS = [
-  { id: 'co-dai', label: 'Cổ đại' },
-  { id: 'can-dai', label: 'Cận đại' },
-  { id: 'hien-dai', label: 'Hiện đại' },
-  { id: 'tuong-lai', label: 'Tương lai' },
+  { id: 17, label: 'Cổ Đại' },
+  { id: 18, label: 'Cận Đại' },
+  { id: 19, label: 'Hiện Đại' },
+  { id: 20, label: 'Tương Lai' },
+  { id: 21, label: 'Niên Đại' },
 ];
+
 const ENDING_OPTIONS = [
-  { id: 'he', label: 'HE' },
-  { id: 'se', label: 'SE' },
-  { id: 'oe', label: 'OE' },
+  { id: 22, label: 'HE' },
+  { id: 23, label: 'SE' },
+  { id: 24, label: 'OE' },
+  { id: 25, label: 'BE' },
 ];
 
 // --- Hàm giả lập cho tìm kiếm nâng cao ---
 const ALL_MOCK_STORIES = Array.from({ length: 100 }, (_, i) => {
     const genresForStory = MOCK_GENRES.filter(() => Math.random() > 0.7).slice(0, 3); // Ngẫu nhiên 0-3 thể loại
     const tagsForStory = MOCK_TAGS.filter(() => Math.random() > 0.6).slice(0, 4); // Ngẫu nhiên 0-4 tags
+
+    console.log("Genres for story:", genresForStory);
 
     return {
         id: `story-id-${i + 1}`,

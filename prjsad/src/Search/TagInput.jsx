@@ -10,9 +10,11 @@ export default function TagInput({
   const [searchTerm, setSearchTerm] = useState('');
   const [showAll, setShowAll] = useState(false);
 
-  const filteredTags = availableTags.filter(tag =>
-    tag.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
+  const filteredTags = availableTags.filter(tag => {
+  return tag.label.toLowerCase().includes(searchTerm.toLowerCase());
+});
+
 
   // Hiển thị các tag đã chọn trước, sau đó đến các tag chưa chọn và được filter
   const sortedAndFilteredTags = [...availableTags].sort((a, b) => {
@@ -21,7 +23,7 @@ export default function TagInput({
       if (aSelected && !bSelected) return -1;
       if (!aSelected && bSelected) return 1;
       return 0;
-  }).filter(tag => tag.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  }).filter(tag => tag.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
 
   const tagsToShow = showAll ? sortedAndFilteredTags : sortedAndFilteredTags.slice(0, 15); // Giới hạn số tag hiển thị ban đầu
@@ -49,8 +51,8 @@ export default function TagInput({
               onChange={() => onTagToggle(tag.id)}
               className="form-checkbox h-3.5 w-3.5 text-sky-600 border-gray-300 rounded focus:ring-sky-500 dark:bg-gray-700 dark:border-gray-600 dark:checked:bg-sky-500"
             />
-            <span className="text-gray-700 dark:text-gray-200 truncate" title={tag.name}>
-                {tag.name} {tag.count ? `(${tag.count})` : ''}
+            <span className="text-gray-700 dark:text-gray-200 truncate" title={tag.label}>
+                {tag.label} {tag.count ? `(${tag.count})` : ''}
             </span>
           </label>
         ))}

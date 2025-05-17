@@ -329,5 +329,11 @@ def get_categories():
     result = story_bus.get_categories()
     return jsonify(result), 200
 
+@app.route("/stories/tags", methods=["GET"])
+def get_tags():
+    result = story_bus.get_categories_by_defined(True)
+    return jsonify(result), 200
+
+
 if __name__ == '__main__':
     app.run(debug=True)
