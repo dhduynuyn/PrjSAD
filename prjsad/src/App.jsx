@@ -7,6 +7,7 @@ import StoryListPage from './StoryListPage';
 //import StoryDetailPage from './StoryDetailPage'; 
 import StoryDetailPage from './Demo/StoryDetailPage-demo'; 
 //import ChapterPage from './ChapterPage'; 
+import SearchResultPage from './Search/SearchResultPage';
 import ChapterPage from './Demo/ChapterPage-demo'; 
 import AdvancedSearchPage from './AdvancedSearchPage';
 import RegisterPage from './RegisterPage'; 
@@ -47,6 +48,7 @@ const App = () => {
              <Route path="/truyen/:storySlug" element={<StoryDetailPage />} />
              <Route path="/truyen/:storySlug/:chapterSlug" element={<ChapterPage />} />
              <Route path="/tim-kiem-nang-cao" element={<AdvancedSearchPage />} />
+             <Route path="/search-results" element={<SearchResultPage />} /> 
           {/*</Route>
           <Route element={<MinimalLayout />}>*/}
             <Route path="/register" element={<RegisterPage />} />

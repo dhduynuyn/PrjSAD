@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import SearchForm from './Search/SearchForm';
-import SearchResults from './Search/SearchResults';
-//import { searchStoriesAdvancedApi, getGenresApi, getTagsApi } from '../api/searchApi';
+import {getGenresApi, getTagsApi } from './Search/searchApi';
 
 const initialFilters = {
     keyword: '',
@@ -18,13 +17,14 @@ const initialFilters = {
 };
 
 export default function AdvancedSearchPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   // Đọc filter từ URL hoặc dùng giá trị mặc định
   const [filters, setFilters] = useState(() => {
     const newFilters = { ...initialFilters };
     for (const key in newFilters) {
+       const paramKey = key === 'keyword' ? 'q' : (key === 'totalChapters' ? 'tc' : key); // Key cho URL
         if (Array.isArray(newFilters[key])) {
             newFilters[key] = searchParams.getAll(key) || [];
         } else {
@@ -35,12 +35,12 @@ export default function AdvancedSearchPage() {
   });
 
 
-  const [searchResults, setSearchResults] = useState([]);
-  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1'));
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [hasSearched, setHasSearched] = useState(false); // Để biết người dùng đã nhấn nút tìm kiếm hay chưa
+  //const [searchResults, setSearchResults] = useState([]);
+  //const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1'));
+  //const [totalPages, setTotalPages] = useState(1);
+  const [isLoadingForm, setIsLoadingForm] = useState(false);
+  //const [error, setError] = useState(null);
+  //const [hasSearched, setHasSearched] = useState(false); // Để biết người dùng đã nhấn nút tìm kiếm hay chưa
 
   const [availableGenres, setAvailableGenres] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
@@ -56,77 +56,33 @@ export default function AdvancedSearchPage() {
         setAvailableTags(tagsData || []);
       } catch (err) {
         console.error("Failed to fetch filter options:", err);
+      } finally {
+        setIsLoadingForm(false);
       }
     };
     fetchFilterData();
   }, []);
 
-
-  const performSearch = useCallback(async (pageToFetch = 1, currentFilters) => {
-    setIsLoading(true);
-    setError(null);
-    setHasSearched(true);
-
-    const paramsToSubmit = { ...currentFilters, page: pageToFetch };
-
-    // Cập nhật URL query params
+  const handleSubmitSearch = () => {
     const newSearchParams = new URLSearchParams();
-    for (const key in currentFilters) {
-        if (Array.isArray(currentFilters[key])) {
-            currentFilters[key].forEach(val => newSearchParams.append(key, val));
-        } else if (currentFilters[key]) {
-            newSearchParams.set(key, currentFilters[key]);
+    for (const key in filters) {
+        const value = filters[key];
+        const paramKey = key === 'keyword' ? 'q' : (key === 'totalChapters' ? 'tc' : key);
+
+        if (Array.isArray(value) && value.length > 0) {
+            value.forEach(val => newSearchParams.append(paramKey, val));
+        } else if (!Array.isArray(value) && value) {
+            newSearchParams.set(paramKey, value);
         }
     }
-    if (pageToFetch > 1) newSearchParams.set('page', pageToFetch.toString());
-    navigate(`?${newSearchParams.toString()}`, { replace: true });
-
-
-    console.log("Searching with params:", paramsToSubmit);
-    try {
-      const response = await searchStoriesAdvancedApi(paramsToSubmit); // Gọi API thật
-      setSearchResults(response.data || []);
-      setCurrentPage(response.meta?.currentPage || 1);
-      setTotalPages(response.meta?.lastPage || 1);
-    } catch (err) {
-      console.error("Search failed:", err);
-      setError("Tìm kiếm thất bại. Vui lòng thử lại.");
-      setSearchResults([]);
-      setTotalPages(1);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [navigate]);
-
-  // Tự động tìm kiếm nếu có query params trên URL khi tải trang lần đầu
-  useEffect(() => {
-      const hasInitialFilters = Object.values(filters).some(value =>
-          Array.isArray(value) ? value.length > 0 : !!value
-      );
-      if (hasInitialFilters) {
-          performSearch(currentPage, filters);
-      }
-  }, []); // Chỉ chạy một lần khi mount để xử lý initial search
-
-
-  const handleSubmitSearch = () => {
-    setCurrentPage(1); // Reset về trang 1 khi tìm kiếm mới
-    performSearch(1, filters);
+    // Khi tìm kiếm mới từ form, luôn bắt đầu từ trang 1
+    newSearchParams.set('page', '1');
+    navigate(`/search-results?${newSearchParams.toString()}`);
   };
 
   const handleResetFilters = () => {
     setFilters(initialFilters);
-    setCurrentPage(1);
-    setSearchResults([]);
-    setTotalPages(1);
-    setHasSearched(false);
-    navigate('/tim-kiem-nang-cao', { replace: true });
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    performSearch(page, filters);
-    window.scrollTo(0, 0);
+    navigate('/tim-kiem-nang-cao', { replace: true }); // Xóa query params khỏi URL
   };
 
   return (
@@ -141,19 +97,9 @@ export default function AdvancedSearchPage() {
         setFilters={setFilters} // Truyền hàm setFilters để SearchForm có thể cập nhật
         onSubmit={handleSubmitSearch}
         onReset={handleResetFilters}
-        isLoading={isLoading}
+        isLoading={isLoadingForm}
         availableGenres={availableGenres}
         availableTags={availableTags}
-      />
-
-      <SearchResults
-        results={searchResults}
-        isLoading={isLoading && hasSearched} // Chỉ hiển thị loading của results nếu đã thực hiện tìm kiếm
-        error={error}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        hasSearched={hasSearched}
       />
     </div>
   );

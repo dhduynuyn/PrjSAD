@@ -91,7 +91,6 @@ export default function SearchForm({
       <CheckboxGroup title="Kết thúc" options={ENDING_OPTIONS} selectedValues={filters.ending} onChange={(e) => handleCheckboxChange('ending', e.target.value)} name="ending"/>
       <div className="border-t border-gray-200 dark:border-gray-700 !mt-3 !mb-3"></div>
 
-      {/* Thể loại (dùng CheckboxGroup hoặc TagInput nếu danh sách dài) */}
       <CheckboxGroup title="Thể loại" options={availableGenres} selectedValues={filters.genres} onChange={(e) => handleCheckboxChange('genres', e.target.value)} name="genres" gridCols="grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"/>
       <div className="border-t border-gray-200 dark:border-gray-700 !mt-3 !mb-3"></div>
 

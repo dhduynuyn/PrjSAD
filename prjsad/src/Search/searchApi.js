@@ -1,15 +1,15 @@
 // --- Dữ liệu giả lập cho Genres và Tags ---
 const MOCK_GENRES = [
-  { id: 'ngon-tinh', name: 'Ngôn Tình' },
-  { id: 'tien-hiep', name: 'Tiên Hiệp' },
-  { id: 'huyen-huyen', name: 'Huyền Huyễn' },
-  { id: 'do-thi', name: 'Đô Thị' },
-  { id: 'xuyen-khong', name: 'Xuyên Không' },
-  { id: 'trong-sinh', name: 'Trọng Sinh' },
-  { id: 'hai-huoc', name: 'Hài Hước' },
-  { id: 'co-dai', name: 'Cổ Đại' },
-  { id: 'kinh-di', name: 'Kinh Dị' },
-  { id: 'trinh-tham', name: 'Trinh Thám' },
+  { id: 'ngon-tinh', label: 'Ngôn Tình' },
+  { id: 'tien-hiep', label: 'Tiên Hiệp' },
+  { id: 'huyen-huyen', label: 'Huyền Huyễn' },
+  { id: 'do-thi', label: 'Đô Thị' },
+  { id: 'xuyen-khong', label: 'Xuyên Không' },
+  { id: 'trong-sinh', label: 'Trọng Sinh' },
+  { id: 'hai-huoc', label: 'Hài Hước' },
+  { id: 'co-dai', label: 'Cổ Đại' },
+  { id: 'kinh-di', label: 'Kinh Dị' },
+  { id: 'trinh-tham', label: 'Trinh Thám' },
 ];
 
 const MOCK_TAGS = [
@@ -37,6 +37,33 @@ export const getTagsApi = async () => {
   return new Promise(resolve => setTimeout(() => resolve(MOCK_TAGS), 250));
 };
 
+// --- MOVE THESE CONSTANTS UP ---
+const STATUS_OPTIONS = [
+  { id: 'completed', label: 'Hoàn thành' },
+  { id: 'ongoing', label: 'Còn tiếp' },
+  { id: 'paused', label: 'Tạm ngưng' },
+];
+const OFFICIAL_OPTIONS = [
+  { id: 'original', label: 'Nguyên sang' },
+  { id: 'derivative', label: 'Diễn sinh' },
+];
+const GENDER_TARGET_OPTIONS = [
+  { id: 'ngon-tinh', label: 'Ngôn tình' },
+  { id: 'nam-sinh', label: 'Nam sinh' },
+  { id: 'dam-my', label: 'Đam mỹ' },
+  { id: 'bach-hop', label: 'Bách hợp' },
+];
+const AGE_OPTIONS = [
+  { id: 'co-dai', label: 'Cổ đại' },
+  { id: 'can-dai', label: 'Cận đại' },
+  { id: 'hien-dai', label: 'Hiện đại' },
+  { id: 'tuong-lai', label: 'Tương lai' },
+];
+const ENDING_OPTIONS = [
+  { id: 'he', label: 'HE' },
+  { id: 'se', label: 'SE' },
+  { id: 'oe', label: 'OE' },
+];
 
 // --- Hàm giả lập cho tìm kiếm nâng cao ---
 const ALL_MOCK_STORIES = Array.from({ length: 100 }, (_, i) => {
@@ -64,32 +91,7 @@ const ALL_MOCK_STORIES = Array.from({ length: 100 }, (_, i) => {
     };
 });
 
-const STATUS_OPTIONS = [
-  { id: 'completed', label: 'Hoàn thành' },
-  { id: 'ongoing', label: 'Còn tiếp' },
-  { id: 'paused', label: 'Tạm ngưng' },
-];
-const OFFICIAL_OPTIONS = [
-  { id: 'original', label: 'Nguyên sang' },
-  { id: 'derivative', label: 'Diễn sinh' },
-];
-const GENDER_TARGET_OPTIONS = [
-  { id: 'ngon-tinh', label: 'Ngôn tình' },
-  { id: 'nam-sinh', label: 'Nam sinh' },
-  { id: 'dam-my', label: 'Đam mỹ' },
-  { id: 'bach-hop', label: 'Bách hợp' },
-];
-const AGE_OPTIONS = [
-  { id: 'co-dai', label: 'Cổ đại' },
-  { id: 'can-dai', label: 'Cận đại' },
-  { id: 'hien-dai', label: 'Hiện đại' },
-  { id: 'tuong-lai', label: 'Tương lai' },
-];
-const ENDING_OPTIONS = [
-  { id: 'he', label: 'HE' },
-  { id: 'se', label: 'SE' },
-  { id: 'oe', label: 'OE' },
-];
+
 // Số lượng truyện mỗi trang
 const ITEMS_PER_PAGE = 12;
 
