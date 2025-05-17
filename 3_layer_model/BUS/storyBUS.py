@@ -50,3 +50,6 @@ class StoryBUS:
     def update_story_follows(self, story):
         """Update story favorite status"""
         return self.dao.update_story_follow(story)
+    
+    def get_categories(self):
+        return self.dao.get_categories()

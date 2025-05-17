@@ -207,3 +207,15 @@ class StoryDAO:
         '''
         self.db.execute_non_query(query, (story['followers'], story['id']))
         return True
+    
+    def get_categories(self):
+        """Fetch stories by status"""
+        query = '''SELECT DISTINCT UNNEST(genres) AS genre
+                FROM public."Story" 
+                WHERE genres IS NOT NULL'''
+        results = self.db.execute_query(query)
+        
+        print(results)
+        
+        categories = [row[0] for row in results]
+        return categories
