@@ -68,11 +68,12 @@ export default function SearchForm({
   };
 
   const handleCheckboxChange = (filterKey, value) => {
+    const numericValue = Number(value); 
     setFilters(prev => ({
       ...prev,
-      [filterKey]: prev[filterKey].includes(value)
-        ? prev[filterKey].filter(item => item !== value)
-        : [...prev[filterKey], value]
+      [filterKey]: prev[filterKey].includes(numericValue)
+        ? prev[filterKey].filter(item => item !== numericValue)
+        : [...prev[filterKey], numericValue]
     }));
   };
 
