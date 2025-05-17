@@ -23,3 +23,7 @@ class UserBUS:
     def add_follow(self, user_id, story_id):
         """Adds a story to the user's favorites."""
         return self.user_dao.add_follow(user_id, story_id)
+    
+    def get_category(self):
+        """Retrieves all categories."""
+        return self.user_dao.get_category()

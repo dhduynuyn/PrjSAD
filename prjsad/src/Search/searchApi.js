@@ -1,15 +1,14 @@
 // --- Dữ liệu giả lập cho Genres và Tags ---
 const MOCK_GENRES = [
-  { id: 'ngon-tinh', label: 'Ngôn Tình' },
-  { id: 'tien-hiep', label: 'Tiên Hiệp' },
-  { id: 'huyen-huyen', label: 'Huyền Huyễn' },
-  { id: 'do-thi', label: 'Đô Thị' },
-  { id: 'xuyen-khong', label: 'Xuyên Không' },
-  { id: 'trong-sinh', label: 'Trọng Sinh' },
-  { id: 'hai-huoc', label: 'Hài Hước' },
-  { id: 'co-dai', label: 'Cổ Đại' },
-  { id: 'kinh-di', label: 'Kinh Dị' },
-  { id: 'trinh-tham', label: 'Trinh Thám' },
+  { id: 6, label: 'Xuyên Sách' },
+  { id: 7, label: 'Trọng Sinh' },
+  { id: 8, label: 'Xuyên Không' },
+  { id: 9, label: 'Hệ Thống' },
+  { id: 10, label: 'Showbiz' },
+  { id: 11, label: 'Sảng Văn' },
+  { id: 12, label: 'Ngược' },
+  { id: 13, label: 'Ngược Luyến Tàn Tâm' },
+  { id: 14, label: 'Đọc Tâm' },
 ];
 
 const MOCK_TAGS = [
