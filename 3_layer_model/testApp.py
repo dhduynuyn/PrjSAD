@@ -324,6 +324,10 @@ def toggle_follow(payload, story_id):
         "updatedFollowers": story['followers']  # Cập nhật số lượng yêu thích
     }), 200
 
+@app.route("/stories/categories", methods=["GET"])
+def get_categories():
+    result = story_bus.get_categories()
+    return jsonify(result), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

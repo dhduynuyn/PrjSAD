@@ -4,31 +4,53 @@ import TagInput from './TagInput';
 import { FiSearch, FiX } from 'react-icons/fi';
 
 const STATUS_OPTIONS = [
-  { id: 'completed', label: 'Hoàn thành' },
-  { id: 'ongoing', label: 'Còn tiếp' },
-  { id: 'paused', label: 'Tạm ngưng' },
+  { id: 1, label: 'Đã đủ bộ' },
+  { id: 2, label: 'Đang phát hành' },
+  { id: 3, label: 'Tạm ngưng' },
 ];
+
 const OFFICIAL_OPTIONS = [
-  { id: 'original', label: 'Nguyên sang' },
-  { id: 'derivative', label: 'Diễn sinh' },
+  { id: 4, label: 'Nguyên sang' },
+  { id: 5, label: 'Diễn sinh' },
+
 ];
+
 const GENDER_TARGET_OPTIONS = [
-  { id: 'ngon-tinh', label: 'Ngôn tình' },
-  { id: 'nam-sinh', label: 'Nam sinh' },
-  { id: 'dam-my', label: 'Đam mỹ' },
-  { id: 'bach-hop', label: 'Bách hợp' },
+  { id: 15, label: 'Ngôn Tình' },
+  { id: 16, label: 'Đam Mỹ' },
+  { id: 17, label: 'Bách Hợp' },
+  { id: 18, label: 'Nam sinh' },
+  { id: 19, label: 'Không CP' },
 ];
+
 const AGE_OPTIONS = [
-  { id: 'co-dai', label: 'Cổ đại' },
-  { id: 'can-dai', label: 'Cận đại' },
-  { id: 'hien-dai', label: 'Hiện đại' },
-  { id: 'tuong-lai', label: 'Tương lai' },
+  { id: 20, label: 'Cổ Đại' },
+  { id: 21, label: 'Cận Đại' },
+  { id: 22, label: 'Hiện Đại' },
+  { id: 23, label: 'Tương Lai' },
+  { id: 24, label: 'Niên Đại' },
 ];
+
 const ENDING_OPTIONS = [
-  { id: 'he', label: 'HE' },
-  { id: 'se', label: 'SE' },
-  { id: 'oe', label: 'OE' },
+  { id: 25, label: 'HE' },
+  { id: 26, label: 'SE' },
+  { id: 27, label: 'OE' },
+  { id: 28, label: 'BE' },
 ];
+
+// thể loại
+const GEN = [
+  { id: 6, label: 'Xuyên Sách' },
+  { id: 7, label: 'Trọng Sinh' },
+  { id: 8, label: 'Xuyên Không' },
+  { id: 9, label: 'Hệ Thống' },
+  { id: 10, label: 'Showbiz' },
+  { id: 11, label: 'Sảng Văn' },
+  { id: 12, label: 'Ngược' },
+  { id: 13, label: 'Ngược Luyến Tàn Tâm' },
+  { id: 14, label: 'Đọc Tâm' },
+]
+
 
 export default function SearchForm({
   filters,      // Object chứa tất cả state của filter
