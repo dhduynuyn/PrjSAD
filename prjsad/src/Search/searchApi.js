@@ -101,133 +101,58 @@ const ALL_MOCK_STORIES = Array.from({ length: 100 }, (_, i) => {
 
 // Số lượng truyện mỗi trang
 const ITEMS_PER_PAGE = 12;
+import qs from 'qs';
 import axios from 'axios';
 
+// http://localhost:5173/search-results?status=28&age=17&page=1
+
 export const searchStoriesAdvancedApi = async (params) => {
-  console.log("API Call (Updated): searchStoriesAdvancedApi with params", params);
-
-  const CATEGORY_KEYS = [
-    'status',
-    'official',
-    'genderTarget',
-    'age',
-    'ending',
-    'genres',
-    'tags',
-    'excludedTags'
-  ];
-
-const filteredStories = (id) => {
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", `http://localhost:5000/categories/${id}`, false); // false = đồng bộ
+  console.log("API Call: searchStoriesAdvancedApi with params", params);
+  let stories_filter = []
   try {
-    xhr.send(null);
-    if (xhr.status === 200) {
-      const json = JSON.parse(xhr.responseText);
-      // Nếu json là mảng, trả về luôn, nếu là object có property storyIds thì trả về property đó
-      return Array.isArray(json) ? json : (json.storyIds || []);
-    } else {
-      console.error(`Error fetching category ${id}: status ${xhr.status}`);
-      return [];
-    }
-  } catch (error) {
-    console.error(`Error fetching category ${id}:`, error);
-    return [];
-  }
-};
-
-  const allCategoryStoryIdSets = [];
-
-  // 1. Lặp qua từng key chứa ID
-  for (const key of CATEGORY_KEYS) {
-  const ids = params[key];
-  if (ids && ids.length > 0) {
-    const storyIdLists = ids.map(id => {
-      return filteredStories(id);
-    });
-    const mergedIds = storyIdLists.reduce((acc, list) => acc.concat(list), []);
-  
-    if (key === 'excludedTags') {
-      allCategoryStoryIdSets.push({ exclude: true, ids: new Set(mergedIds) });
-    } else {
-      allCategoryStoryIdSets.push({ exclude: false, ids: new Set(mergedIds) });
-    }
-  }
-}
-
-  console.log("All category story ID sets:", allCategoryStoryIdSets);
-
-  // 2. Giao nhau các danh sách storyId
-  let finalStoryIds = null;
-
-  for (const entry of allCategoryStoryIdSets) {
-    if (entry.exclude) continue; // Bỏ qua lúc này, sẽ xử lý sau
-
-    if (finalStoryIds === null) {
-      finalStoryIds = new Set(entry.ids);
-    } else {
-      finalStoryIds = new Set([...finalStoryIds].filter(id => entry.ids.has(id)));
-    }
-
-    console.log(`After processing ${entry.exclude ? 'excludedTags' : 'included tags'}:`, finalStoryIds);
-  }
-
-  if (!finalStoryIds) {
-    finalStoryIds = new Set(); // Nếu không có filter nào => rỗng
-  }
-
-  // 3. Trừ excludedTags
-  for (const entry of allCategoryStoryIdSets) {
-    if (entry.exclude) {
-      finalStoryIds = new Set([...finalStoryIds].filter(id => !entry.ids.has(id)));
-    }
-  }
-
-  console.log("Final story IDs after filtering:", finalStoryIds);
-
-  const fetchStoryByIdSync = (id) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", `http://localhost:5000/stories/${id}`, false); // false = đồng bộ
-    try {
-      xhr.send(null);
-      if (xhr.status === 200) {
-        const data = JSON.parse(xhr.responseText);
-        return {
-          id: data.id,
-          slug: data.id,
-          title: data.title,
-          coverUrl: data.coverUrl || (data.image_data ? `data:image/jpeg;base64,${data.image_data}` : ''),
-          views: data.views,
-          bookmarks: data.followers,
-          latestChapter: { name: data.latestChapter },
-          // Thêm các thuộc tính để filter
-          status: data.status,
-          totalChaptersNum: data.chapters.length,
-          author: { name: `Tác Giả ${data.author}` }
-        };
-      } else {
-        console.error(`Error fetching story ${id}: status ${xhr.status}`);
-        return null;
+    // Loại bỏ giá trị rỗng null undefined hoặc mảng rỗng
+    const cleanedParams = {};
+    for (const [key, value] of Object.entries(params)) {
+      if (Array.isArray(value) && value.length) {
+        cleanedParams[key] = value;
+      } else if (value !== "" && value !== null && value !== undefined) {
+        cleanedParams[key] = value;
       }
-    } catch (error) {
-      console.error(`Error fetching story ${id}:`, error);
-      return null;
     }
-  };
 
-  const storyDetails = [];
-  for (const id of finalStoryIds) {
-    const story = fetchStoryByIdSync(id);
-    if (story) storyDetails.push(story);
+    const { data: stories = [] } = await axios.get(
+      `http://localhost:5000/stories/search`,
+      {
+        params: cleanedParams,
+        paramsSerializer: (params) =>
+          qs.stringify(params, { arrayFormat: "repeat" }),
+      }
+    );
+
+    // Convert data to expected frontend format if necessary
+    stories_filter = stories.map(data => ({
+      id: data.id,
+      slug: data.id,
+      title: data.title,
+      coverUrl: data.coverUrl || (data.image_data ? `data:image/jpeg;base64,${data.image_data}` : ''),
+      views: data.views,
+      bookmarks: data.followers,
+      latestChapter: { name: data.latest_chapter },
+      status: data.status,
+      totalChaptersNum: data.chapters?.length || 0,
+      author: { name: `Tác Giả ${data.author}` }
+    }));
+  } catch (error) {
+    console.error("Error during API call:", error);
   }
 
-  console.log("Fetched story details:", storyDetails);
+  console.log("Fetched story details:", stories_filter);
 
 
   // // 5. Lọc theo keyword (tên truyện hoặc tác giả)
   // if (params.q) {
   //   const keywordLower = params.q.toLowerCase();
-  //   filteredStories = filteredStories.filter(story =>
+  //   storyDetails = storyDetails.filter(story =>
   //     story.title.toLowerCase().includes(keywordLower) ||
   //     story.author.name.toLowerCase().includes(keywordLower)
   //   );
@@ -236,7 +161,7 @@ const filteredStories = (id) => {
   // // 6. Lọc theo độ dài truyện (tc)
   // if (params.tc) {
   //   const tcValue = parseInt(params.tc);
-  //   filteredStories = filteredStories.filter(story => {
+  //   storyDetails = storyDetails.filter(story => {
   //     switch(tcValue) {
   //       case 1: return story.totalChaptersNum >= 1 && story.totalChaptersNum <= 20;
   //       case 2: return story.totalChaptersNum >= 21 && story.totalChaptersNum <= 50;
@@ -253,11 +178,11 @@ const filteredStories = (id) => {
 
     // Phân trang
     const page = parseInt(params.page || '1');
-    const totalItems = storyDetails.length;
+    const totalItems = stories_filter.length;
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
     const startIndex = (page - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    const paginatedStories = storyDetails.slice(startIndex, endIndex);
+    const paginatedStories = stories_filter.slice(startIndex, endIndex);
 
   return {
     data: paginatedStories,

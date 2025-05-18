@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from BUS.userBUS import UserBUS
 import jwt
-import datetime
+from datetime import datetime, timedelta
 SECRET_KEY = "your_secret_key"
 
 from flask import make_response
@@ -13,6 +13,9 @@ user_bus = UserBUS()
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 story_bus = StoryBUS()
+_cached_stories = None
+_cache_expiry = None
+CACHE_DURATION = timedelta(minutes=10)  # cache trong 10 phút
 
 @app.route('/truyen/<story_slug>/chapters', methods=['GET'])
 def get_chapters(story_slug):
@@ -23,10 +26,35 @@ def get_chapters(story_slug):
         return jsonify({'error': str(e)}), 500
     
 @app.route('/stories', methods=['GET'])
-def get_all_stories():
-    """Get all stories"""
-    stories = story_bus.get_all_stories()
-    return jsonify(stories), 200
+def get_all_stories(force=False):
+    """Get all stories (cached)"""
+    global _cached_stories, _cache_expiry
+
+    now = datetime.now()
+    if force or _cached_stories is None or _cache_expiry is None or now > _cache_expiry:
+        # Cache hết hạn hoặc chưa có
+        print("Fetching stories from story_bus...")
+        _cached_stories = story_bus.get_all_stories()
+        _cache_expiry = now + CACHE_DURATION
+    else:
+        print("Using cached stories...")
+
+    return jsonify(_cached_stories), 200
+
+def cached_stories(force=False):
+    """Get all stories (cached)"""
+    global _cached_stories, _cache_expiry
+
+    now = datetime.now()
+    if force or _cached_stories is None or _cache_expiry is None or now > _cache_expiry:
+        # Cache hết hạn hoặc chưa có
+        print("Fetching stories from story_bus...")
+        _cached_stories = story_bus.get_all_stories()
+        _cache_expiry = now + CACHE_DURATION
+    else:
+        print("Using cached stories...")
+
+    return _cached_stories
 
 @app.route('/stories/<int:story_id>', methods=['GET'])
 def get_story_by_id(story_id):
@@ -342,5 +370,92 @@ def get_tags():
     result = story_bus.get_categories_by_defined(True)
     return jsonify(result), 200
 
+testData = {
+  "age": ["17"],
+  "keyword": "",
+  "status": ["28", "5"],
+  "totalChapters": ""
+}
+
+@app.route("/stories/search", methods=["GET"])
+def search_stories():
+    # 1. Lấy params từ query
+    params = request.args
+    print(params)
+    
+    CATEGORY_KEYS = ['status',
+                    'official',
+                    'genderTarget',
+                    'age',
+                    'ending',
+                    'genres',
+                    'tags',
+                    'excludedTags']
+
+    all_category_story_id_sets = []
+
+    for key in CATEGORY_KEYS:
+        # Lấy tất cả giá trị của key (list), mặc định [] nếu không có
+        ids = params.getlist(key)
+        if not ids:
+            continue
+        
+        print("DEBUG ids: ", key, " ", ids)
+        story_id_lists = []
+        for id in ids:
+            story_ids = get_stories_id_by_category(id)[0].get_json()
+            print("DEBUG story_ids: ", id, " ", story_ids)
+            story_id_lists.append(story_ids)
+
+        # Nếu không có story_id nào thì bỏ qua
+        if not story_id_lists:
+            continue
+        
+        merged_ids = set(story_id_lists[0])
+        for s in story_id_lists[1:]:
+            merged_ids &= set(s)
+
+        all_category_story_id_sets.append({
+            'exclude': key == 'excludedTags',
+            'ids': set(merged_ids)
+        })
+
+    # 2. Giao nhau các danh sách storyIds
+    stories = cached_stories()
+    final_story_ids = set(story['id'] for story in stories)
+    for entry in all_category_story_id_sets:
+        if not entry['exclude']:
+            final_story_ids &= entry['ids']
+        else:
+            final_story_ids -= entry['ids']
+
+    print("DEBUG final_story_ids: ", final_story_ids)
+    stories = [story for story in stories if story['id'] in final_story_ids]
+
+    return jsonify(stories), 200
+
+
+    # # 5. Lọc theo keyword
+    # keyword = params.get('q', '').lower()
+    # if keyword:
+    #     story_details = [
+    #         story for story in story_details
+    #         if keyword in story['title'].lower() or keyword in story['author'].lower()
+    #     ]
+
+    # # 6. Lọc theo độ dài
+    # tc = params.get('tc')
+    # if tc:
+    #     tc = int(tc)
+    #     def within_range(num, low, high): return low <= num <= high
+    #     ranges = {
+    #         1: (1, 20), 2: (21, 50), 3: (51, 100), 4: (101, 200),
+    #         5: (201, 300), 6: (301, 500), 7: (501, 1000), 8: (1001, float('inf'))
+    #     }
+    #     if tc in ranges:
+    #         low, high = ranges[tc]
+    #         story_details = [s for s in story_details if within_range(s['totalChaptersNum'], low, high)]
+    
 if __name__ == '__main__':
+    cached_stories(True)
     app.run(debug=True)

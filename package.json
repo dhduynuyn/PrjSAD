@@ -5,7 +5,8 @@
     "tailwindcss": "^4.0.17"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.0.17"
+    "@tailwindcss/vite": "^4.0.17",
+    "qs": "^6.14.0"
   },
   "scripts": {
     "dev": "vite",
