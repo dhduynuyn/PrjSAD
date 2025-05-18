@@ -379,12 +379,10 @@ def search_stories():
         ids = params.getlist(key)
         if not ids:
             continue
-        
-        print("DEBUG ids: ", key, " ", ids)
+    
         story_id_lists = []
         for id in ids:
             story_ids = story_bus.get_stories_id_by_category(id)
-            print("DEBUG story_ids: ", id, " ", story_ids)
             story_id_lists.append(story_ids)
 
         # Nếu không có story_id nào thì bỏ qua
@@ -401,7 +399,7 @@ def search_stories():
         })
 
     # 2. Giao nhau các danh sách storyIds
-    stories = cached_stories()
+    stories = story_bus.get_all_stories()
     final_story_ids = set(story['id'] for story in stories)
     for entry in all_category_story_id_sets:
         if not entry['exclude']:

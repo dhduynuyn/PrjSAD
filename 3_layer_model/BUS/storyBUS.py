@@ -6,6 +6,8 @@ class StoryBUS:
         self.dao = StoryDAO()
         self._cached_stories = None
         self._cache_expiry = None
+        self._cached_stories_by_category = {}
+        self._cache_expiry_by_category = {}
         self.CACHE_DURATION = timedelta(minutes=10)  # cache trong 10 phút
 
     def get_all_stories(self, force=False):
@@ -69,6 +71,23 @@ class StoryBUS:
     def get_categories_by_defined(self, defined):
         return self.dao.get_categories_by_defined(defined)
     
-    def get_stories_id_by_category(self, category_id):
-        """Get stories by category ID"""
-        return self.dao.get_stories_id_by_category(category_id)
+    def get_stories_id_by_category(self, category_id, force=False):
+        """Get stories by category ID with caching"""
+        now = datetime.now()
+        
+        # Kiểm tra xem đã có cache cho category này chưa
+        cache_expiry = self._cache_expiry_by_category.get(category_id, None)
+        cached_data = self._cached_stories_by_category.get(category_id, None)
+
+        # Nếu ép làm mới, chưa có cache hoặc cache đã hết hạn => gọi DAO
+        if force or cached_data is None or cache_expiry is None or now > cache_expiry:
+            print(f"Fetching stories by category {category_id} from story_bus...")
+            story_ids = self.dao.get_stories_id_by_category(category_id)
+
+            # Cập nhật cache
+            self._cached_stories_by_category[category_id] = story_ids
+            self._cache_expiry_by_category[category_id] = now + self.CACHE_DURATION
+            return story_ids
+        else:
+            print(f"Using cached stories for category {category_id}...")
+            return cached_data
