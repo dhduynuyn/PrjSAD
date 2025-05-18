@@ -27,34 +27,12 @@ def get_chapters(story_slug):
     
 @app.route('/stories', methods=['GET'])
 def get_all_stories(force=False):
-    """Get all stories (cached)"""
-    global _cached_stories, _cache_expiry
-
-    now = datetime.now()
-    if force or _cached_stories is None or _cache_expiry is None or now > _cache_expiry:
-        # Cache hết hạn hoặc chưa có
-        print("Fetching stories from story_bus...")
-        _cached_stories = story_bus.get_all_stories()
-        _cache_expiry = now + CACHE_DURATION
-    else:
-        print("Using cached stories...")
-
-    return jsonify(_cached_stories), 200
+    stories = story_bus.get_all_stories(force)
+    return jsonify(stories), 200
 
 def cached_stories(force=False):
-    """Get all stories (cached)"""
-    global _cached_stories, _cache_expiry
-
-    now = datetime.now()
-    if force or _cached_stories is None or _cache_expiry is None or now > _cache_expiry:
-        # Cache hết hạn hoặc chưa có
-        print("Fetching stories from story_bus...")
-        _cached_stories = story_bus.get_all_stories()
-        _cache_expiry = now + CACHE_DURATION
-    else:
-        print("Using cached stories...")
-
-    return _cached_stories
+    stories = story_bus.get_all_stories(True)
+    return stories
 
 @app.route('/stories/<int:story_id>', methods=['GET'])
 def get_story_by_id(story_id):
@@ -143,9 +121,11 @@ def get_stories_by_status(status):
     """Get stories by status with optional limit"""
     limit = request.args.get('limit', default=6, type=int)
 
-    stories = story_bus.get_stories_by_status(status, limit)
+    # stories = story_bus.get_stories_by_status(status, limit)
+    stories = story_bus.get_all_stories()
+    stories = [story for story in stories if story['status'] == status]
     if stories:
-        return jsonify(stories), 200
+        return jsonify(stories[:limit]), 200
     return jsonify({"error": "No stories found with the given status"}), 404
 
 @app.route('/stories/slug/<string:story_slug>', methods=['GET'])
@@ -403,7 +383,7 @@ def search_stories():
         print("DEBUG ids: ", key, " ", ids)
         story_id_lists = []
         for id in ids:
-            story_ids = get_stories_id_by_category(id)[0].get_json()
+            story_ids = story_bus.get_stories_id_by_category(id)
             print("DEBUG story_ids: ", id, " ", story_ids)
             story_id_lists.append(story_ids)
 
@@ -432,29 +412,28 @@ def search_stories():
     print("DEBUG final_story_ids: ", final_story_ids)
     stories = [story for story in stories if story['id'] in final_story_ids]
 
-    return jsonify(stories), 200
-
-
     # # 5. Lọc theo keyword
-    # keyword = params.get('q', '').lower()
-    # if keyword:
-    #     story_details = [
-    #         story for story in story_details
-    #         if keyword in story['title'].lower() or keyword in story['author'].lower()
-    #     ]
+    keyword = params.get('keyword', '').lower()
+    if keyword:
+        stories = [
+            story for story in stories
+            if keyword in story['title'].lower() or keyword in story['author'].lower()
+        ]
 
-    # # 6. Lọc theo độ dài
-    # tc = params.get('tc')
-    # if tc:
-    #     tc = int(tc)
-    #     def within_range(num, low, high): return low <= num <= high
-    #     ranges = {
-    #         1: (1, 20), 2: (21, 50), 3: (51, 100), 4: (101, 200),
-    #         5: (201, 300), 6: (301, 500), 7: (501, 1000), 8: (1001, float('inf'))
-    #     }
-    #     if tc in ranges:
-    #         low, high = ranges[tc]
-    #         story_details = [s for s in story_details if within_range(s['totalChaptersNum'], low, high)]
+    # 6. Lọc theo độ dài
+    tc = params.get('totalChapters')
+    if tc:
+        tc = int(tc)
+        def within_range(num, low, high): return low <= num <= high
+        ranges = {
+            1: (1, 20), 2: (21, 50), 3: (51, 100), 4: (101, 200),
+            5: (201, 300), 6: (301, 500), 7: (501, 1000), 8: (1001, float('inf'))
+        }
+        if tc in ranges:
+            low, high = ranges[tc]
+            stories = [s for s in stories if within_range(len(s.get('chapters', [])), low, high)]
+    
+    return jsonify(stories), 200
     
 if __name__ == '__main__':
     cached_stories(True)

@@ -26,6 +26,32 @@ class StoryDAO:
         stories = []
         for row in results:
             story = StoryDTO(*row)
+            
+            chapter_query = '''
+                SELECT chapterid, title, last_updated
+                FROM public."Chapter"
+                WHERE storyid = %s
+                ORDER BY chapterid ASC
+            '''
+            
+            chapter_result = self.db.execute_query(chapter_query, (story.story_id,))
+
+            columns = ['chapterid', 'title', 'created_at']
+
+            story.chapters = []
+            for row in chapter_result:
+                row_dict = dict(zip(columns, row))
+                story.chapters.append(row_dict)
+            
+            if story.chapters:
+                latest = max(
+                    story.chapters,
+                    key=lambda c: (c['created_at'], c['chapterid'])
+                )
+                story.latest_chapter = latest['title']
+            else:
+                story.latest_chapter = None
+            
             stories.append(story)
         return stories
     
@@ -75,6 +101,14 @@ class StoryDAO:
         for row in chapter_result:
             row_dict = dict(zip(columns, row))
             story_dto.chapters.append(row_dict)
+            
+        if story_dto.chapters:
+            story_dto.latest_chapter = max(
+                story_dto.chapters,
+                key=lambda c: (c['created_at'], c['chapterid'])
+            )
+        else:
+            story_dto.latest_chapter = None
             
         return story_dto
 

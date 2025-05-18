@@ -91,7 +91,7 @@ class StoryDTO:
             "last_updated": humanize_time_diff(self.last_updated),
             "image_data": base64.b64encode(self.image_data).decode('utf-8') if self.image_data else None,
             "latest_chapter": self.latest_chapter,
-            'chapters': self.chapters
+            "chapters": self.chapters
         }
 
     def to_dict2(self):

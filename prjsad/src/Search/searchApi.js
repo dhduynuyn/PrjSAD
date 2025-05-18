@@ -134,7 +134,7 @@ export const searchStoriesAdvancedApi = async (params) => {
       id: data.id,
       slug: data.id,
       title: data.title,
-      coverUrl: data.coverUrl || (data.image_data ? `data:image/jpeg;base64,${data.image_data}` : ''),
+      coverUrl: data.coverUrl || (data.image_data ? `data:image/jpeg;base64,${data.image_data}` : 'https://picsum.photos/seed/story${data.id}/200/260'),
       views: data.views,
       bookmarks: data.followers,
       latestChapter: { name: data.latest_chapter },

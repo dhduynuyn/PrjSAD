@@ -1,16 +1,28 @@
 from DAO.storyDAO import StoryDAO
+from datetime import datetime, timedelta
 
 class StoryBUS:
     def __init__(self):
         self.dao = StoryDAO()
+        self._cached_stories = None
+        self._cache_expiry = None
+        self.CACHE_DURATION = timedelta(minutes=10)  # cache trong 10 phút
 
-    def get_all_stories(self):
+    def get_all_stories(self, force=False):
         """Get all stories"""
-        stories = self.dao.get_all_stories()
-        print(f"BUS: {len(stories)}")
-        res = [story.to_dict() for story in stories]
-        print(f"BUS1: {len(res)}")
-        return res
+        now = datetime.now()
+        stories = []
+        if force or self._cached_stories is None or self._cache_expiry is None or now > self._cache_expiry:
+            # Cache hết hạn hoặc chưa có
+            print("Fetching stories from story_bus...")
+            stories = self.dao.get_all_stories()
+            print(f"Fetched {len(stories)} stories from database.")
+            self._cache_expiry = now + self.CACHE_DURATION
+            self._cached_stories = [story.to_dict() for story in stories]
+        else:
+            print("Using cached stories...")
+    
+        return self._cached_stories
     
     def get_chapters_by_story_slug(self, story_slug):
         story = self.dao.get_story_by_id(story_slug)
