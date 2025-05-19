@@ -53,12 +53,7 @@ export default function CategoryNav() {
 
           {/* Truyện mới */}
           <li className="nav-item">
-            <a
-              href="https://www.monkeyd.com.vn/truyen-moi.html"
-              className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
-            >
-              Truyện mới
-            </a>
+            <Link to="/stories/truyen-moi" className="nav-link">Truyện Mới</Link>
           </li>
 
           {/* Thể loại (Dropdown) */}
@@ -91,25 +86,8 @@ export default function CategoryNav() {
 
           {/* Truyện Full */}
           <li className="nav-item">
-            <a
-              href="https://www.monkeyd.com.vn/truyen-hoan-thanh.html"
-              className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
-            >
-              Truyện Full
-            </a>
+            <Link to="/stories/truyen-hoan-thanh" className="nav-link">Truyện Full</Link>
           </li>
-
-          {/* Truyện Sáng Tác */}
-          <li className="nav-item">
-            <a
-              href="https://www.monkeyd.com.vn/truyen-sang-tac.html"
-              className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
-            >
-              <BsStar size={18} /> {/* Icon Sáng tác */}
-              Truyện Sáng Tác
-            </a>
-          </li>
-
           {/* Team */}
           <li className="nav-item">
             <Link
@@ -130,21 +108,6 @@ export default function CategoryNav() {
               Tìm kiếm nâng cao
             </Link>
           </li>
-
-
-          {/* Nghe Audio */}
-          <li className="nav-item">
-            <a
-              href="https://monkeyd.audio"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
-            >
-              <BsVolumeUp size={18} /> {/* Icon Audio */}
-              Nghe Audio
-            </a>
-          </li>
-
         </ul>
       </div>
     </nav>

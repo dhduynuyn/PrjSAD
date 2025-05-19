@@ -45,12 +45,13 @@ const App = () => {
         <Routes>
           <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
-            <Route path="/stories/:categorySlug" element={<StoryListPage />} />
+            {/*<Route path="/stories/:categorySlug" element={<StoryListPage />} />*/}
              <Route path="/truyen/:storySlug" element={<StoryDetailPage />} />
              <Route path="/truyen/:storySlug/:chapterSlug" element={<ChapterPage />} />
              <Route path="/tim-kiem-nang-cao" element={<AdvancedSearchPage />} />
              <Route path="/search-results" element={<SearchResultPage />} /> 
              <Route path="/teams" element={<TeamListPage />} /> 
+             <Route path="/stories/:listTypeSlug" element={<StoryListPage />} />
           {/*</Route>
           <Route element={<MinimalLayout />}>*/}
             <Route path="/register" element={<RegisterPage />} />
