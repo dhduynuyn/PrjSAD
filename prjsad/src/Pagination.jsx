@@ -2,11 +2,13 @@ import React from 'react';
 
 export default function Pagination({ currentPage, totalPages, onPageChange }) {
   const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      console.log(`Changing to page ${page}`);
-      window.location.href = `?page=${page}`; 
+  if (page >= 1 && page <= totalPages) {
+    console.log(`Changing to page ${page}`);
+    if (onPageChange) {
+      onPageChange(page); 
     }
-  };
+  }
+};
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
