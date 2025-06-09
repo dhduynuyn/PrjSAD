@@ -57,7 +57,7 @@ export default function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       setIsResultsVisible(false); 
-      navigate(`/search-results?q=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/search-results?keyword=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
   
@@ -148,7 +148,7 @@ export default function Header() {
                          </ul>
                          <div className="border-t border-gray-200 dark:border-gray-600">
                            <Link
-                             to={`/search-results?q=${encodeURIComponent(searchQuery.trim())}`}
+                             to={`/search-results?keyword=${encodeURIComponent(searchQuery.trim())}`}
                              className="block w-full text-center px-4 py-2 text-sm font-medium text-sky-600 dark:text-sky-400 hover:bg-gray-100 dark:hover:bg-gray-600"
                              onClick={() => setIsResultsVisible(false)}
                            >
