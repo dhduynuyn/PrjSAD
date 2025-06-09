@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useCallback} from 'react';
 import CommentList from '../cmt-of-detail/CommentList';
 import CommentForm from '../cmt-of-detail/CommentForm';
 //import { getCommentsApi, postCommentApi } from '../api/commentApi'; // Giả lập API functions
 import { useAuth } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FiLoader } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+
 
 const formatRelativeTime = (isoTimeString) => {
   if (!isoTimeString) return '';

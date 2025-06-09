@@ -150,8 +150,13 @@ export default function FeaturedSection() {
                           </a>
                         </div>
                         {/* Description */}
-                        <div className="text-xs md:text-sm text-gray-500 line-clamp-2 md:line-clamp-3"> {/* line-clamp giới hạn dòng */}
-                          {story.description}
+                        <div className="text-xs md:text-sm text-gray-500 line-clamp-2 md:line-clamp-3">
+                          {story.description?.split('\n').map((line, idx) => (
+                            <span key={idx}>
+                              {line}
+                              <br />
+                            </span>
+                          ))}
                         </div>
                         {/* Author */}
                         <div className="flex items-center space-x-1 pt-1 text-xs md:text-sm text-gray-600">
