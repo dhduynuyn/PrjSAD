@@ -1,13 +1,20 @@
 "use client";
-import React, { useState } from "react";
-import { Link } from 'react-router-dom';
-import { FiSearch, FiBell, FiMoon, FiSun, FiUser, FiSettings, FiLogOut, FiChevronDown, FiChevronsUp, FiBookmark, FiEye, FiBell as FiBellOutline } from "react-icons/fi"; // Thêm icons cần thiết
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate  } from 'react-router-dom';
+import { FiSearch, FiLoader, FiBell, FiMoon, FiSun, FiUser, FiSettings, FiLogOut, FiChevronDown, FiChevronsUp, FiBookmark, FiEye, FiBell as FiBellOutline } from "react-icons/fi"; // Thêm icons cần thiết
 import { useAuth } from './AuthContext';
+import { searchStoriesAdvancedApi } from './Search/searchApi';
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const { isAuthenticated, user, logout } = useAuth(); 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); 
+
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isResultsVisible, setIsResultsVisible] = useState(false);
+  const searchContainerRef = useRef(null); 
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
@@ -17,6 +24,55 @@ export default function Header() {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+    useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setIsResultsVisible(false);
+      return;
+    }
+
+    setIsResultsVisible(true);
+    setIsSearching(true);
+
+    const debounceTimer = setTimeout(() => {
+      searchStoriesAdvancedApi({ q: searchQuery, limit: 5 }) // Giới hạn 5 kết quả cho dropdown
+        .then(response => {
+          setSearchResults(response.data || []);
+        })
+        .catch(error => {
+          console.error("Lỗi khi tìm kiếm:", error);
+          setSearchResults([]);
+        })
+        .finally(() => {
+          setIsSearching(false);
+        });
+    }, 300); // Đợi 300ms sau khi người dùng ngừng gõ
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
+
+  // Xử lý sự kiện nhấn Enter trên ô tìm kiếm
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setIsResultsVisible(false); 
+      navigate(`/search-results?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+  
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setIsResultsVisible(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [searchContainerRef]);
+
 
   return (
     <header className="bg-white shadow-sm dark:bg-gray-800">
@@ -35,8 +91,8 @@ export default function Header() {
                 />
               </Link>
             </div>
-            <div className="hidden md:block">
-             <form className="relative" role="search" onSubmit={(e) => e.preventDefault()}>
+            <div className="hidden md:block relative" ref={searchContainerRef}>
+             <form className="relative" role="search" onSubmit={handleSearchSubmit}>
                  <label htmlFor="search-header" className="sr-only">Tìm truyện</label>
                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                    <FiSearch className="h-5 w-5" />
@@ -48,9 +104,62 @@ export default function Header() {
                    placeholder="Tìm truyện"
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
+                   onFocus={() => searchQuery.trim() && setIsResultsVisible(true)} // Hiển thị lại kết quả khi focus
+                   autoComplete="off" 
                  />
                   <button type="submit" className="sr-only">Search</button>
                </form>
+
+               {/* --- Dropdown kết quả tìm kiếm --- */}
+               {isResultsVisible && (
+                 <div className="absolute mt-2 w-full md:w-[450px] origin-top-right rounded-md bg-white dark:bg-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-20">
+                   <div className="py-1">
+                     {isSearching && (
+                       <div className="flex items-center justify-center p-4">
+                         <FiLoader className="animate-spin h-5 w-5 text-gray-500" />
+                         <span className="ml-2 text-gray-600 dark:text-gray-300">Đang tìm kiếm...</span>
+                       </div>
+                     )}
+
+                     {!isSearching && searchResults.length === 0 && searchQuery && (
+                       <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                         Không tìm thấy kết quả cho "{searchQuery}"
+                       </div>
+                     )}
+
+                     {!isSearching && searchResults.length > 0 && (
+                       <>
+                         <ul className="divide-y divide-gray-100 dark:divide-gray-600">
+                           {searchResults.map((story) => (
+                             <li key={story.id}>
+                               <Link
+                                 to={`/truyen/${story.slug}`} // Chỉnh lại đường dẫn tới trang truyện của bạn
+                                 className="flex items-center gap-3 p-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                 onClick={() => setIsResultsVisible(false)} // Ẩn dropdown khi click vào 1 item
+                               >
+                                 <img src={story.coverImage || 'https://monkeyd.net.vn/img/avata.png'} alt={story.title} className="h-14 w-10 object-cover rounded-sm flex-shrink-0" />
+                                 <div className="flex-grow overflow-hidden">
+                                   <p className="font-semibold truncate">{story.title}</p>
+                                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{story.authorName || 'Chưa rõ'}</p>
+                                 </div>
+                               </Link>
+                             </li>
+                           ))}
+                         </ul>
+                         <div className="border-t border-gray-200 dark:border-gray-600">
+                           <Link
+                             to={`/search-results?q=${encodeURIComponent(searchQuery.trim())}`}
+                             className="block w-full text-center px-4 py-2 text-sm font-medium text-sky-600 dark:text-sky-400 hover:bg-gray-100 dark:hover:bg-gray-600"
+                             onClick={() => setIsResultsVisible(false)}
+                           >
+                             Xem tất cả kết quả
+                           </Link>
+                         </div>
+                       </>
+                     )}
+                   </div>
+                 </div>
+               )}
             </div>
           </div>
 
