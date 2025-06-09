@@ -1,5 +1,6 @@
 import React from "react";
 import { BsEye, BsBookmark } from "react-icons/bs";
+import { FiTrash2 } from 'react-icons/fi'; 
 
 // Component hiển thị ảnh từ base64 hoặc URL
 const ImageWithFallback = ({ src, alt, isBase64 = false, ...props }) => {
@@ -42,7 +43,14 @@ export default function StoryCard({
   isFull,
   storyUrl = "#",
   chapterUrl = "#",
-}) {
+  onDelete, 
+})
+ {
+    const handleDeleteClick = () => {
+    if (onDelete) {
+      onDelete();
+    }
+  };
   return (
     <div className="bg-white rounded-md overflow-hidden shadow-sm border border-gray-100 h-full flex flex-col">
       {/* Phần ảnh */}
@@ -76,9 +84,19 @@ export default function StoryCard({
             </span>
           </div>
         )}
+
+        {/* === NÚT XÓA (CHỈ HIỂN THỊ KHI CÓ onDelete) === */}
+        {onDelete && (
+          <button
+            onClick={handleDeleteClick}
+            className="absolute top-1 right-1 bg-black bg-opacity-60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-red-600 focus:opacity-100"
+            aria-label="Xóa khỏi danh sách"
+          >
+            <FiTrash2 size={16} />
+          </button>
+        )}
       </div>
 
-      {/* Nội dung text */}
       <div className="p-2 flex flex-col flex-grow">
         <h3 className="text-sm font-semibold text-gray-800 hover:text-blue-600 mb-1 line-clamp-2" title={title}>
           <a href={storyUrl}>{title}</a>

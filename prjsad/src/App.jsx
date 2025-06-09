@@ -13,7 +13,8 @@ import ChapterPage from './Demo/ChapterPage-demo';
 import AdvancedSearchPage from './AdvancedSearchPage';
 import RegisterPage from './RegisterPage'; 
 import CategoryNav from "./CategoryNav";
-import LoginPage from './LoginPage';    
+import LoginPage from './LoginPage';   
+import BookmarksPage from './User/BookmarksPage'; 
 import Header from './Header';      
 import Footer from './Footer';       
 
@@ -52,6 +53,7 @@ const App = () => {
              <Route path="/search-results" element={<SearchResultPage />} /> 
              <Route path="/teams" element={<TeamListPage />} /> 
              <Route path="/stories/:listTypeSlug" element={<StoryListPage />} />
+             <Route path="/user/truyen-da-luu" element={<BookmarksPage/>} />
           {/*</Route>
           <Route element={<MinimalLayout />}>*/}
             <Route path="/register" element={<RegisterPage />} />
