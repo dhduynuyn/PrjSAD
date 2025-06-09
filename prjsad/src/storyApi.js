@@ -17,6 +17,13 @@ export const getStoriesApi = async (filters = {}) => {
     id: data.id,
     slug: data.id,
     title: data.title,
+    translatorTeam: data.translatorTeam
+          ? {
+              name: data.translatorTeam.name || 'N/A',
+              url: "nhom-dich/" + data.translatorTeam.url || '',
+              id: data.translatorTeam.id || '',
+            }
+          : null,
     coverUrl: data.coverUrl || (data.image_data ? `data:image/jpeg;base64,${data.image_data}` : `https://picsum.photos/seed/story${data.id}/200/260`),
     views: data.views,
     bookmarks: data.follows,

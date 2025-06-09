@@ -407,36 +407,25 @@ testData = {
 
 @app.route("/stories/search", methods=["GET"])
 def search_stories():
-    # 1. Lấy params từ query
     params = request.args
     print(params)
-    
-    CATEGORY_KEYS = ['status',
-                    'official',
-                    'genderTarget',
-                    'age',
-                    'ending',
-                    'genres',
-                    'tags',
-                    'excludedTags']
 
+    CATEGORY_KEYS = ['status', 'official', 'genderTarget', 'age', 'ending', 'genres', 'tags', 'excludedTags']
     all_category_story_id_sets = []
 
     for key in CATEGORY_KEYS:
-        # Lấy tất cả giá trị của key (list), mặc định [] nếu không có
         ids = params.getlist(key)
         if not ids:
             continue
-    
+
         story_id_lists = []
         for id in ids:
             story_ids = story_bus.get_stories_id_by_category(id)
             story_id_lists.append(story_ids)
 
-        # Nếu không có story_id nào thì bỏ qua
         if not story_id_lists:
             continue
-        
+
         merged_ids = set(story_id_lists[0])
         for s in story_id_lists[1:]:
             merged_ids &= set(s)
@@ -446,7 +435,6 @@ def search_stories():
             'ids': set(merged_ids)
         })
 
-    # 2. Giao nhau các danh sách storyIds
     stories = story_bus.get_all_stories()
     final_story_ids = set(story['id'] for story in stories)
     for entry in all_category_story_id_sets:
@@ -458,7 +446,6 @@ def search_stories():
     print("DEBUG final_story_ids: ", final_story_ids)
     stories = [story for story in stories if story['id'] in final_story_ids]
 
-    # # 5. Lọc theo keyword
     keyword = params.get('keyword', '').lower()
     if keyword:
         stories = [
@@ -466,7 +453,6 @@ def search_stories():
             if keyword in story['title'].lower() or keyword in story['author'].lower()
         ]
 
-    # 6. Lọc theo độ dài
     tc = params.get('totalChapters')
     if tc:
         tc = int(tc)
@@ -478,8 +464,20 @@ def search_stories():
         if tc in ranges:
             low, high = ranges[tc]
             stories = [s for s in stories if within_range(len(s.get('chapters', [])), low, high)]
-    
+
+    # ✅ Sắp xếp theo sort param
+    sort = params.get('sort', 'updated')
+    print("DEBUG sort: ", sort)
+    if sort == 'views':
+        stories.sort(key=lambda x: x.get('views', 0), reverse=True)
+    elif sort == 'hot':
+        def hot_score(s):
+            return s.get('views', 0) * 0.5 + s.get('likes', 0) * 2 + s.get('follows', 0) * 3
+        stories.sort(key=hot_score, reverse=True)
+    # else: sort == 'updated', giữ nguyên
+
     return jsonify(stories), 200
+
     
 if __name__ == '__main__':
     cached_stories(True)

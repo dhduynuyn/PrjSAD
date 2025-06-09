@@ -10,9 +10,12 @@ class StoryDAO:
 
     def get_all_stories(self):
         """Fetch all stories from the database"""
-        query = '''SELECT s.id, s.title, s.author, s.category, s.state, s.description, 
+        query = '''SELECT 
+                    s.id, s.title, s.author, s.category, s.state, s.description, 
                     s.views, s.likes, s.follows, s.last_updated, s.image_data, s.genres,
-                    c.title AS latest_chapter
+                    c.title AS latest_chapter,
+                    s.team AS team_ids,
+                    ARRAY_REMOVE(ARRAY_AGG(u.username), NULL) AS team_names
                 FROM public."Story" s
                 LEFT JOIN LATERAL (
                     SELECT title FROM public."Chapter"
@@ -20,7 +23,10 @@ class StoryDAO:
                     ORDER BY chapterid DESC
                     LIMIT 1
                 ) c ON true
-                ORDER BY s.last_updated DESC'''
+                LEFT JOIN public."Users" u ON u.user_id = ANY(s.team)
+                GROUP BY s.id, c.title, s.team
+                ORDER BY s.last_updated DESC;
+                '''
         results = self.db.execute_query(query)
         
         stories = []

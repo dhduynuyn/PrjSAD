@@ -7,8 +7,8 @@ import {searchStoriesAdvancedApi, getGenresApi, getTagsApi } from './searchApi';
 import { FiLoader } from 'react-icons/fi';
 
 const sortOptions = [
-  { value: 'updated_at', label: 'Mới cập nhật' }, // Thường là mặc định
-  { value: 'hot', label: 'Độ hot' },
+  { value: 'updated', label: 'Mới cập nhật' }, // Thường là mặc định
+  { value: 'hot', label: 'Nổi bật nhất' },
   { value: 'views', label: 'Lượt xem nhiều nhất' },
 ];
 
@@ -22,7 +22,7 @@ export default function SearchResultPage() {
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const currentSort = searchParams.get('sort') || 'updated_at';
+  const currentSort = searchParams.get('sort') || 'updated';
 
   const fetchSearchResults = useCallback(async (page) => {
     setIsLoading(true);
@@ -33,7 +33,7 @@ export default function SearchResultPage() {
     
     // Nếu không có tham số 'sort' trên URL, đặt giá trị mặc định
     if (!apiParams.has('sort')) {
-      apiParams.set('sort', 'updated_at');
+      apiParams.set('sort', 'updated');
     }
 
     const paramsObject = Object.fromEntries(apiParams.entries());
@@ -79,7 +79,7 @@ export default function SearchResultPage() {
   }
 
 
-  const searchQueryDisplay = searchParams.get('q') || '';
+  const searchQueryDisplay = searchParams.get('keyword') || '';
   const pageTitle = searchQueryDisplay ? `Kết quả tìm kiếm cho "${searchQueryDisplay}"` : "Kết quả tìm kiếm";
 
   return (

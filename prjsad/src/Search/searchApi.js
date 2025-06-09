@@ -74,9 +74,17 @@ export const searchStoriesAdvancedApi = async (params) => {
       title: data.title,
       coverUrl: data.coverUrl || (data.image_data ? `data:image/jpeg;base64,${data.image_data}` : 'https://picsum.photos/seed/story${data.id}/200/260'),
       views: data.views,
-      bookmarks: data.followers,
+      bookmarks: data.follows,
+      translatorTeam: data.translatorTeam
+          ? {
+              name: data.translatorTeam.name || 'N/A',
+              url: "nhom-dich/" + data.translatorTeam.url || '',
+              id: data.translatorTeam.id || '',
+            }
+          : null,
       latestChapter: { name: data.latest_chapter },
       status: data.status,
+      description: data.description || "",
       totalChaptersNum: data.chapters?.length || 0,
       author: { name: `Tác Giả ${data.author}` }
     }));
