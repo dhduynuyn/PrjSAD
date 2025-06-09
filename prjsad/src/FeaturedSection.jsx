@@ -1,71 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
-import { FaUser } from "react-icons/fa"; 
-
-// Dữ liệu mẫu (Trong thực tế, bạn sẽ fetch dữ liệu này từ API)
-const storiesData = [
-  {
-    id: 1,
-    title: "Cha mỹ nhân của ta hắc hoá rồi",
-    imageUrl: "https://cdn.monkeydarchive.com/images/story/thumbs/230/2025/04/22/1745292879-cha-my-nhan-cua-ta-hac-hoa-roi.jpg",
-    description: "Xuyên không đến thời cổ đại, Khương Dao nhận được một thân thế đầy buff: một người cha mỹ mạo nh..",
-    authorName: "Thế Giới Tiểu Thuyết",
-    authorUrl: "https://monkeyd.net.vn/nhom-dich/44605",
-    slug: "cha-my-nhan-cua-ta-hac-hoa-roi", 
-    storyUrl: "/truyen/cha-my-nhan-cua-ta-hac-hoa-roi", 
-
-  },
-  {
-    id: 2,
-    title: "SAU KHI BỊ VỨT BỎ THÊ THẢM, TÔI ĐƯỢC PHẢN DIỆN CƯNG CHIỀU SỦNG ÁI",
-    imageUrl: "https://cdn.monkeydarchive.com/images/story/thumbs/230/2025/03/15/1742053860-sau-khi-bi-vut-bo-the-tham-toi-duoc-phan-dien-cung-chieu-sung-ai.jpg",
-    description: "[Bối cảnh mạt thế giả tưởng + Trừng phạt tra nam + phản diện soán ngôi + tu la tràng + cứu ..",
-    authorName: "Mắm Muối Chanh Đường",
-    authorUrl: "https://monkeyd.net.vn/nhom-dich/4915",
-    storyUrl: "https://monkeyd.net.vn/sau-khi-bi-vut-bo-the-tham-toi-duoc-phan-dien-cung-chieu-sung-ai.html",
-  },
-  {
-    id: 3,
-    title: "Viên Kẹo Ngọt Ngào Nhất",
-    imageUrl: "https://cdn.monkeydarchive.com/images/story/thumbs/230/2025/02/25/1740490949-vien-keo-ngot-ngao-nhat.jpg",
-    description: "Edit: Yêu Phi ☆⋆꒷꒦꒷꒦꒷꒦꒷꒦꒷꒦꒷‧★ Để trả thù chồng cũ, sau khi ly hôn, tôi kết hôn ..",
-    authorName: "Yêu Phi Họa Quốc",
-    authorUrl: "https://monkeyd.net.vn/nhom-dich/287",
-    storyUrl: "https://monkeyd.net.vn/vien-keo-ngot-ngao-nhat.html",
-  },
-  {
-    id: 4,
-    title: "YÊN CHI NỮ",
-    imageUrl: "https://cdn.monkeydarchive.com/images/story/thumbs/230/2025/04/26/1745661084-yen-chi-nu.jpg",
-    description: "Trước kia, làng tôi thường vứt những bé gái không muốn nuôi vào rừng cho rắn ăn. ..",
-    authorName: "Thiên Phong Tự Tuyết",
-    authorUrl: "https://monkeyd.net.vn/nhom-dich/37858",
-    storyUrl: "https://monkeyd.net.vn/yen-chi-nu.html",
-  },
-  {
-    id: 5,
-    title: "Tiểu sư muội nói Thần kinh cũng là Thần",
-    imageUrl: "https://cdn.monkeydarchive.com/images/story/thumbs/230/2024/12/06/1733496669-tieu-su-muoi-noi-than-kinh-cung-la-than.jpg",
-    description: "Tên truyện: Tiểu sư muội nói Thần kinh cũng là Thần. Tên gốc: 小师妹说神经也是神 Tác..",
-    authorName: "Thu Vũ Miên Miên",
-    authorUrl: "https://monkeyd.net.vn/nhom-dich/26969",
-    storyUrl: "https://monkeyd.net.vn/tieu-su-muoi-noi-than-kinh-cung-la-than.html",
-  },
-   {
-    id: 6,
-    title: "Thiên Kim Thật Là Ai",
-    imageUrl: "https://cdn.monkeydarchive.com/images/story/thumbs/230/2025/04/26/1745625589-thien-kim-that-la-ai.jpg",
-    description: "Một ngày nọ, cô con gái ruột thật sự bỗng nhiên tìm tới cửa, ôm lấy chân mẹ tôi khóc ròng, nói r..",
-    authorName: "Tiểu Soái thích Zhihu",
-    authorUrl: "https://monkeyd.net.vn/nhom-dich/36629",
-    storyUrl: "https://monkeyd.net.vn/thien-kim-that-la-ai.html",
-   },
-  // Thêm các truyện khác vào đây...
-];
+import { searchStoriesAdvancedApi } from './Search/searchApi';
+import { FaUser } from "react-icons/fa";
 
 // Hàm chia mảng thành các nhóm nhỏ
 const chunkArray = (array, size) => {
@@ -77,7 +16,36 @@ const chunkArray = (array, size) => {
 };
 
 export default function FeaturedSection() {
-  // Chia dữ liệu thành các nhóm, mỗi nhóm 3 truyện
+  const [storiesData, setStoriesData] = useState([]);
+
+  useEffect(() => {
+    const fetchStories = async () => {
+      try {
+        const response = await searchStoriesAdvancedApi({ sort: 'hot' }); // Gửi các tham số cần thiết nếu có
+        const stories = response?.data || []; // Tùy vào cấu trúc phản hồi của bạn
+
+        console.log("Fetched stories:", stories); // Kiểm tra dữ liệu nhận được
+        // Chuyển đổi dữ liệu API về định dạng mong muốn
+        const formattedStories = stories.slice(0, 6).map((story) => ({
+          id: story.id,
+          title: story.title,
+          imageUrl: story.coverUrl || "https://monkeyd.net.vn/img/no-image.png",
+          description: story.description || "",
+          authorName: story.translatorTeam?.name || "Không rõ",
+          slug: story.id,
+          authorUrl: `/${story.translatorTeam.url || 'unknown'}`,
+          storyUrl: `/truyen/${story.id}`,
+        }));
+
+        setStoriesData(formattedStories);
+      } catch (error) {
+        console.error("Lỗi khi tải truyện đề cử:", error);
+      }
+    };
+
+    fetchStories();
+  }, []);
+
   const groupedStories = chunkArray(storiesData, 3);
 
   // Cấu hình cho react-slick
@@ -161,7 +129,7 @@ export default function FeaturedSection() {
                           <img
                             // loading="lazy" // Bật lazy loading của trình duyệt
                             onError={handleImageError}
-                            className="h-32 w-24 object-cover shadow-lg rounded" // Tailwind classes cho ảnh
+                            className="h-32 w-24 object-cover shadow-lg rounded"
                             alt={story.title}
                             src={story.imageUrl} // Sử dụng src trực tiếp hoặc data-src với thư viện lazy load khác
                             // data-src={story.imageUrl} // Nếu dùng lazyload library
