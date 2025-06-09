@@ -18,9 +18,10 @@ const formatRelativeTime = (isoTimeString) => {
 };
 
 export default function CommentItem({ comment, onReply }) { // Nhận hàm onReply để xử lý trả lời
+  console.log("Rendering CommentItem:", comment);
   if (!comment) return null;
 
-  const defaultAvatar = '/img/avata.png'; // Ảnh đại diện mặc định
+  const defaultAvatar = '/img/no-image.png'; // Ảnh đại diện mặc định
 
   return (
     <li className="flex items-start space-x-3 py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
@@ -54,13 +55,13 @@ export default function CommentItem({ comment, onReply }) { // Nhận hàm onRep
         </div>
 
          {/* Khu vực hiển thị các bình luận trả lời (replies) --- */}
-         {/* {comment.replies && comment.replies.length > 0 && (
+         {comment.replies && comment.replies.length > 0 && (
             <ul className="mt-2 space-y-2 pl-5 border-l border-gray-200 dark:border-gray-700">
               {comment.replies.map(reply => (
                  <CommentItem key={reply.id} comment={reply} onReply={onReply} />
               ))}
             </ul>
-          )} */}
+          )}
       </div>
     </li>
   );

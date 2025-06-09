@@ -9,7 +9,7 @@ class UserDAO:
         """ Check user credentials and return a UserDTO if found. """
         query = 'SELECT user_id, username, gmail FROM public."Users" WHERE gmail=%s AND password=%s'
         result = self.db.execute_query(query, (gmail, password))
-        print(result)
+        # print(result)
         return UserDTO(*result[0]) if result else None
 
     def signup(self, gmail, password, username):

@@ -6,6 +6,7 @@ from flask_cors import CORS
 from BUS.userBUS import UserBUS
 import jwt
 from datetime import datetime, timedelta
+
 SECRET_KEY = "your_secret_key"
 
 from flask import make_response
@@ -179,7 +180,7 @@ def login():
     if user:
         payload = {
             "user_id": user.user_id,
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(days=1)
+            "exp": datetime.utcnow() + timedelta(days=1)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
@@ -443,7 +444,7 @@ def search_stories():
         else:
             final_story_ids -= entry['ids']
 
-    print("DEBUG final_story_ids: ", final_story_ids)
+    # print("DEBUG final_story_ids: ", final_story_ids)
     stories = [story for story in stories if story['id'] in final_story_ids]
 
     keyword = params.get('keyword', '').lower()
@@ -467,7 +468,7 @@ def search_stories():
 
     # ✅ Sắp xếp theo sort param
     sort = params.get('sort', 'updated')
-    print("DEBUG sort: ", sort)
+    # print("DEBUG sort: ", sort)
     if sort == 'views':
         stories.sort(key=lambda x: x.get('views', 0), reverse=True)
     elif sort == 'hot':

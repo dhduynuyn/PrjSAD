@@ -1,6 +1,7 @@
 from DAO.DataProvider import Database
 from DTO.storyDTO import StoryDTO
 import json
+import base64
 from datetime import date
 from flask import jsonify
 
@@ -116,9 +117,72 @@ class StoryDAO:
         else:
             story_dto.latest_chapter = None
             
+        comments = self.get_enriched_comments(story_id)
+        story_dto.comments = comments
         return story_dto
 
 
+    def get_enriched_comments(self, story_id):
+        # 1. Lấy raw comments jsonb
+        comment_query = '''
+            SELECT s.comments
+            FROM public."Story" s
+            WHERE s.id = %s
+        '''
+        result = self.db.execute_query(comment_query, (story_id,))
+        if not result or not result[0][0]:
+            return []
+
+        comments = result[0][0]
+
+        # 2. Thu thập tất cả user_id từ comments và replies đệ quy
+        user_ids = set()
+
+        def collect_user_ids(comment_list):
+            for c in comment_list:
+                if 'user_id' in c and c['user_id'] is not None:
+                    user_ids.add(c['user_id'])
+                if 'replies' in c and c['replies']:
+                    collect_user_ids(c['replies'])
+
+        collect_user_ids(comments)
+
+        if not user_ids:
+            return comments
+
+        # 3. Truy vấn Users lấy thông tin
+        user_query = '''
+            SELECT user_id, username, profile_image
+            FROM public."Users"
+            WHERE user_id = ANY(%s)
+        '''
+        users_result = self.db.execute_query(user_query, (list(user_ids),))
+
+        user_map = {}
+        for row in users_result:
+            uid, uname, pimg = row
+            user_map[uid] = {
+                'username': uname,
+                'profile_image': base64.b64encode(pimg).decode('utf-8') if pimg else None
+            }
+
+        # 4. Đệ quy enrich comments với user info
+        def enrich_comments(comment_list):
+            for c in comment_list:
+                uid = c.get('user_id')
+                if uid and uid in user_map:
+                    c['username'] = user_map[uid]['username']
+                    c['profile_image'] = user_map[uid]['profile_image']
+                else:
+                    c['username'] = None
+                    c['profile_image'] = None
+
+                if 'replies' in c and c['replies']:
+                    enrich_comments(c['replies'])
+
+        enrich_comments(comments)
+        
+        return comments
 
     def get_chapter_by_id(self, story_id):
         """Fetch chapters by story ID and return as JSON"""
@@ -269,7 +333,7 @@ class StoryDAO:
                 WHERE user_defined = %s'''
         results = self.db.execute_query(query, (defined,))
 
-        print(results)
+        # print(results)
         
         categories = [
             {
