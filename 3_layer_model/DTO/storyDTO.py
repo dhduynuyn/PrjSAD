@@ -85,12 +85,17 @@ class StoryDTO:
             "category": self.category,
             "status": self.status,
             "description": self.description,
-            "views": self.views,
-            "likes": self.likes,
-            "follows": self.follows,
+            "views": self.views if self.views is not None else 0,
+            "likes": self.likes if self.likes is not None else 0,
+            "follows": self.follows if self.follows is not None else 0,
             "last_updated": humanize_time_diff(self.last_updated),
             "image_data": base64.b64encode(self.image_data).decode('utf-8') if self.image_data else None,
             "latest_chapter": self.latest_chapter,
+            "translatorTeam": {
+                "id": self.translatorTeam.id,
+                "name": self.translatorTeam.name,
+                "url": self.translatorTeam.id
+            } if self.translatorTeam else None,
             "chapters": self.chapters
         }
 
@@ -102,9 +107,9 @@ class StoryDTO:
             "genres": self.genres,
             "status": self.status,
             "description": self.description,
-            "views": self.views,
-            "favorites": self.likes,
-            "followers": self.follows,
+            "views": self.views if self.views is not None else 0,
+            "favorites": self.likes if self.likes is not None else 0,
+            "followers": self.follows if self.follows is not None else 0,
             "last_updated": humanize_time_diff(self.last_updated),
             "image_data": base64.b64encode(self.image_data).decode('utf-8') if self.image_data else None,
             "latest_chapter": self.latest_chapter,
