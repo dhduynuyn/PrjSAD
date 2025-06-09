@@ -55,3 +55,46 @@ class UserDAO:
         '''
         self.db.execute_non_query(query, (story_id, user_id))
         return True
+    
+    def get_all_user(self, force=False):
+        """Lấy toàn bộ danh sách người dùng kèm theo stories_id (lấy từ bảng Story)"""
+        # 1. Truy vấn toàn bộ user
+        user_query = '''
+            SELECT user_id, username, gmail, password, profile_image, follows, views, description
+            FROM public."Users"
+        '''
+        users_raw = self.db.execute_query(user_query)
+
+        # 2. Truy vấn tất cả story_id và team
+        story_query = '''
+            SELECT id, team
+            FROM public."Story"
+        '''
+        stories_raw = self.db.execute_query(story_query)
+
+        # 3. Build mapping: user_id -> [story_id,...]
+        user_stories_map = {}
+        for story_id, team in stories_raw:
+            if team:
+                for user_id in team:
+                    user_stories_map.setdefault(user_id, []).append(story_id)
+
+        # 4. Tạo danh sách UserDTO
+        users = []
+        for row in users_raw:
+            user_id = row[0]
+            stories_id = user_stories_map.get(user_id, [])
+            user = UserDTO(
+                user_id=user_id,
+                username=row[1],
+                gmail=row[2],
+                password=row[3],
+                profile_image=row[4],
+                follows=row[5],
+                views=row[6],
+                description=row[7],
+                stories_id=stories_id
+            )
+            users.append(user)
+
+        return users

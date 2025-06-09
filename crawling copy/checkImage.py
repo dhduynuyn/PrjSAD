@@ -21,12 +21,12 @@ connection = psycopg2.connect(
 cursor = connection.cursor()
 
 # ID bạn muốn kiểm tra
-story_id = 50
+story_id = 28
 
 # Lấy image_data từ database
-cursor.execute("""SELECT image_data 
-               FROM public."Story" 
-               WHERE id = %s""", (story_id,))
+cursor.execute("""SELECT profile_image 
+               FROM public."Users" 
+               WHERE user_id = %s""", (story_id,))
 result = cursor.fetchone()
 
 if result and result[0]:

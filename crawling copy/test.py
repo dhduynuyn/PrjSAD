@@ -1,7 +1,10 @@
-import requests
+from IPython.display import display, Image
+import base64
 
-url = "https://monkeydtruyen.com/nhan-sinh-nhu-beo-dat-tinh-yeu-tua-bao-to/chuong-19.html"
-encoded_url = requests.utils.quote(url)  # Encode the URL
-response = requests.get(f"http://127.0.0.1:5000/crawl/{encoded_url}")
+# Giả sử bạn đã có profile_image là binary (bytes)
+# Kiểm tra một đoạn đầu
+print(profile_image[:20])
 
-print(response)  # Print the result
+# Encode base64 và hiển thị trực tiếp
+encoded = base64.b64encode(profile_image).decode('utf-8')
+display(Image(data=base64.b64decode(encoded)))

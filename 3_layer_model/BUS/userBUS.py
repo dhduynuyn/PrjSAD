@@ -1,8 +1,12 @@
 from DAO.userDAO import UserDAO
+from datetime import datetime, timedelta
 
 class UserBUS:
     def __init__(self):
         self.user_dao = UserDAO()
+        self._cached_users = None
+        self._cache_expiry = None
+        self.CACHE_DURATION = timedelta(minutes=10)  # cache trong 10 phút
 
     def login(self, gmail, password):
         """Handles user login."""
@@ -27,3 +31,20 @@ class UserBUS:
     def get_category(self):
         """Retrieves all categories."""
         return self.user_dao.get_category()
+    
+    def get_all_user(self, force=False):
+        """Get all users with optional cache"""
+        now = datetime.now()
+
+        if force or self._cached_users is None or self._cache_expiry is None or now > self._cache_expiry:
+            print("Fetching users from database...")
+            users = self.user_dao.get_all_user()
+            self._cached_users = [user.to_dict() for user in users]
+            self._cache_expiry = now + self.CACHE_DURATION
+        else:
+            print("Using cached users...")
+
+        return self._cached_users
+    
+    def get_stories_by_user(self, user_id):
+        return self.user_dao.get_stories_by_user(user_id)

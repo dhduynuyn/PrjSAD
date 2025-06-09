@@ -29,6 +29,7 @@ export default function TeamCard({ team }) {
           onError={(e) => { e.target.onerror = null; e.target.src=defaultAvatar }}
           loading="lazy"
         />
+
       </Link>
       {/* Nội dung card */}
       <div className="p-3 flex flex-col flex-grow">

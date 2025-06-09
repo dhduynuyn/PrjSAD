@@ -281,6 +281,54 @@ def signup():
     user_bus.signup(data['gmail'], data['password'], data['username'])
     return jsonify({"message": "User registered successfully"}), 201
 
+PER_PAGE_USER = 24
+
+def cached_users(force=False):
+    users = user_bus.get_all_user(True)
+    return users
+
+@app.route('/users/paginated', methods=['GET'])
+def get_paginated_users():
+    """Get all users with pagination."""
+    try:
+        page = int(request.args.get('page', 1))
+        if page < 1:
+            raise ValueError
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid page number"}), 400
+
+    search = request.args.get('search', '').strip().lower()
+
+    all_users = user_bus.get_all_user()
+
+    # Lọc theo search nếu có
+    if search:
+        filtered_users = [
+            user for user in all_users
+            if search in user.get('username', '').lower()
+        ]
+    else:
+        filtered_users = all_users
+
+    total_users = len(filtered_users)
+    total_pages = (total_users + PER_PAGE_USER - 1) // PER_PAGE_USER
+
+    if page > total_pages and total_pages != 0:
+        return jsonify({"error": "Page out of range"}), 400
+
+    start = (page - 1) * PER_PAGE_USER
+    end = start + PER_PAGE_USER
+    paginated_users = filtered_users[start:end]
+
+    result = {
+        "users": paginated_users,
+        "total_pages": total_pages,
+        "totalItems": total_users
+    }
+
+    return jsonify(result), 200
+
+
 @app.route('/user/story-status/<story_slug>', methods=['GET'])
 @token_required
 def get_story_status(payload, story_slug):
@@ -435,4 +483,5 @@ def search_stories():
     
 if __name__ == '__main__':
     cached_stories(True)
+    cached_users(True)
     app.run(debug=True)

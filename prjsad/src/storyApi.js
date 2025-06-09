@@ -1,11 +1,5 @@
 const ITEMS_PER_PAGE_LIST = 24; // Số item mỗi trang
 
-const STATUS_OPTIONS = [
-  { id: 28, label: 'Đã đủ bộ' },
-  { id: 35, label: 'Đang phát hành' },
-  { id: 36, label: 'Tạm ngưng' },
-];
-
 export const getStoriesApi = async (filters = {}) => {
   console.log("getStoriesApi", filters);
 

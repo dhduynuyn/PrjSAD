@@ -1,41 +1,59 @@
+import qs from 'qs';
+import axios from 'axios';
+
+const USERS_PER_PAGE = 25;
+
 export const getTeamsApi = async (params) => {
-  // params sẽ là { search: 'searchTerm', page: 1 }
-  console.log("API Call (Mocked): getTeamsApi with params", params);
-
-  // Dữ liệu giả lập lớn hơn
-  const ALL_MOCK_TEAMS_DATA = Array.from({ length: 70 }, (_, i) => ({
-    id: `team-id-${i + 1}`,
-    name: `Nhóm Dịch ${String.fromCharCode(65 + (i % 26))}${String.fromCharCode(65 + Math.floor(i / 26))}`,
-    avatarUrl: `https://picsum.photos/seed/teamavatar${i}/200/200`,
-    totalViews: Math.floor(Math.random() * 20000000) + 100000,
-    totalStories: Math.floor(Math.random() * 300) + 5,
-  }));
-
-  return new Promise(resolve => setTimeout(() => {
-    let filteredTeams = [...ALL_MOCK_TEAMS_DATA];
-
-    if (params.search) {
-      const searchTermLower = params.search.toLowerCase();
-      filteredTeams = filteredTeams.filter(team =>
-        team.name.toLowerCase().includes(searchTermLower)
-      );
+  console.log("API Call: getTeamsApi with params", params);
+  let user_filter = [];
+  
+  // Khai báo biến bên ngoài try để chắc chắn có scope dùng được ở cuối hàm
+  let total_pages = 0;
+  let totalItems = 0;
+  
+  try {
+    // Làm sạch tham số
+    const cleanedParams = {};
+    for (const [key, value] of Object.entries(params)) {
+      if (Array.isArray(value) && value.length) {
+        cleanedParams[key] = value;
+      } else if (value !== "" && value !== null && value !== undefined) {
+        cleanedParams[key] = value;
+      }
     }
 
-    // Phân trang
-    const page = parseInt(params.page || '1');
-    const itemsPerPage = 24; // Số team hiển thị mỗi trang
-    const totalItems = filteredTeams.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const startIndex = (page - 1) * itemsPerPage;
-    const paginatedTeams = filteredTeams.slice(startIndex, startIndex + itemsPerPage);
-
-    resolve({
-      data: paginatedTeams,
-      meta: {
-        currentPage: page,
-        lastPage: totalPages,
-        totalItems: totalItems,
-      }
+    const { data } = await axios.get('http://localhost:5000/users/paginated', {
+      params: cleanedParams,
+      paramsSerializer: (params) => qs.stringify(params, { arrayFormat: "repeat" }),
     });
-  }, 500)); // Giả lập độ trễ
+
+    const { users = [], total_pages: tp = 0, total_items: ti = 0 } = data;
+    
+    total_pages = tp;
+    totalItems = ti;
+
+    user_filter = users.map(data => ({
+      id: data.user_id,
+      name: data.username,
+      avatarUrl: data.profile_image 
+        ? `data:image/jpeg;base64,${data.profile_image}` 
+        : `https://picsum.photos/seed/useravatar${data.user_id}/200/200`,
+      totalViews: data.views || 0,
+      totalStories: data.stories_id?.length || 0,
+    }));
+
+  } catch (error) {
+    console.error("Error during API call (getTeamsApi):", error);
+  }
+
+  const page = parseInt(params.page || '1');
+
+  return {
+    data: user_filter,
+    meta: {
+      currentPage: page,
+      lastPage: total_pages,
+      totalItems: totalItems,
+    }
+  };
 };

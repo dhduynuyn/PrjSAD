@@ -16,80 +16,41 @@ export default function TeamListPage() {
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [hasInitiatedSearch, setHasInitiatedSearch] = useState(false); 
 
   const fetchTeams = useCallback(async (page, currentSearchTerm) => {
-  console.log("Search term:", currentSearchTerm)
-  setIsLoading(true);
-  setError(null);
-  setHasInitiatedSearch(true);
+    console.log("Fetching teams with params:", { search: currentSearchTerm, page });
+    setIsLoading(true);
+    setError(null);
 
-  const params = {
-    search: currentSearchTerm,
-    page: page,
-  };
-  console.log("Fetching teams with params:", params);
+    // Cập nhật URL
+    const newSearchParams = new URLSearchParams();
+    if (currentSearchTerm) newSearchParams.set('search', currentSearchTerm);
+    if (page > 1) newSearchParams.set('page', page.toString());
+    navigate(`${window.location.pathname}?${newSearchParams.toString()}`, { replace: true });
 
-  // Cập nhật URL
-  const newSearchParams = new URLSearchParams();
-  if (currentSearchTerm) newSearchParams.set('search', currentSearchTerm);
-  if (page > 1) newSearchParams.set('page', page.toString());
-  navigate(`${window.location.pathname}?${newSearchParams.toString()}`, { replace: true });
+    try {
+      const response = await getTeamsApi({ search: currentSearchTerm, page });
 
-  try { 
-    const response = await new Promise(resolve => setTimeout(() => {
-      const allMockTeams = Array.from({ length: 50 }, (_, i) => ({
-        id: `team-${i + 1}`,
-        name: `Team Dịch Giả ${String.fromCharCode(65 + i)}`,
-        avatarUrl: `https://picsum.photos/seed/team${i}/200/200`,
-        totalViews: Math.floor(Math.random() * 10000000) + 500000,
-        totalStories: Math.floor(Math.random() * 500) + 10,
-      }));
-      //Khanh Khanh cứu mạng
-      let filteredTeams = allMockTeams;
-      if (currentSearchTerm && currentSearchTerm.trim()) {
-        filteredTeams = allMockTeams.filter(team =>
-          team.name.toLowerCase().includes(currentSearchTerm.trim().toLowerCase())
-        );
-      }
-      const itemsPerPage = 24;
-      const totalFilteredItems = filteredTeams.length;
-      const calculatedTotalPages = Math.ceil(totalFilteredItems / itemsPerPage);
-      const startIndex = (page - 1) * itemsPerPage;
-      const paginatedTeams = filteredTeams.slice(startIndex, startIndex + itemsPerPage);
-
-      resolve({
-        data: paginatedTeams,
-        meta: {
-          currentPage: page,
-          lastPage: calculatedTotalPages,
-          totalItems: totalFilteredItems,
-        }
-      });
-    }, 800));
-
-    setTeams(response.data || []);
-    setCurrentPage(response.meta?.currentPage || 1);
-    setTotalPages(response.meta?.lastPage || 1);
-    setTotalItems(response.meta?.totalItems || 0);
-  } catch (err) {
-    console.error("Failed to fetch teams:", err);
-    setError("Không thể tải danh sách team. Vui lòng thử lại.");
-    setTeams([]);
-  } finally {
-    setIsLoading(false);
-  }
-}, [navigate]);
-
+      setTeams(response.data || []);
+      setCurrentPage(response.meta?.currentPage || 1);
+      setTotalPages(response.meta?.lastPage || 1);
+      setTotalItems(response.meta?.totalItems || 0);
+    } catch (err) {
+      console.error("Failed to fetch teams:", err);
+      setError("Không thể tải danh sách team. Vui lòng thử lại.");
+      setTeams([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const pageFromUrl = parseInt(searchParams.get('page') || '1');
     const searchTermFromUrl = searchParams.get('search') || '';
     if (pageFromUrl !== currentPage || searchTermFromUrl !== searchTerm || teams.length === 0) {
-         fetchTeams(pageFromUrl, searchTermFromUrl);
-     }
-  }, [searchParams, fetchTeams]); 
-
+      fetchTeams(pageFromUrl, searchTermFromUrl);
+    }
+  }, [searchParams, fetchTeams]);
 
   const handleSearchSubmit = () => {
     const keyword = searchTerm.trim();
@@ -142,6 +103,7 @@ export default function TeamListPage() {
           )}
         </div>
         <div className="w-full md:w-1/3 lg:w-1/4">
+          {/* Bên phải nếu bạn muốn thêm gì đó */}
         </div>
       </div>
     </div>
