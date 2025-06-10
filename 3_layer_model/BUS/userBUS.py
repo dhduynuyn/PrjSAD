@@ -28,6 +28,10 @@ class UserBUS:
         """Adds a story to the user's favorites."""
         return self.user_dao.add_follow(user_id, story_id)
     
+    def remove_follow(self, user_id, story_id):
+        """Adds a story to the user's favorites."""
+        return self.user_dao.remove_follow(user_id, story_id)
+    
     def get_category(self):
         """Retrieves all categories."""
         return self.user_dao.get_category()
@@ -46,5 +50,14 @@ class UserBUS:
 
         return self._cached_users
     
+    def get_user_by_id(self, user_id):
+        """Retrieves a user by their ID."""
+        users = self.get_all_user()
+        for user in users:
+            if user.get('user_id') == user_id:
+                return user
+        return None
+    
     def get_stories_by_user(self, user_id):
         return self.user_dao.get_stories_by_user(user_id)
+

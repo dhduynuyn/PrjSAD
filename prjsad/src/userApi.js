@@ -1,8 +1,6 @@
 
-// Hàm giả lập API, thay thế bằng API thật của bạn
 const mockApiCall = (data) => new Promise(resolve => setTimeout(() => resolve(data), 500));
 
-// Dữ liệu giả
 const MOCK_DATA = {
     bookmarks: [
         { id: 2001, story: { id: 10, title: 'Bí Kíp Luyện Rồng Ở Thế Giới Tu Tiên', slug: 'bi-kip-luyen-rong', coverImage: 'https://i.pinimg.com/564x/2b/b8/2c/2bb82c6861d123682974b8801e14a1a7.jpg', latestChapter: 'Chương 150', views: 15200, bookmarks: 1200, status: 'IN_PROGRESS' } },
@@ -12,6 +10,43 @@ const MOCK_DATA = {
         { id: 2005, story: { id: 14, title: 'Sau Khi Ly Hôn, Tôi Trở Thành Tỷ Phú', slug: 'ly-hon-thanh-ty-phu', coverImage: 'https://i.pinimg.com/564x/d1/15/4a/d1154a8a5f8b809d3b435252875b1c7b.jpg', latestChapter: 'Chương 888 (Hoàn)', views: 999000, bookmarks: 15000, status: 'COMPLETED' } },
     ]
 };
+
+const fetchBookmarks = async (userId) => {
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    throw new Error('Token không tồn tại');
+  }
+
+  try {
+    const response = await fetch(`http://localhost:5000/users/follow_story`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Lỗi khi lấy dữ liệu bookmarks');
+    }
+
+    const data = await response.json();
+    
+    const transformedData = (data || []).map(story => ({
+      ...story,
+      coverImage: (story.image_data)  // đổi tên
+    }));
+
+    console.log('Dữ liệu truyện đã lưu:', transformedData);
+
+    return transformedData || [];
+  } catch (error) {
+    console.error('Lỗi khi gọi API:', error);
+    return [];
+  }
+};
+
 
 // Hàm kiểm tra token (tất cả API cần xác thực đều phải gọi)
 const checkAuth = (token) => {
@@ -34,24 +69,23 @@ const checkAuth = (token) => {
  *   - data: Mảng các item truyện đã lưu.
  *   - meta: Thông tin phân trang (trang hiện tại, trang cuối, tổng số item).
  */
-export const getBookmarksApi = async ({ token, page = 1 }) => {
-    await checkAuth(token);
-    console.log(`API: Lấy danh sách truyện đã lưu - Trang ${page}`);
+export const getBookmarksApi = async ({ token, userId, page = 1 }) => {
+  await checkAuth(token);
+  console.log(`API: Lấy danh sách truyện đã lưu - Trang ${page}`);
 
-    // ----- Logic giả lập phân trang -----
-    const itemsPerPage = 20; // Số item trên mỗi trang
-    const paginatedData = MOCK_DATA.bookmarks.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-    // -------------------------------------
+  const allBookmarks = await fetchBookmarks(userId);
 
-    // API thật sẽ trả về cấu trúc tương tự như thế này.
-    return mockApiCall({
-        data: paginatedData,
-        meta: {
-            currentPage: page,
-            lastPage: Math.ceil(MOCK_DATA.bookmarks.length / itemsPerPage),
-            totalItems: MOCK_DATA.bookmarks.length,
-        },
-    });
+  const itemsPerPage = 10;
+  const paginatedData = allBookmarks.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  return {
+    data: paginatedData,
+    meta: {
+      currentPage: page,
+      lastPage: Math.ceil(allBookmarks.length / itemsPerPage),
+      totalItems: allBookmarks.length,
+    },
+  };
 };
 
 /**

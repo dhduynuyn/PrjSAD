@@ -56,11 +56,21 @@ class UserDAO:
         self.db.execute_non_query(query, (story_id, user_id))
         return True
     
+    def remove_follow(self, user_id, story_id):
+        """Thêm story_id vào like_story, không kiểm tra gì cả"""
+        query = '''
+            UPDATE public."Users"
+            SET follow_story = array_remove(follow_story, %s)
+            WHERE user_id = %s
+        '''
+        self.db.execute_non_query(query, (story_id, user_id))
+        return True
+    
     def get_all_user(self, force=False):
         """Lấy toàn bộ danh sách người dùng kèm theo stories_id (lấy từ bảng Story)"""
         # 1. Truy vấn toàn bộ user
         user_query = '''
-            SELECT user_id, username, gmail, password, profile_image, follows, views, description
+            SELECT user_id, username, gmail, password, profile_image, follows, views, description, follow_story
             FROM public."Users"
         '''
         users_raw = self.db.execute_query(user_query)
@@ -93,6 +103,7 @@ class UserDAO:
                 follows=row[5],
                 views=row[6],
                 description=row[7],
+                follow_story=row[8],
                 stories_id=stories_id
             )
             users.append(user)

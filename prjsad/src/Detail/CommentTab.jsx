@@ -161,9 +161,9 @@ export default function CommentTab({ storyId, initialComments }) {
   // --- Render ---
   return (
     <div>
-      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+      {/* <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
         {totalComments.toLocaleString()} bình luận
-      </p>
+      </p> */}
 
       {/* Form bình luận */}
       {isAuthenticated ? (
