@@ -14,7 +14,11 @@ import AdvancedSearchPage from './AdvancedSearchPage';
 import RegisterPage from './RegisterPage'; 
 import CategoryNav from "./CategoryNav";
 import LoginPage from './LoginPage';   
-import BookmarksPage from './User/BookmarksPage'; 
+import BookmarksPage from './User/BookmarksPage';
+import CreateStoryPage from './User/Writter/CreateStoryPage'; 
+import ChapterCreateEditPage from './User/Writter/ChapterCreateEditPage'; 
+import StoryManagementPage from './User/Writter/StoryManagementPage'; 
+
 import Header from './Header';      
 import Footer from './Footer';       
 
@@ -54,6 +58,12 @@ const App = () => {
              <Route path="/teams" element={<TeamListPage />} /> 
              <Route path="/stories/:listTypeSlug" element={<StoryListPage />} />
              <Route path="/user/truyen-da-luu" element={<BookmarksPage/>} />
+             <Route path="/user/dang-truyen" element={<CreateStoryPage/>} />
+             <Route path="/user/quan-ly-truyen/:storySlug" element={<StoryManagementPage />} />
+             <Route path="/user/quan-ly-truyen/:storySlug/them-chuong" element={<ChapterCreateEditPage />} />
+             <Route path="/user/quan-ly-truyen/:storySlug/sua-chuong/:chapterId" element={<ChapterCreateEditPage />} />
+
+             
           {/*</Route>
           <Route element={<MinimalLayout />}>*/}
             <Route path="/register" element={<RegisterPage />} />

@@ -77,3 +77,117 @@ export const deleteBookmarkApi = async ({ token, itemId }) => {
     // API thật sẽ trả về thông báo thành công hoặc thất bại.
     return mockApiCall({ success: true, message: "Hủy lưu truyện thành công." });
 };
+
+
+// =============================================
+// === API MỚI CHO VIỆC ĐĂNG VÀ QUẢN LÝ TRUYỆN ===
+// =============================================
+
+/**
+ * Gửi dữ liệu truyện mới lên server để tạo.
+ * Đây là hành động của user, nên đặt ở userApi.
+ * @param {object} params - Gồm { storyData, token }
+ *   - storyData: Dữ liệu từ form, bao gồm cả file ảnh
+ */
+export const createStoryApi = async ({ storyData, token }) => {
+    console.log("USER_API: Creating new story...");
+    
+    const formData = new FormData();
+    formData.append('title', storyData.title);
+    formData.append('author', storyData.author);
+    formData.append('description', storyData.description);
+    formData.append('status', storyData.status);
+    formData.append('genres', JSON.stringify(storyData.genres));
+    if (storyData.coverImageFile) {
+        formData.append('coverImage', storyData.coverImageFile);
+    }
+
+    const res = await fetch(`${API_BASE_URL}/stories`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+    });
+    
+    // Xử lý lỗi từ server
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Đăng truyện thất bại');
+    }
+
+    return res.json();
+};
+
+/**
+ * Lấy thông tin chi tiết một truyện mà user sở hữu để quản lý.
+ * @param {object} params - Gồm { storySlug, token }
+ */
+export const getStoryForManagementApi = async ({ storySlug, token }) => {
+    console.log(`USER_API: Fetching management data for story: ${storySlug}`);
+    const res = await fetch(`${API_BASE_URL}/manage/stories/${storySlug}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) {
+        throw new Error('Không thể tải dữ liệu quản lý truyện');
+    }
+    return res.json();
+};
+
+/**
+ * Tạo một chương mới cho truyện.
+ * @param {object} params - Gồm { storyId, chapterData, token }
+ */
+export const createChapterApi = async ({ storyId, chapterData, token }) => {
+    console.log(`USER_API: Creating new chapter for story ID ${storyId}`);
+    const res = await fetch(`${API_BASE_URL}/stories/${storyId}/chapters`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(chapterData),
+    });
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Tạo chương thất bại');
+    }
+    return res.json();
+};
+
+/**
+ * Lấy nội dung của một chương để chỉnh sửa.
+ * @param {object} params - Gồm { chapterId, token }
+ */
+export const getChapterForEditApi = async ({ chapterId, token }) => {
+    console.log(`USER_API: Fetching chapter content for ID: ${chapterId}`);
+    const res = await fetch(`${API_BASE_URL}/chapters/${chapterId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) {
+        throw new Error('Không thể tải nội dung chương');
+    }
+    return res.json();
+};
+
+/**
+ * Cập nhật nội dung của một chương đã có.
+ * @param {object} params - Gồm { chapterId, chapterData, token }
+ */
+export const updateChapterApi = async ({ chapterId, chapterData, token }) => {
+    console.log(`USER_API: Updating chapter ID: ${chapterId}`);
+    const res = await fetch(`${API_BASE_URL}/chapters/${chapterId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(chapterData),
+    });
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Cập nhật chương thất bại');
+    }
+    return res.json();
+};
+
+
+
