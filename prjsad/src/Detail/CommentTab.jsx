@@ -25,9 +25,31 @@ const formatRelativeTime = (isoTimeString) => {
   return Math.floor(seconds) + " giây trước";
 };
 
-export default function CommentTab({ storyId }) {
-  const [comments, setComments] = useState([]);
-  const [totalComments, setTotalComments] = useState(0);
+function generateUniqueId(prefix = '') {
+  return prefix + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+}
+
+function mapCommentData(commentsRaw = [], depth = 0) {
+  return commentsRaw.map((comment, index) => {
+    return {
+      id: comment.id || generateUniqueId(`c-${depth}-${index}-`),
+      user: {
+        name: comment.username,
+        avatarUrl: comment.profile_image
+          ? `data:image/jpeg;base64,${comment.profile_image}`
+          : null,
+      },
+      content: comment.message,
+      createdAtISO: comment.timestamp,
+      replies: mapCommentData(comment.replies || [], depth + 1),
+    };
+  });
+}
+
+
+export default function CommentTab({ storyId, initialComments }) {
+  const [comments, setComments] = useState(initialComments || []);
+  const [totalComments, setTotalComments] = useState(initialComments?.length || 0);
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState(null); // { commentId: xxx, userName: 'yyy' }
   const [isLoading, setIsLoading] = useState(true);
@@ -37,23 +59,15 @@ export default function CommentTab({ storyId }) {
   const navigate = useNavigate();
 
   // --- Fetch Comments ---
-  const fetchComments = useCallback(async () => {
+  const fetchComments = useCallback(() => {
+    console.log("Fetching comments for storyId:", initialComments);
     setIsLoading(true);
     setError(null);
-    try {
-      // Thay bằng API thật ---
-      // const response = await getCommentsApi(storyId);
-      // Giả lập API response
-       const response = await new Promise(resolve => setTimeout(() => resolve({
-          data: [
-              { id: 51582, user: { name: 'uyen', avatarUrl: 'https://monkeyd.net.vn/img/avata.png' }, content: 'Hay quá', createdAtISO: new Date(Date.now() - 1000).toISOString(), replies: [] },
-              { id: 51583, user: { name: 'Another User', avatarUrl: null }, content: 'Bình luận thử nghiệm\nDòng thứ hai.', createdAtISO: new Date(Date.now() - 5 * 60000).toISOString(), replies: [] },
-          ],
-          meta: { total: 2 } // Tổng số bình luận từ API
-      }), 1000));
 
-      setComments(response.data || []);
-      setTotalComments(response.meta?.total || response.data?.length || 0);
+    try {
+      const formattedComments = mapCommentData(initialComments, 0);
+      setComments(formattedComments || []);
+      setTotalComments(formattedComments?.length || 0);
     } catch (err) {
       console.error("Failed to fetch comments:", err);
       setError("Không thể tải bình luận. Vui lòng thử lại.");
@@ -62,7 +76,8 @@ export default function CommentTab({ storyId }) {
     } finally {
       setIsLoading(false);
     }
-  }, [storyId]);
+  }, [initialComments]); // Phụ thuộc vào initialComments
+
 
   useEffect(() => {
     if (storyId) {
@@ -77,45 +92,64 @@ export default function CommentTab({ storyId }) {
     setNewComment(e.target.value);
   };
 
+  function addReplyToComments(comments, parentId, newReply) {
+  return comments.map(comment => {
+    if (comment.id === parentId) {
+      return {
+        ...comment,
+        replies: [newReply, ...(comment.replies || [])],
+      };
+    }
+    if (comment.replies && comment.replies.length > 0) {
+      return {
+        ...comment,
+        replies: addReplyToComments(comment.replies, parentId, newReply),
+      };
+    }
+    return comment;
+  });
+}
+
   // --- Handle Comment Submit ---
   const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      alert("Vui lòng đăng nhập để bình luận.");
-      navigate('/login');
-      return;
+  e.preventDefault();
+  if (!isAuthenticated) {
+    alert("Vui lòng đăng nhập để bình luận.");
+    navigate('/login');
+    return;
+  }
+  if (!newComment.trim()) return;
+
+  setIsSubmitting(true);
+  setError(null);
+
+  try {
+    const postedComment = {
+      id: Math.random().toString(36).substring(7),
+      user: { name: user.name, avatarUrl: user?.avatar || '/img/no-image.png' },
+      content: newComment,
+      createdAtISO: new Date().toISOString(),
+      replies: []
+    };
+
+    if (replyingTo) {
+    setComments(prev => addReplyToComments(prev, replyingTo.commentId, postedComment));
+    } else {
+      setComments(prev => [postedComment, ...prev]);
     }
-    if (!newComment.trim()) return; // Không gửi nếu trống
 
-    setIsSubmitting(true);
-    setError(null);
 
-    try {
-      // Thay bằng API thật ---
-      // const commentData = { content: newComment, parentId: replyingTo?.commentId || null };
-      // const postedComment = await postCommentApi(storyId, commentData);
+    setTotalComments(prev => prev + 1);
+    setNewComment('');
+    setReplyingTo(null);
+  } catch (err) {
+    console.error("Failed to post comment:", err);
+    setError("Gửi bình luận thất bại. Vui lòng thử lại.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
-      // Giả lập API response trả về comment vừa post
-       const postedComment = {
-           id: Math.random().toString(36).substring(7), // ID giả
-           user: { name: user.name, avatarUrl: user.avatar }, // Lấy từ context
-           content: newComment,
-           createdAtISO: new Date().toISOString(),
-           replies: []
-       };
-
-      setComments(prevComments => [postedComment, ...prevComments]);
-      setTotalComments(prev => prev + 1); // Tăng tổng số
-      setNewComment(''); // Xóa nội dung form
-      setReplyingTo(null); // Reset trạng thái trả lời
-
-    } catch (err) {
-      console.error("Failed to post comment:", err);
-      setError("Gửi bình luận thất bại. Vui lòng thử lại.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   // --- Handle Reply Click ---
   const handleReply = (commentId, userName) => {
@@ -138,7 +172,7 @@ export default function CommentTab({ storyId }) {
           onChange={handleCommentChange}
           onSubmit={handleCommentSubmit}
           isSubmitting={isSubmitting}
-          currentUserAvatar={user?.avatar}
+          currentUserAvatar={user?.profile_image || (user.profile_image ? `data:image/jpeg;base64,${user.profile_image}` : '/img/no-image.png')}
           placeholder={replyingTo ? `Trả lời ${replyingTo.userName}...` : "Nhập bình luận của bạn..."}
         />
       ) : (

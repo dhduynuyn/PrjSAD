@@ -42,6 +42,7 @@ export default function StoryDetailPage() {
       console.log("✅ Story details:", storyData);
       console.log("✅ Chapters:", chaptersData);
       console.log("✅ Related stories:", relatedData);
+      console.log("✅ storyData.comments:", storyData.comments);
 
       setStory({
         id: storyData.id,
@@ -63,6 +64,7 @@ export default function StoryDetailPage() {
               id: storyData.translatorTeam.id || '',
             }
           : null,
+        comments: storyData.comments || [],
       });
 
       setChapters(chaptersData || []);
@@ -404,7 +406,7 @@ export default function StoryDetailPage() {
         </ul>
         <div>
           {activeTab === 'chapters' && <ChapterListTab chapters={chapters} storySlug={storySlug} />}
-          {activeTab === 'comments' && <CommentTab storyId={story?.id} />}
+          {activeTab === 'comments' && <CommentTab storyId={story?.id} initialComments={story?.comments || []}/>}
         </div>
       </div>
 

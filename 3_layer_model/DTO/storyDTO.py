@@ -55,24 +55,25 @@ def humanize_time_diff(past_time):
 
 class StoryDTO:
     def __init__(self, story_id, title, author, category, status, description,
-                 views=0, likes=0, follows=0, last_updated=None, image_data=None, genres=None, latest_chapter=None, team_ids=None, team_names=None, chapters=None):
+                 views=0, likes=0, follows=0, last_updated=None, image_data=None, genres=None,
+                 latest_chapter=None, team_ids=None, team_names=None, chapters=None, comments=None):
         self.story_id = story_id
         self.title = title
         self.author = author
-        self.category = category  # This will be a list of category IDs
+        self.category = category
         self.status = status
         self.description = description
         self.views = views
         self.likes = likes
         self.follows = follows
         self.last_updated = last_updated
-        self.genres = genres if genres else []  # Danh sách thể loại
-        self.image_data = image_data  # Có thể None hoặc chuỗi base64
+        self.genres = genres if genres else []
+        self.image_data = image_data
         self.latest_chapter = latest_chapter
         self.chapters = chapters
-        
+        self.comments = comments if comments else []
+
         if team_ids and team_names:
-            # Lấy team đầu tiên làm ID (hoặc có thể customize theo ý bạn)
             self.translatorTeam = TranslatorTeamDTO(team_ids[0], team_names)
         else:
             self.translatorTeam = None
@@ -96,14 +97,16 @@ class StoryDTO:
                 "name": self.translatorTeam.name,
                 "url": self.translatorTeam.id
             } if self.translatorTeam else None,
-            "chapters": self.chapters
+            "chapters": self.chapters,
+            "comments": self.comments
         }
 
     def to_dict2(self):
+
         return {
             "id": self.story_id,
             "title": self.title,
-            "author": {"name":self.author},
+            "author": {"name": self.author},
             "genres": self.genres,
             "status": self.status,
             "description": self.description,
@@ -118,5 +121,6 @@ class StoryDTO:
                 "name": self.translatorTeam.name,
                 "url": self.translatorTeam.id
             } if self.translatorTeam else None,
-            'chapters': self.chapters
+            "chapters": self.chapters,
+            "comments": self.comments
         }
