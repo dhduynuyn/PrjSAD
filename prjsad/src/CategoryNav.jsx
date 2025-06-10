@@ -44,7 +44,7 @@ export default function CategoryNav() {
           {/* Trang chủ */}
           <li className="nav-item">
             <a
-              href="https://www.monkeyd.com.vn"
+              href="http://localhost:5173/"
               className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
             >
               Trang chủ
