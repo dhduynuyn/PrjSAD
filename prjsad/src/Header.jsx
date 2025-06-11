@@ -85,7 +85,7 @@ export default function Header() {
             <div className="flex-shrink-0">
               <Link to="/" aria-label="Trang chủ">
                 <img
-                   src="https://cdn.builder.io/api/v1/image/assets/TEMP/b40865568aeafdd7562b3e8c22cfe92486a1cd7d?apiKey=741f47dd65dd4c5584bc71eba79f2904"
+                   src="https://i.ibb.co/cXx43Zhr/snapedit-1749648707282.png"
                   alt="Company Logo"
                   className="h-8 w-auto" 
                 />
