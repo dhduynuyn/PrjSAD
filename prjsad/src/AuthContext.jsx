@@ -1,9 +1,11 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo } from 'react'; // Added useMemo for optimization
+
 const AuthContext = createContext(null);
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Ban đầu chưa đăng nhập, user là null
-  const [token, setToken] = useState(localStorage.getItem('authToken')); // Lấy token từ localStorage khi khởi tạo
-  const [isLoading, setIsLoading] = useState(true); // Để xử lý trạng thái tải ban đầu
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('authToken'));
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -17,21 +19,14 @@ export const AuthProvider = ({ children }) => {
             setUser(JSON.parse(storedUser));
           } catch (error) {
             console.error("Failed to parse stored user:", error);
-            // Nếu user lưu trữ bị lỗi, xóa đi
             localStorage.removeItem('authUser');
             localStorage.removeItem('authToken');
             setToken(null);
             setUser(null);
           }
         } else {
-          // Nếu chỉ có token mà không có user (ví dụ: user đóng tab giữa chừng khi đang fetch user)
-          // Gọi API /api/user/me ở đây để lấy lại thông tin user
-          // Hoặc đơn giản là yêu cầu đăng nhập lại bằng cách xóa token
-          // Lấy lại thông tin user nếu chỉ có token
           try {
-            // GỌI API LẤY USER INFO ---
-            // Giả sử có endpoint /api/auth/me để lấy thông tin user dựa trên token
-            const response = await fetch('/api/auth/me', { // THAY THẾ ENDPOINT NÀY
+            const response = await fetch('/api/auth/me', {
               headers: {
                 'Authorization': `Bearer ${storedToken}`,
               },
@@ -41,7 +36,6 @@ export const AuthProvider = ({ children }) => {
               setUser(userData);
               localStorage.setItem('authUser', JSON.stringify(userData));
             } else {
-              // Token không hợp lệ hoặc đã hết hạn
               console.warn("Token invalid or expired during initialization.");
               localStorage.removeItem('authToken');
               localStorage.removeItem('authUser');
@@ -57,25 +51,18 @@ export const AuthProvider = ({ children }) => {
           }
         }
       }
-      setIsLoading(false); // Đánh dấu đã tải xong
+      setIsLoading(false);
     };
 
     initializeAuth();
-  }, []); // Chỉ chạy 1 lần khi component mount
+  }, []);
 
-  // Hàm để gọi khi đăng nhập thành công từ API
-  // userDataFromApi nên chứa thông tin user
-  // authTokenFromApi là token nhận được
-
-
-  // Hàm để gọi khi đăng nhập thành công
   const login = (userDataFromApi, authTokenFromApi) => {
     const userWithStories = { ...userDataFromApi, stories: userDataFromApi.stories || [] };
-
     localStorage.setItem('authToken', authTokenFromApi);
-    localStorage.setItem('authUser', JSON.stringify(userDataFromApi));
+    localStorage.setItem('authUser', JSON.stringify(userWithStories)); // Use the prepared user object
     setToken(authTokenFromApi);
-    setUser(userDataFromApi);
+    setUser(userWithStories);
   };
 
   const logout = () => {
@@ -83,30 +70,22 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('authUser');
     setToken(null);
     setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token'); // 🔥 Nếu bạn lưu token riêng thì cũng xóa
   };
 
-  // Hàm để cập nhật thông tin user (ví dụ sau khi chỉnh sửa profile)
   const updateUser = (updatedUserData) => {
     setUser(updatedUserData);
     localStorage.setItem('authUser', JSON.stringify(updatedUserData));
   };
 
-  // ======================================================================
-  // THÊM HÀM MỚI ĐỂ CẬP NHẬT DANH SÁCH TRUYỆN
-  // ======================================================================
   const addStoryToUser = (newStory) => {
     setUser(currentUser => {
-      if (!currentUser) return null; // Nếu không có user, không làm gì cả
+      if (!currentUser) return null;
 
-      // Tạo một user object mới với danh sách truyện đã được cập nhật
       const updatedUser = {
         ...currentUser,
-        stories: [newStory, ...(currentUser.stories || [])] // Thêm truyện mới vào đầu danh sách
+        stories: [newStory, ...(currentUser.stories || [])]
       };
 
-      // Cập nhật lại localStorage để giữ trạng thái sau khi refresh
       localStorage.setItem('authUser', JSON.stringify(updatedUser));
       
       console.log('AuthContext: User updated with new story.', updatedUser);
@@ -114,15 +93,19 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const value = {
+  // ======================================================================
+  // FIX IS HERE: Add `addStoryToUser` to the context value object
+  // ======================================================================
+  const value = useMemo(() => ({
     user,
-    token, // Cung cấp token ra ngoài nếu các component khác cần trực tiếp
-    isAuthenticated: !!user && !!token, // User được coi là authenticated khi có cả user object và token
+    token,
+    isAuthenticated: !!user && !!token,
     login,
     logout,
-    updateUser, // Thêm hàm cập nhật user
-    isLoadingAuth: isLoading, // Trạng thái để biết AuthContext đã sẵn sàng hay chưa
-  };
+    updateUser,
+    addStoryToUser, // <-- THIS LINE IS THE FIX
+    isLoadingAuth: isLoading,
+  }), [user, token, isLoading]); // useMemo prevents re-renders of consumers when unrelated state changes
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
