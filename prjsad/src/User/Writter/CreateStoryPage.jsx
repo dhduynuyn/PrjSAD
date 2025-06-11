@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
 //import { createStoryApi } from '../../userApi';
@@ -32,9 +32,8 @@ const readFileAsDataURL = (file) => {
 
 
 export default function CreateStoryPage() {
-  const { isAuthenticated, token, isLoadingAuth } = useAuth();
+  const { isAuthenticated, token, isLoadingAuth, addStoryToUser } = useAuth();  
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -43,7 +42,6 @@ export default function CreateStoryPage() {
     genres: [], // Danh sách ID các thể loại đã chọn
   });
   const [coverImageFile, setCoverImageFile] = useState(null); // State để lưu file ảnh
-  const [allGenres, setAllGenres] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -109,14 +107,15 @@ export default function CreateStoryPage() {
         const response = await createStoryApi({ storyData: storyPayload, token });
         
         if (response.success) {
+            addStoryToUser(response.data);
+
             alert(response.message);
-            navigate(`/user/quan-ly-truyen/${response.data.slug}`);
+            // Điều hướng về trang profile để thấy kết quả ngay lập tức
+            navigate('/user/profile'); // <-- THAY ĐỔI ĐƯỜNG DẪN NẾU CẦN
         } else {
             setError(response.message || "Đã có lỗi xảy ra.");
         }
     } catch (err) {
-        console.error("Failed to create story:", err);
-        // Bắt lỗi từ readFileAsDataURL nếu có
         setError(err.message || "Đã có lỗi xảy ra khi xử lý ảnh.");
     } finally {
         setIsSubmitting(false);

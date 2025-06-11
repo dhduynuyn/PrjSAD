@@ -70,6 +70,8 @@ export const AuthProvider = ({ children }) => {
 
   // Hàm để gọi khi đăng nhập thành công
   const login = (userDataFromApi, authTokenFromApi) => {
+    const userWithStories = { ...userDataFromApi, stories: userDataFromApi.stories || [] };
+
     localStorage.setItem('authToken', authTokenFromApi);
     localStorage.setItem('authUser', JSON.stringify(userDataFromApi));
     setToken(authTokenFromApi);
@@ -89,6 +91,27 @@ export const AuthProvider = ({ children }) => {
   const updateUser = (updatedUserData) => {
     setUser(updatedUserData);
     localStorage.setItem('authUser', JSON.stringify(updatedUserData));
+  };
+
+  // ======================================================================
+  // THÊM HÀM MỚI ĐỂ CẬP NHẬT DANH SÁCH TRUYỆN
+  // ======================================================================
+  const addStoryToUser = (newStory) => {
+    setUser(currentUser => {
+      if (!currentUser) return null; // Nếu không có user, không làm gì cả
+
+      // Tạo một user object mới với danh sách truyện đã được cập nhật
+      const updatedUser = {
+        ...currentUser,
+        stories: [newStory, ...(currentUser.stories || [])] // Thêm truyện mới vào đầu danh sách
+      };
+
+      // Cập nhật lại localStorage để giữ trạng thái sau khi refresh
+      localStorage.setItem('authUser', JSON.stringify(updatedUser));
+      
+      console.log('AuthContext: User updated with new story.', updatedUser);
+      return updatedUser;
+    });
   };
 
   const value = {
