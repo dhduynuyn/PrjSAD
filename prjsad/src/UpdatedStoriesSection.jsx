@@ -55,7 +55,7 @@ export default function UpdatedStoriesSection() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <section className="py-4">
-        <h2 className="text-lg font-semibold tracking-wide leading-tight uppercase text-gray-800 mb-0">
+        <h2 className="text-lg font-semibold tracking-wide leading-tight uppercase text-gray-100 mb-0">
           Truyện mới cập nhật
         </h2>
         <hr className="mt-2 mb-4 border-t border-gray-300" />

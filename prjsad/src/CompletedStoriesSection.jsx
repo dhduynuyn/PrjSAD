@@ -53,7 +53,7 @@ export default function CompletedStoriesSection() {
   return (
     <section className="mt-6 md:mt-8">
       <div className="flex flex-wrap gap-y-2 items-center justify-between mb-2">
-        <h5 className="text-lg md:text-xl font-medium uppercase text-gray-700 tracking-wide mb-0">
+        <h5 className="text-lg md:text-xl font-medium uppercase text-gray-100 tracking-wide mb-0">
           Truyện đã hoàn thành
         </h5>
         <a

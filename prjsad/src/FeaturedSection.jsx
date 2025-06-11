@@ -106,7 +106,7 @@ export default function FeaturedSection() {
 
   return (
     <section className="mb-6">
-      <h2 className="z-10 self-start text-xl font-medium tracking-wide leading-tight uppercase text-neutral-700">
+      <h2 className="z-10 self-start text-xl font-medium tracking-wide leading-tight uppercase text-neutral-100">
         Đề cử hôm nay
       </h2>
       <div className="border-solid border-t-[1px] border-t-gray-300 opacity-50 mt-3 mb-4" /> {/* Thay đổi màu và opacity nếu muốn */}
