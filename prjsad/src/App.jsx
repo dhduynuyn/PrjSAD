@@ -9,6 +9,7 @@ import StoryDetailPage from './StoryDetailPage';
 //import StoryDetailPage from './Demo/StoryDetailPage-demo';
 import UserProfilePage from './User/Info/UserProfilePage'; 
 import ChapterPage from './ChapterPage'; 
+import TranslatorTeamPage from './TranslatorTeamPage'; 
 import SearchResultPage from './Search/SearchResultPage';
 //import ChapterPage from './Demo/ChapterPage-demo'; 
 import AdvancedSearchPage from './AdvancedSearchPage';
@@ -59,6 +60,7 @@ const App = () => {
              <Route path="/tim-kiem-nang-cao" element={<AdvancedSearchPage />} />
              <Route path="/search-results" element={<SearchResultPage />} /> 
              <Route path="/teams" element={<TeamListPage />} /> 
+             <Route path="/nhom-dich/:teamSlug" element={<TranslatorTeamPage />} />
              <Route path="/the-loai/:genreSlug" element={<GenrePage />} />
              <Route path="/stories/:listTypeSlug" element={<StoryListPage />} />
              <Route path="/user/truyen-da-luu" element={<BookmarksPage/>} />
