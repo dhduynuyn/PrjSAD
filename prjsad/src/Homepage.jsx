@@ -6,7 +6,6 @@ import UpdatedStoriesSection from "./UpdatedStoriesSection";
 //import CreativeStoriesSection from "./CreativeStoriesSection";
 import CompletedStoriesSection from "./CompletedStoriesSection";
 import CategoryGrid from "./CategoryGrid";
-import Footer from "./Footer";
 
 export default function HomePage() {
   const [completedStories, setCompletedStories] = useState([]);
