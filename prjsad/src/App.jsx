@@ -7,7 +7,7 @@ import { AuthProvider } from './AuthContext';
 import StoryListPage from './StoryListPage'; 
 import StoryDetailPage from './StoryDetailPage';
 //import StoryDetailPage from './Demo/StoryDetailPage-demo';
-import UserProfilePage from './pages/User/UserProfilePage'; 
+import UserProfilePage from './User/Info/UserProfilePage'; 
 import ChapterPage from './ChapterPage'; 
 import SearchResultPage from './Search/SearchResultPage';
 //import ChapterPage from './Demo/ChapterPage-demo'; 

@@ -202,6 +202,50 @@ export const getChapterForEditApi = async ({ chapterId, token }) => {
     return res.json();
 };
 
+export const updateUserProfileApi = async ({ userData, token }) => {
+    await checkAuth(token); // Kiểm tra token trước
+
+    // Vì có thể có file upload, chúng ta phải dùng FormData
+    const formData = new FormData();
+    formData.append('name', userData.name);
+    formData.append('username', userData.username);
+    formData.append('bio', userData.bio);
+
+    // Chỉ thêm file vào form data nếu người dùng đã chọn file mới
+    if (userData.avatarFile) {
+        formData.append('avatar', userData.avatarFile); // Tên key 'avatar' phải khớp với backend
+    }
+
+    try {
+        // Chú ý: Backend của bạn cần có một endpoint để xử lý việc này, ví dụ: /users/update_info
+        // Phương thức có thể là POST hoặc PUT
+        const res = await fetch(`http://localhost:5000/users/update_info`, {
+            method: 'POST', // hoặc 'PUT'
+            headers: {
+                // KHÔNG set 'Content-Type': 'multipart/form-data'.
+                // Browser sẽ tự động set nó với boundary đúng khi body là FormData.
+                'Authorization': `Bearer ${token}`,
+            },
+            body: formData,
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            console.error('Lỗi khi cập nhật profile:', result);
+            return { success: false, message: result.error || 'Cập nhật hồ sơ thất bại.' };
+        }
+        
+        // Backend nên trả về thông tin user mới để frontend cập nhật
+        return { success: true, message: 'Cập nhật hồ sơ thành công!', data: result.user };
+
+    } catch (error) {
+        console.error('Lỗi kết nối khi cập nhật profile:', error);
+        return { success: false, message: error.message };
+    }
+};
+
+
 /**
  * Cập nhật nội dung của một chương đã có.
  * @param {object} params - Gồm { chapterId, chapterData, token }
