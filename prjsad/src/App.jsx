@@ -24,7 +24,6 @@ import ChapterCreateEditPage from './User/Writter/ChapterCreateEditPage';
 import StoryManagementPage from './User/Writter/StoryManagementPage'; 
 
 import Header from './Header';      
-import Footer from './Footer';       
 
 function MainLayout() {
   return (
@@ -35,7 +34,6 @@ function MainLayout() {
       <main className="flex-grow w-full"> 
         <Outlet /> 
       </main>
-      <Footer />
     </div>
   );
 }
