@@ -107,11 +107,25 @@ export default function CreateStoryPage() {
         const response = await createStoryApi({ storyData: storyPayload, token });
         
         if (response.success) {
-            addStoryToUser(response.data);
+            const newStory = response.data; // Giả sử API trả về toàn bộ object truyện mới
 
-            alert(response.message);
-            // Điều hướng về trang profile để thấy kết quả ngay lập tức
-            navigate('/user/profile'); // <-- THAY ĐỔI ĐƯỜNG DẪN NẾU CẦN
+            // 1. Cập nhật trạng thái global
+            addStoryToUser(newStory); 
+
+            // 2. Lấy slug của truyện mới
+            const newStorySlug = newStory.slug;
+
+            alert(response.message || "Tạo truyện thành công!"); // Thông báo cho người dùng
+
+            // 3. Kiểm tra xem có slug không và điều hướng
+            if (newStorySlug) {
+                // Điều hướng đến trang quản lý của truyện vừa tạo
+                navigate(`/user/quan-ly-truyen/${newStorySlug}`);
+            } else {
+                // Nếu API không trả về slug, điều hướng về trang profile làm phương án dự phòng
+                console.warn("API did not return a slug for the new story. Redirecting to profile page.");
+                navigate('/user/profile');
+            }
         } else {
             setError(response.message || "Đã có lỗi xảy ra.");
         }
@@ -120,7 +134,7 @@ export default function CreateStoryPage() {
     } finally {
         setIsSubmitting(false);
     }
-};
+  };
   // Xử lý xác thực
   if (isLoadingAuth) {
     return <div className="flex justify-center items-center min-h-[50vh]"><FiLoader className="animate-spin text-4xl text-sky-600" /></div>;
