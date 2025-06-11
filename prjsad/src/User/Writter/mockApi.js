@@ -7,14 +7,13 @@ const getDb = () => {
         db = {
             stories: [],
             chapters: [],
-            genres: [ // Giữ nguyên danh sách genres cố định
+            genres: [ 
                 { id: 3, name: 'Xuyên Sách' }, { id: 4, name: 'Trọng Sinh' },
                 { id: 5, name: 'Xuyên Không' }, { id: 6, name: 'Hệ Thống' },
                 { id: 7, name: 'Showbiz' }, { id: 8, name: 'Sảng Văn' },
                 { id: 9, name: 'Ngược' }, { id: 10, name: 'Ngược Luyến Tàn Tâm' },
                 { id: 11, name: 'Đọc Tâm' },
             ],
-            // Thêm các counters để tự động tăng ID
             storyIdCounter: 1,
             chapterIdCounter: 1,
         };
@@ -45,7 +44,6 @@ export const createStoryApi = async ({ storyData, token }) => {
 
     const db = getDb();
     
-    // TẠO ĐỐI TƯỢNG ĐỂ LƯU VÀO DB (KHÔNG CÓ ẢNH)
     const newStoryForDb = {
         id: db.storyIdCounter++,
         title: storyData.title,
@@ -54,19 +52,17 @@ export const createStoryApi = async ({ storyData, token }) => {
         status: storyData.status,
         genres: storyData.genres,
         slug: storyData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') + '-' + Date.now(),
-        // KHÔNG LƯU `coverUrl` vào đây
         createdAt: new Date().toISOString(),
     };
 
     db.stories.push(newStoryForDb);
-    // Bây giờ saveDb sẽ không bị lỗi quota nữa vì không có chuỗi Base64
     saveDb(db);
-
-    // TẠO ĐỐI TƯỢNG ĐỂ TRẢ VỀ CHO COMPONENT (CÓ ẢNH TẠM THỜI)
-    // Component sẽ nhận được URL ảnh để điều hướng và hiển thị ngay
+    
+    // Đảm bảo đối tượng trả về có chapters là một mảng rỗng
     const responseData = {
         ...newStoryForDb,
-        coverUrl: storyData.coverUrl // Thêm lại coverUrl vào dữ liệu trả về
+        coverUrl: storyData.coverUrl, // Thêm lại coverUrl vào dữ liệu trả về
+        chapters: [] // Thêm thuộc tính này để nhất quán với getStoryForManagementApi
     };
 
     console.log("FAKE_API: Story saved to DB (without image data):", newStoryForDb);
@@ -80,13 +76,24 @@ export const getStoryForManagementApi = async ({ storySlug, token }) => {
     if (!token) return { data: null };
     
     const db = getDb();
-    const story = db.stories.find(s => s.slug === storySlug);
-    if (!story) return { data: null };
+    const storyFromDb = db.stories.find(s => s.slug === storySlug);
+    if (!storyFromDb) return { data: null };
 
-    const storyChapters = db.chapters.filter(c => c.storyId === story.id);
+    // Lấy các chương liên quan
+    const storyChapters = db.chapters.filter(c => c.storyId === storyFromDb.id);
     
-    console.log("FAKE_API: Fetched story for management:", story);
-    return { data: { ...story, chapters: storyChapters } };
+    // TẠO ĐỐI TƯỢNG TRẢ VỀ HOÀN CHỈNH
+    const responseData = {
+        ...storyFromDb, // Lấy tất cả thông tin đã lưu
+        chapters: storyChapters, // Gán các chương đã tìm thấy
+
+        // FIX: THÊM MỘT URL ẢNH PLACEHOLDER HỢP LỆ
+        // Điều này đảm bảo component luôn nhận được `coverUrl` là một chuỗi URL
+        coverUrl: `https://placehold.co/400x600/262626/FFFFFF?text=${encodeURIComponent(storyFromDb.title)}`
+    };
+
+    console.log("FAKE_API: Fetched story for management and added placeholder image:", responseData);
+    return { data: responseData };
 };
 
 
