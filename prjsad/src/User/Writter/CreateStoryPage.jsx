@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
-import { createStoryApi } from '../../userApi';
+//import { createStoryApi } from '../../userApi';
+import { createStoryApi } from './mockApi';
 import ImageUploader from './ImageUploader';
 import { FiLoader } from 'react-icons/fi';
 
 const GENRES_LIST = [
-  { id: 3, name: 'Xuyên Sách' }, // Đổi 'label' thành 'name' để nhất quán với code cũ
+  { id: 3, name: 'Xuyên Sách' },
   { id: 4, name: 'Trọng Sinh' },
   { id: 5, name: 'Xuyên Không' },
   { id: 6, name: 'Hệ Thống' },
@@ -16,6 +17,19 @@ const GENRES_LIST = [
   { id: 10, name: 'Ngược Luyến Tàn Tâm' },
   { id: 11, name: 'Đọc Tâm' },
 ];
+
+const readFileAsDataURL = (file) => {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            return reject(new Error("No file provided"));
+        }
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
+};
+
 
 export default function CreateStoryPage() {
   const { isAuthenticated, token, isLoadingAuth } = useAuth();
@@ -66,19 +80,34 @@ export default function CreateStoryPage() {
     setIsSubmitting(true);
     
     // Tạo FormData để gửi đi (giữ nguyên logic này)
-    const submissionData = new FormData();
-    submissionData.append('title', formData.title);
-    submissionData.append('author', formData.author);
-    submissionData.append('description', formData.description);
-    submissionData.append('status', formData.status);
-    submissionData.append('coverImage', coverImageFile);
-    submissionData.append('genres', JSON.stringify(formData.genres));
-
+    // const submissionData = new FormData();
+    // submissionData.append('title', formData.title);
+    // submissionData.append('author', formData.author);
+    // submissionData.append('description', formData.description);
+    // submissionData.append('status', formData.status);
+    // submissionData.append('coverImage', coverImageFile);
+    // submissionData.append('genres', JSON.stringify(formData.genres));
     try {
-        // Hàm giả lập API của chúng ta vẫn nhận object, nên chúng ta truyền formData
-        // Khi dùng API thật, bạn sẽ truyền `submissionData` vào body
-        const response = await createStoryApi({ storyData: formData, token });
+        // Đọc file thành chuỗi base64 data URL
+        const coverImageUrl = await readFileAsDataURL(coverImageFile);
 
+        // THAY ĐỔI Ở ĐÂY:
+        // Gửi chuỗi URL đã xử lý, không gửi đối tượng file nữa.
+        // Đổi tên thuộc tính thành 'coverUrl' cho rõ nghĩa.
+        const storyPayload = {
+            title: formData.title,
+            author: formData.author,
+            description: formData.description,
+            status: formData.status,
+            genres: formData.genres,
+            coverUrl: coverImageUrl // <-- SỬA Ở ĐÂY
+        };
+
+        console.log("Dữ liệu gửi đến API:", storyPayload);
+
+        // Gọi API với payload đã được chuẩn bị
+        const response = await createStoryApi({ storyData: storyPayload, token });
+        
         if (response.success) {
             alert(response.message);
             navigate(`/user/quan-ly-truyen/${response.data.slug}`);
@@ -87,11 +116,12 @@ export default function CreateStoryPage() {
         }
     } catch (err) {
         console.error("Failed to create story:", err);
-        setError(err.message || "Đã có lỗi xảy ra.");
+        // Bắt lỗi từ readFileAsDataURL nếu có
+        setError(err.message || "Đã có lỗi xảy ra khi xử lý ảnh.");
     } finally {
         setIsSubmitting(false);
     }
-  };
+};
   // Xử lý xác thực
   if (isLoadingAuth) {
     return <div className="flex justify-center items-center min-h-[50vh]"><FiLoader className="animate-spin text-4xl text-sky-600" /></div>;
@@ -138,7 +168,7 @@ export default function CreateStoryPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Thể loại</label>
               <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 border p-4 rounded-md dark:border-gray-600">
-                {allGenres.map(genre => (
+                {GENRES_LIST.map(genre => (
                   <div key={genre.id} className="flex items-center">
                     <input id={`genre-${genre.id}`} name="genres" type="checkbox" value={genre.id} onChange={handleGenreChange} className="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500" />
                     <label htmlFor={`genre-${genre.id}`} className="ml-2 text-sm text-gray-700 dark:text-gray-300">{genre.name}</label>
