@@ -32,13 +32,9 @@ def gen_image(input_prompt):
     english_prompt = gen_response(input_prompt)
     print("Translated prompt:", english_prompt)
     image_data = gen_response_image(english_prompt)
-    # Decode and save it as a PNG
-    with open("output_image.png", "wb") as f:
-        f.write(base64.b64decode(image_data))
-
-    print("Image saved as output_image.png")
+    return image_data
 
 
-gen_image("""Dự báo cung hoàng đạo nói rằng, Bạch Dương tuần này sao Tử Vi động, tài vận thịnh vượng, và đào hoa đến.O mai Dao Muoi 
-Đây chính là thời điểm tôi quay lại công ty, đại chiến bốn phương.
-Hôm nay quả thật là một ngày tinh thần sảng khoái, trở lại công ty, không những Thẩm Trạch không gây sự nữa, mà còn cho tôi thời gian để chuẩn bị đầy đủ cho bộ sưu tập xuân """)
+# gen_image("""Dự báo cung hoàng đạo nói rằng, Bạch Dương tuần này sao Tử Vi động, tài vận thịnh vượng, và đào hoa đến.O mai Dao Muoi 
+# Đây chính là thời điểm tôi quay lại công ty, đại chiến bốn phương.
+# Hôm nay quả thật là một ngày tinh thần sảng khoái, trở lại công ty, không những Thẩm Trạch không gây sự nữa, mà còn cho tôi thời gian để chuẩn bị đầy đủ cho bộ sưu tập xuân """)

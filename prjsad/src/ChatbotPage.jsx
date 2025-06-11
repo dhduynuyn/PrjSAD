@@ -44,16 +44,23 @@ export default function ChatbotPage() {
 
     const response = await fetch(endpoint);
 
-    if (!response.ok) {
-      throw new Error(`Lỗi từ server: ${response.statusText}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`Lỗi từ server: ${response.statusText}`);
+    // }
 
+    console.log('Sending message to API:', userMessage, 'Image mode:', imageMode);
+
+    console.log('response:', response);
     const data = await response.json();
+
+    console.log('API response:', data);
 
     if (imageMode) {
       // Xử lý ảnh từ base64
       const base64Image = data.response; // Giả sử backend trả về chuỗi base64
       const imageUrl = `data:image/png;base64,${base64Image}`;
+
+      console.log("Base64 image URL:", imageUrl);
 
       setMessages((prev) => [
         ...prev,
@@ -116,11 +123,13 @@ export default function ChatbotPage() {
                   }`}
                 >
                   {/* Sử dụng dangerouslySetInnerHTML để render HTML (dấu <br />) */}
-                  {msg.isHtml ? (
-                    <p dangerouslySetInnerHTML={{ __html: msg.text }} />
-                  ) : (
-                    <p>{msg.text}</p>
-                  )}
+                  {msg.image ? (
+                  <img src={msg.image} alt="Generated" className="max-w-full rounded-lg" />
+                ) : msg.isHtml ? (
+                  <p dangerouslySetInnerHTML={{ __html: msg.text }} />
+                ) : (
+                  <p>{msg.text}</p>
+                )}
                 </div>
               </div>
             ))}
