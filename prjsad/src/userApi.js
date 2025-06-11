@@ -277,6 +277,7 @@ export const getUserProfileApi = async ({ token }) => {
     await checkAuth(token);
 
     try {
+        const token = localStorage.getItem('token');
         const res = await fetch(`http://localhost:5000/users/info`, {
             method: 'GET',
             headers: {
@@ -286,6 +287,7 @@ export const getUserProfileApi = async ({ token }) => {
         });
 
         const data = await res.json();
+        console.log('Dữ liệu người dùng:', data);
 
         if (!res.ok) {
             console.error('Lỗi khi gọi /users/info:', data);

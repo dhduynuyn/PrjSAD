@@ -3,7 +3,7 @@ from datetime import datetime, timezone, date
 import pytz
 
 class UserDTO:
-    def __init__(self, user_id=None, username=None, gmail=None, password=None, profile_image=None, follows=None, views=None, description=None, stories_id=None, follow_story=None):
+    def __init__(self, user_id=None, username=None, gmail=None, password=None, profile_image=None, follows=None, views=None, description=None, stories_id=None, follow_story=None, stories=None):
         self.user_id = user_id
         self.username = username
         self.gmail = gmail
@@ -14,6 +14,7 @@ class UserDTO:
         self.views = views
         self.stories_id = stories_id if stories_id is not None else []
         self.follow_story = follow_story if follow_story is not None else []
+        self.stories = stories if stories is not None else []
 
     def to_dict(self):
         return {
@@ -26,5 +27,6 @@ class UserDTO:
             "follows": self.follows,
             "views": self.views,
             "stories_id": self.stories_id,
-            "follow_story": self.follow_story
+            "follow_story": self.follow_story,
+            "stories": self.stories
         }

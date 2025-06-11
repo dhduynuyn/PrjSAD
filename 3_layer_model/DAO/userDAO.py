@@ -1,5 +1,6 @@
 from DAO.DataProvider import Database
 from DTO.userDTO import UserDTO
+from BUS.storyBUS import StoryBUS 
 
 class UserDAO:
     def __init__(self):
@@ -90,10 +91,14 @@ class UserDAO:
                     user_stories_map.setdefault(user_id, []).append(story_id)
 
         # 4. Tạo danh sách UserDTO
+        all_stories = StoryBUS().get_all_stories()  # Giả định trả về list[dict] có key 'story_id'
+
+
         users = []
         for row in users_raw:
             user_id = row[0]
             stories_id = user_stories_map.get(user_id, [])
+            user_stories = [story for story in all_stories if story["id"] in stories_id]
             user = UserDTO(
                 user_id=user_id,
                 username=row[1],
@@ -104,7 +109,8 @@ class UserDAO:
                 views=row[6],
                 description=row[7],
                 follow_story=row[8],
-                stories_id=stories_id
+                stories_id=stories_id,
+                stories = user_stories
             )
             users.append(user)
 
