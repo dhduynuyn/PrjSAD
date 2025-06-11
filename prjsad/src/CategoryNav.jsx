@@ -98,6 +98,16 @@ export default function CategoryNav() {
             </Link>
           </li>
 
+          <li className="nav-item">
+            <Link
+              to="/chatbot" // Link đến trang chatbot
+              className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md text-sky-600 dark:text-sky-400 font-semibold hover:bg-sky-50 dark:hover:bg-sky-900 transition-colors duration-150"
+            >
+              <BsRobot size={18} /> {/* Icon cho chatbot */}
+              AI Tìm Truyện
+            </Link>
+          </li>
+
           {/* Tìm kiếm nâng cao */}
           <li className="nav-item">
             <Link

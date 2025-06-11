@@ -15,7 +15,8 @@ import AdvancedSearchPage from './AdvancedSearchPage';
 import GenrePage from './GenrePage'; 
 import RegisterPage from './RegisterPage'; 
 import CategoryNav from "./CategoryNav";
-import LoginPage from './LoginPage';   
+import LoginPage from './LoginPage';
+import ChatbotPage from './ChatbotPage'; 
 import BookmarksPage from './User/BookmarksPage';
 import CreateStoryPage from './User/Writter/CreateStoryPage'; 
 import ChapterCreateEditPage from './User/Writter/ChapterCreateEditPage'; 
@@ -62,6 +63,7 @@ const App = () => {
              <Route path="/stories/:listTypeSlug" element={<StoryListPage />} />
              <Route path="/user/truyen-da-luu" element={<BookmarksPage/>} />
              <Route path="/user/dang-truyen" element={<CreateStoryPage/>} />
+             <Route path="/chatbot" element={<ChatbotPage/>} />
              <Route path="/user/quan-ly-truyen/:storySlug" element={<StoryManagementPage />} />
              <Route path="/user/quan-ly-truyen/:storySlug/them-chuong" element={<ChapterCreateEditPage />} />
              <Route path="/user/quan-ly-truyen/:storySlug/sua-chuong/:chapterId" element={<ChapterCreateEditPage />} />
