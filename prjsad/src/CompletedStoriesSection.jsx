@@ -78,7 +78,7 @@ export default function CompletedStoriesSection() {
       <div className="text-center mt-6 mb-4">
         <a
           href={viewMoreUrl}
-          className="inline-block px-5 py-2 text-sm font-medium text-white bg-sky-600 rounded-md hover:bg-sky-700 transition-colors duration-200"
+          className="inline-block px-5 py-2 text-sm font-medium text-white bg-white-600 rounded-md hover:bg-sky-700 transition-colors duration-200"
         >
           Xem thêm truyện hoàn thành
         </a>
