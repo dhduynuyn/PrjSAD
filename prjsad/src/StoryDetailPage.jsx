@@ -410,7 +410,7 @@ export default function StoryDetailPage() {
         </div>
       </div>
 
-      <RelatedStoriesSection title="Truyện liên quan" stories={relatedStories} />
+      {/* <RelatedStoriesSection title="Truyện liên quan" stories={relatedStories} /> */}
     </div>
   );
 }

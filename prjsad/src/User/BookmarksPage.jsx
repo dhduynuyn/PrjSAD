@@ -50,19 +50,30 @@ export default function BookmarksPage() {
 
   // Hàm xử lý việc xóa một truyện khỏi danh sách
   const handleDeleteBookmark = async (itemIdToDelete, storyTitle) => {
-    if (window.confirm(`Bạn có chắc muốn xóa truyện "${storyTitle}" khỏi danh sách đã lưu không?`)) {
-      try {
-        await deleteBookmarkApi({ token, itemId: itemIdToDelete });
-        // Cập nhật UI ngay lập tức bằng cách lọc item đã xóa ra khỏi state
-        setBookmarkedStories(currentStories => 
-          currentStories.filter(item => item.id !== itemIdToDelete)
-        );
-      } catch (err) {
-        console.error("Failed to delete bookmark:", err);
-        alert("Xóa thất bại, vui lòng thử lại sau.");
+  if (window.confirm(`Bạn có chắc muốn xóa truyện "${storyTitle}" khỏi danh sách đã lưu không?`)) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/stories/${itemIdToDelete}/delete-bookmark`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to toggle bookmark");
       }
+      setBookmarkedStories(currentStories => 
+          currentStories.filter(item => item.id !== itemIdToDelete)
+      );
+    } catch (err) {
+      console.error("Failed to delete bookmark:", err);
+      alert("Xóa thất bại, vui lòng thử lại sau.");
     }
-  };
+  }
+};
+
 
   // Hàm xử lý khi chuyển trang
   const handlePageChange = (page) => {
@@ -102,20 +113,22 @@ export default function BookmarksPage() {
         {!isLoading && !error && bookmarkedStories.length > 0 && (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {bookmarkedStories.map((item) => (
+              { console.log("Rendering Bookmarked Stories:", bookmarkedStories)}
+              {
+              bookmarkedStories.map((item) => (
                 <StoryCard
                   key={item.id}
                   // Truyền dữ liệu vào StoryCard
-                  image={item.story.coverImage}
-                  title={item.story.title}
-                  storyUrl={`/truyen/${item.story.slug}`}
-                  chapter={item.story.latestChapter || 'N/A'}
-                  views={item.story.views || 0}
-                  bookmarks={item.story.bookmarks || 0}
-                  isFull={item.story.status === 'COMPLETED'}
+                  image={item.coverImage}
+                  title={item.title}
+                  storyUrl={`/truyen/${item.id}`}
+                  chapter={item.latest_chapter || 'N/A'}
+                  views={item.views || 0}
+                  bookmarks={item.follows || 0}
+                  isFull={item.status === 'Đã đủ bộ'}
 
                   // Truyền trực tiếp hàm xóa vào prop onDelete
-                  onDelete={() => handleDeleteBookmark(item.id, item.story.title)}
+                  onDelete={() => handleDeleteBookmark(item.id, item.title)}
                 />
               ))}
             </div>

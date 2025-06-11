@@ -54,7 +54,7 @@ def humanize_time_diff(past_time):
         return f"{days} ngày trước"
 
 class StoryDTO:
-    def __init__(self, story_id, title, author, category, status, description,
+    def __init__(self, story_id, title, author, category=None, status=None, description=None,
                  views=0, likes=0, follows=0, last_updated=None, image_data=None, genres=None,
                  latest_chapter=None, team_ids=None, team_names=None, chapters=None, comments=None):
         self.story_id = story_id

@@ -6,6 +6,10 @@ from flask_cors import CORS
 from BUS.userBUS import UserBUS
 import jwt
 from datetime import datetime, timedelta
+from flask import request, jsonify
+from functools import wraps
+import threading
+import jwt
 
 SECRET_KEY = "your_secret_key"
 
@@ -17,6 +21,38 @@ story_bus = StoryBUS()
 _cached_stories = None
 _cache_expiry = None
 CACHE_DURATION = timedelta(minutes=10)  # cache trong 10 phút
+
+def update_cache():
+    def update_stories():
+        story_bus.get_all_stories(force=True)
+    def update_users():
+        user_bus.get_all_user(force=True)
+    threading.Thread(target=update_stories).start()
+    threading.Thread(target=update_users).start()
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        # Lấy token từ header hoặc query param
+        token = request.headers.get('Authorization')
+        if not token:
+            token = request.args.get('token')  # ✅ lấy từ URL nếu không có header
+
+        if not token:
+            return jsonify({'error': 'Token is missing'}), 401
+
+        if token.startswith("Bearer "):
+            token = token.split(" ")[1]
+
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        return f(payload, *args, **kwargs)
+    return decorated
 
 @app.route('/truyen/<story_slug>/chapters', methods=['GET'])
 def get_chapters(story_slug):
@@ -30,6 +66,30 @@ def get_chapters(story_slug):
 def get_all_stories(force=False):
     stories = story_bus.get_all_stories(force)
     return jsonify(stories), 200
+
+@app.route('/users/info', methods=['GET'])
+@token_required
+def get_user_by_id(payload):
+    """Get a user by ID"""
+    user_id = payload['user_id']  # Lấy user_id từ payload
+    user = user_bus.get_user_by_id(user_id)
+    if user:
+        return jsonify(user), 200
+    return jsonify({"error": "User not found"}), 404
+
+@app.route('/users/follow_story', methods=['GET'])
+@token_required
+def get_follow_stories(payload):
+    """Get stories followed by the user"""
+    user_id = payload['user_id']
+    user = user_bus.get_user_by_id(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    follow_ids = set(user.get('follow_story', []))
+    stories = story_bus.get_all_stories(user_id)
+    followed_stories = [story for story in stories if story['id'] in follow_ids]
+    return jsonify(followed_stories), 200
 
 def cached_stories(force=False):
     stories = story_bus.get_all_stories(True)
@@ -203,35 +263,8 @@ def login():
     else:
         return jsonify({"error": "Invalid credentials"}), 401
 
-def token_required(f):
-    from functools import wraps
-
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        # Lấy token từ header hoặc query param
-        token = request.headers.get('Authorization')
-        if not token:
-            token = request.args.get('token')  # ✅ lấy từ URL nếu không có header
-
-        if not token:
-            return jsonify({'error': 'Token is missing'}), 401
-
-        if token.startswith("Bearer "):
-            token = token.split(" ")[1]
-
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            return jsonify({'error': 'Token expired'}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({'error': 'Invalid token'}), 401
-
-        return f(payload, *args, **kwargs)
-    return decorated
 
 
-from flask import request, jsonify
-import jwt
 
 @app.route('/current_user', methods=['GET'])
 def get_current_user():
@@ -382,6 +415,34 @@ def toggle_follow(payload, story_id):
     user_bus.add_follow(user_id, story_id)
     story_bus.update_story_follows(story)
     message = "Đã thêm truyện vào danh sách theo dõi"
+    
+    # update_cache()  # Cập nhật cache sau khi thay đổi
+
+    # Trả về kết quả cho client
+    return jsonify({
+        "message": message,
+        "updatedFollowers": story['followers']  # Cập nhật số lượng yêu thích
+    }), 200
+    
+@app.route('/stories/<int:story_id>/delete-bookmark', methods=['POST'])
+@token_required
+def delete_follow(payload, story_id):
+    """Toggle favorite status of a story"""
+    user_id = payload['user_id']
+
+    # Kiểm tra xem truyện có tồn tại không
+    story = story_bus.get_story_by_id(story_id)
+    if not story:
+        return jsonify({"error": "Story not found"}), 404
+
+    story['followers'] -= 1  # Tăng số lượng yêu thích
+    
+    # Cập nhật số lượng yêu thích trong cơ sở dữ liệu
+    user_bus.remove_follow(user_id, story_id)
+    story_bus.update_story_follows(story)
+    message = "Đã thêm truyện vào danh sách theo dõi"
+    
+    # update_cache()  # Cập nhật cache sau khi thay đổi
 
     # Trả về kết quả cho client
     return jsonify({

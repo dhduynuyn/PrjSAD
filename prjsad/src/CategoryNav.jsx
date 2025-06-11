@@ -44,7 +44,7 @@ export default function CategoryNav() {
           {/* Trang chủ */}
           <li className="nav-item">
             <a
-              href="https://www.monkeyd.com.vn"
+              href="http://localhost:5173/"
               className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
             >
               Trang chủ
@@ -53,40 +53,39 @@ export default function CategoryNav() {
 
           {/* Truyện mới */}
           <li className="nav-item">
-            <Link to="/stories/truyen-moi" className="nav-link">Truyện Mới</Link>
+            <Link to="/stories/truyen-moi" className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150">Truyện Mới</Link>
           </li>
 
           {/* Thể loại (Dropdown) */}
-          <li className="nav-item relative" ref={dropdownRef}> {/* Thêm relative và ref */}
+          {/* <li className="nav-item relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150 w-full text-left"
             >
-              <BsListOl size={18} /> {/* Icon Thể loại */}
+              <BsListOl size={18} />
               <span>Thể loại</span>
-              <BsChevronDown size={16} className={`ml-auto transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} /> {/* Icon Dropdown */}
+              <BsChevronDown size={16} className={`ml-auto transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <ul className="dropdown-menu absolute left-0 mt-1 w-60 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200 max-h-80 overflow-y-auto"> {/* Kiểu dáng dropdown */}
+              <ul className="dropdown-menu absolute left-0 mt-1 w-60 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200 max-h-80 overflow-y-auto"> 
                 {categories.map((category) => (
                    <li key={category.name}>
                      <a
                        className="dropdown-item flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                        href={category.href}
                      >
-                       <span className="ml-2">{category.name}</span> {/* Thêm ml-2 nếu dùng icon */}
+                       <span className="ml-2">{category.name}</span>
                      </a>
                    </li>
                 ))}
               </ul>
             )}
-          </li>
+          </li> */}
 
           {/* Truyện Full */}
           <li className="nav-item">
-            <Link to="/stories/truyen-hoan-thanh" className="nav-link">Truyện Full</Link>
+            <Link to="/stories/truyen-hoan-thanh" className="nav-link px-3 py-2 flex items-center gap-x-1.5 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150">Truyện Full</Link>
           </li>
           {/* Team */}
           <li className="nav-item">
@@ -105,7 +104,7 @@ export default function CategoryNav() {
               to="/tim-kiem-nang-cao"
               className="nav-link px-3 py-2 flex items-center rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150"
             >
-              Tìm kiếm nâng cao
+              Tìm kiếm
             </Link>
           </li>
         </ul>
