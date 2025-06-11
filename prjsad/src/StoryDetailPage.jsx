@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom'; 
 import { useParams, useNavigate } from 'react-router-dom';
 import Breadcrumbs from './Detail/Breadcrumbs';
 import StoryActions from './Detail/StoryActions';
@@ -322,10 +323,14 @@ export default function StoryDetailPage() {
 
               <dt className="col-span-3 sm:col-span-2 font-medium">Thể loại</dt>
               <dd className="col-span-9 sm:col-span-10">
-                {story.genres.map((g, i) => (
-                  <span key={i} className="inline-block bg-sky-100 dark:bg-sky-900 text-sky-700 dark:text-sky-200 px-2 py-1 mr-2 mb-2 rounded text-xs">
-                    {g}
-                  </span>
+                {story.genres.map((genre, i) => (
+                  <Link
+                    key={i}
+                    to={`/the-loai/${genre.slug}`} 
+                    className="inline-block bg-sky-100 dark:bg-sky-900 text-sky-700 dark:text-sky-200 px-2 py-1 mr-2 mb-2 rounded text-xs hover:bg-sky-200 dark:hover:bg-sky-800 transition-colors"
+                  >
+                    {genre.name}
+                  </Link>
                 ))}
               </dd>
 

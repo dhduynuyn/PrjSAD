@@ -7,10 +7,12 @@ import { AuthProvider } from './AuthContext';
 import StoryListPage from './StoryListPage'; 
 import StoryDetailPage from './StoryDetailPage';
 //import StoryDetailPage from './Demo/StoryDetailPage-demo';
+import UserProfilePage from './pages/User/UserProfilePage'; 
 import ChapterPage from './ChapterPage'; 
 import SearchResultPage from './Search/SearchResultPage';
 //import ChapterPage from './Demo/ChapterPage-demo'; 
 import AdvancedSearchPage from './AdvancedSearchPage';
+import GenrePage from './GenrePage'; 
 import RegisterPage from './RegisterPage'; 
 import CategoryNav from "./CategoryNav";
 import LoginPage from './LoginPage';   
@@ -56,14 +58,14 @@ const App = () => {
              <Route path="/tim-kiem-nang-cao" element={<AdvancedSearchPage />} />
              <Route path="/search-results" element={<SearchResultPage />} /> 
              <Route path="/teams" element={<TeamListPage />} /> 
+             <Route path="/the-loai/:genreSlug" element={<GenrePage />} />
              <Route path="/stories/:listTypeSlug" element={<StoryListPage />} />
              <Route path="/user/truyen-da-luu" element={<BookmarksPage/>} />
              <Route path="/user/dang-truyen" element={<CreateStoryPage/>} />
              <Route path="/user/quan-ly-truyen/:storySlug" element={<StoryManagementPage />} />
              <Route path="/user/quan-ly-truyen/:storySlug/them-chuong" element={<ChapterCreateEditPage />} />
              <Route path="/user/quan-ly-truyen/:storySlug/sua-chuong/:chapterId" element={<ChapterCreateEditPage />} />
-
-             
+             <Route path="/user/thong-tin-ca-nhan" element={<UserProfilePage />} />             
           {/*</Route>
           <Route element={<MinimalLayout />}>*/}
             <Route path="/register" element={<RegisterPage />} />
