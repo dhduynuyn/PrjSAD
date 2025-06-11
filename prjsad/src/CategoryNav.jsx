@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from "react-router-dom";
+import { BsRobot } from 'react-icons/bs'; 
 
 // Import các icon cần thiết từ BoxIcons (bx) trong react-icons
 import { BsListOl, BsChevronDown, BsStar, BsPeople, BsVolumeUp } from 'react-icons/bs'; // Hoặc sử dụng các icon tương ứng từ react-icons/bi nếu muốn giống hệt Boxicons
