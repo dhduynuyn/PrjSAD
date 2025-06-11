@@ -10,6 +10,7 @@ from flask import request, jsonify
 from functools import wraps
 import threading
 import jwt
+from crawling_copy.chatbot_v5 import chat
 
 SECRET_KEY = "your_secret_key"
 
@@ -66,6 +67,15 @@ def get_chapters(story_slug):
 def get_all_stories(force=False):
     stories = story_bus.get_all_stories(force)
     return jsonify(stories), 200
+
+@app.route('/api/chatbot', methods=['GET'])
+def get_text_response():
+    query = request.args.get('query')
+    if not query:
+        return jsonify({'error': 'Missing query parameter'}), 400
+
+    response = chat(query)
+    return jsonify({'response': response})
 
 @app.route('/users/info', methods=['GET'])
 @token_required

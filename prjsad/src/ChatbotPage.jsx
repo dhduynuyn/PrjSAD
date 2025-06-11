@@ -35,23 +35,19 @@ export default function ChatbotPage() {
     setIsLoading(true);
 
     try {
-      // Gọi API backend (giữ nguyên như trước)
-      const response = await fetch('http://localhost:5000/api/chatbot', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: userMessage }),
-      });
+      // Gọi API backend sử dụng phương thức GET với query
+      const response = await fetch(`http://localhost:5000/chatbot/ai?query=${encodeURIComponent(userMessage)}`);
 
       if (!response.ok) {
         throw new Error(`Lỗi từ server: ${response.statusText}`);
       }
 
       const data = await response.json();
+      const textResponse = data.response; // Lấy phần nội dung trả về
+
       
       // Xử lý xuống dòng trong phản hồi của bot
-      const formattedReply = data.reply.replace(/\n/g, '<br />');
+      const formattedReply = textResponse.reply.replace(/\n/g, '<br />');
 
       setMessages((prev) => [
         ...prev,
