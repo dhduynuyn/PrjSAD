@@ -224,4 +224,34 @@ export const updateChapterApi = async ({ chapterId, chapterData, token }) => {
 };
 
 
+/**
+ * Lấy thông tin hồ sơ người dùng từ backend.
+ * @param {object} params - Gồm { token }
+ * @returns {Promise<object>} - Một object chứa { success, data | message }
+ */
+export const getUserProfileApi = async ({ token }) => {
+    await checkAuth(token);
+
+    try {
+        const res = await fetch(`http://localhost:5000/users/info`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            console.error('Lỗi khi gọi /users/info:', data);
+            return { success: false, message: data.error || 'Không thể lấy thông tin người dùng' };
+        }
+
+        return { success: true, data };
+    } catch (error) {
+        console.error('Lỗi kết nối khi gọi /users/info:', error);
+        return { success: false, message: error.message };
+    }
+};
 

@@ -83,18 +83,10 @@ export const getStoryForManagementApi = async ({ storySlug, token }) => {
     const story = db.stories.find(s => s.slug === storySlug);
     if (!story) return { data: null };
 
-    // VÌ `coverUrl` không được lưu, nó sẽ là `undefined` ở đây.
-    // Chúng ta có thể thêm một ảnh placeholder để hiển thị.
-    const storyWithPlaceholderImage = {
-        ...story,
-        // Nếu không có coverUrl, dùng ảnh mặc định
-        coverUrl: story.coverUrl || 'https://via.placeholder.com/300x400.png?text=Preview+Not+Saved'
-    };
-
     const storyChapters = db.chapters.filter(c => c.storyId === story.id);
     
-    console.log("FAKE_API: Fetched story for management:", storyWithPlaceholderImage);
-    return { data: { ...storyWithPlaceholderImage, chapters: storyChapters } };
+    console.log("FAKE_API: Fetched story for management:", story);
+    return { data: { ...story, chapters: storyChapters } };
 };
 
 
