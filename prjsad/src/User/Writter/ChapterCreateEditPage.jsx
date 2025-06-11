@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
 //import { createStoryApi, getChapterForEditApi, updateChapterApi } from '../../userApi';
-import { createStoryApi, getChapterForEditApi, updateChapterApi } from './mockApi';
+import { createChapterApi, getChapterForEditApi, updateChapterApi } from './mockApi';
 import { FiLoader } from 'react-icons/fi';
 
 export default function ChapterCreateEditPage() {

@@ -84,7 +84,7 @@ export default function LoginPage() {
                   required
                   autoComplete="email"
                   placeholder="example@user.com"
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm text-black"
                   value={formData.email}
                   onChange={handleChange}
                 />
@@ -103,7 +103,7 @@ export default function LoginPage() {
                     required
                     autoComplete="current-password"
                     placeholder="Nhập mật khẩu"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm pr-10 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm pr-10 focus:ring-sky-500 text-black focus:border-sky-500 sm:text-sm"
                     value={formData.password}
                     onChange={handleChange}
                   />

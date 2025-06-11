@@ -181,7 +181,6 @@ export default function UserProfilePage() {
                             <div className="flex-grow text-center md:text-left">
                                 {isEditing ? (
                                     <div className="space-y-4">
-                                        <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="text-2xl font-bold w-full p-2 rounded bg-gray-100 dark:bg-gray-700" placeholder="Tên hiển thị"/>
                                         <input type="text" name="name" value={formData.username} onChange={handleInputChange} className="text-2xl font-bold w-full p-2 rounded bg-gray-100 dark:bg-gray-700" placeholder="Tên hiển thị"/>
                                         <input type="text" name="username" value={formData.username} onChange={handleInputChange} className="text-lg text-gray-500 w-full p-2 rounded bg-gray-100 dark:bg-gray-700" placeholder="Username"/>
                                     </div>

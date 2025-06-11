@@ -10,6 +10,37 @@ import RelatedStoriesSection from './Detail/RelatedStoriesSection';
 import { FiLoader } from 'react-icons/fi';
 import { useAuth } from './AuthContext';
 
+const MOCK_GENRES = [
+  { id: 3, label: 'Xuyên Sách' },
+  { id: 4, label: 'Trọng Sinh' },
+  { id: 5, label: 'Xuyên Không' },
+  { id: 6, label: 'Hệ Thống' },
+  { id: 7, label: 'Showbiz' },
+  { id: 8, label: 'Sảng Văn' },
+  { id: 9, label: 'Ngược' },
+  { id: 10, label: 'Ngược Luyến Tàn Tâm' },
+  { id: 11, label: 'Đọc Tâm' },
+  { id: 28, label: 'Đã đủ bộ' },
+  { id: 35, label: 'Đang phát hành' },
+  { id: 36, label: 'Tạm ngưng' },
+  { id: 1, label: 'Nguyên sang' },
+  { id: 2, label: 'Diễn sinh' },
+  { id: 12, label: 'Ngôn Tình' },
+  { id: 13, label: 'Đam Mỹ' },
+  { id: 14, label: 'Bách Hợp' },
+  { id: 15, label: 'Nam sinh' },
+  { id: 16, label: 'Không CP' },
+  { id: 17, label: 'Cổ Đại' },
+  { id: 18, label: 'Cận Đại' },
+  { id: 19, label: 'Hiện Đại' },
+  { id: 20, label: 'Tương Lai' },
+  { id: 21, label: 'Niên Đại' },
+  { id: 22, label: 'HE' },
+  { id: 23, label: 'SE' },
+  { id: 24, label: 'OE' },
+  { id: 25, label: 'BE' },
+];
+
 export default function StoryDetailPage() {
   const { storySlug } = useParams();
   const navigate = useNavigate();
@@ -229,6 +260,7 @@ export default function StoryDetailPage() {
     }
   };
   
+  
 
   const handleReport = async () => {
     if (!isAuthenticated) {
@@ -323,15 +355,20 @@ export default function StoryDetailPage() {
 
               <dt className="col-span-3 sm:col-span-2 font-medium">Thể loại</dt>
               <dd className="col-span-9 sm:col-span-10">
-                {story.genres.map((genre, i) => (
+                {story.genres.map((genreLabel, i) => {
+                const matchedGenre = MOCK_GENRES.find(g => g.label === genreLabel);
+                const genreId = matchedGenre?.id;
+
+                return (
                   <Link
                     key={i}
-                    to={`/the-loai/${genre.slug}`} 
+                    to={`/search-results?genres=${genreId}`}
                     className="inline-block bg-sky-100 dark:bg-sky-900 text-sky-700 dark:text-sky-200 px-2 py-1 mr-2 mb-2 rounded text-xs hover:bg-sky-200 dark:hover:bg-sky-800 transition-colors"
                   >
-                    {genre.name}
+                    {genreLabel}
                   </Link>
-                ))}
+                );
+              })}
               </dd>
 
               {story.translatorTeam && story.translatorTeam.name && (
