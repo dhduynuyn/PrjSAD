@@ -110,38 +110,34 @@ def gen_query(user_want, answer):
     return prompt
 
 # ========== CHAT ========== 
-def chat(index, texts):
-    while True:
-        query = input("\n💬 Bạn muốn tìm truyện như thế nào? (nhập 'exit' để thoát)\n> ")
-        if query.strip().lower() == "exit":
-            break
+index, texts = setup()
 
-        # Tính toán embedding cho title, description, summary và genre của truy vấn
-        emb_title = model.encode(query)
-        emb_desc = model.encode(query)
-        emb_summary = model.encode(query)
-        emb_genre = model.encode(query)
+def chat(query):
+    # Tính toán embedding cho title, description, summary và genre của truy vấn
+    emb_title = model.encode(query)
+    emb_desc = model.encode(query)
+    emb_summary = model.encode(query)
+    emb_genre = model.encode(query)
 
-        # Tổng hợp các vector với trọng số cho genre, summary, description và title
-        query_vector = emb_title + emb_desc + 3 * emb_summary + 2 * emb_genre
-        query_vector = np.array([query_vector]).astype("float32")
+    # Tổng hợp các vector với trọng số cho genre, summary, description và title
+    query_vector = emb_title + emb_desc + 3 * emb_summary + 2 * emb_genre
+    query_vector = np.array([query_vector]).astype("float32")
 
-        # Tìm kiếm trong index
-        D, I = index.search(query_vector, k=15)
-        user_want = query.strip().lower()
-        answer = "📚 Gợi ý truyện phù hợp:"
-        for i in I[0]:
-            full_text, summary, genre = texts[i]
-            answer += f"👉 Tóm tắt: {summary}\n 🔖 Thể loại: {genre}\n"
+    # Tìm kiếm trong index
+    D, I = index.search(query_vector, k=15)
+    user_want = query.strip().lower()
+    answer = "📚 Gợi ý truyện phù hợp:"
+    for i in I[0]:
+        full_text, summary, genre = texts[i]
+        answer += f"👉 Tóm tắt: {summary}\n 🔖 Thể loại: {genre}\n"
 
-            
-        print(answer)
-        query = gen_query(user_want, answer)
-        AI_answer = gen_response(query)
-        print(f"🤖 AI trả lời: {AI_answer}")
-        print
+        
+    print(answer)
+    query = gen_query(user_want, answer)
+    AI_answer = gen_response(query)
+    print(f"🤖 AI trả lời: {AI_answer}")
 
 # ========== RUN ========== 
-if __name__ == "__main__":
-    index, texts = setup()
-    chat(index, texts)
+# if __name__ == "__main__":
+    
+#     chat(index, texts)
