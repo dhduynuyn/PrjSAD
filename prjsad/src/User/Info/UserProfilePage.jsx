@@ -151,8 +151,12 @@ export default function UserProfilePage() {
                         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                             {/* Avatar */}
                             <div className="relative flex-shrink-0">
-                                {avatarPreview ? (
-                                    <img src={avatarPreview} alt="Avatar" className="h-32 w-32 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700"/>
+                                {profile.profile_image ? (
+                                    <img
+                                        src={profile.profile_image ? `data:image/jpeg;base64,${profile.profile_image}`: `https://picsum.photos/seed/story${data.id}/200/260`}
+                                        alt="Avatar"
+                                        className="h-32 w-32 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700"
+                                    />
                                 ) : (
                                     <div className="h-32 w-32 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-4 border-gray-200 dark:border-gray-700">
                                         <FiUser className="text-5xl text-gray-400" />
@@ -177,7 +181,7 @@ export default function UserProfilePage() {
                             <div className="flex-grow text-center md:text-left">
                                 {isEditing ? (
                                     <div className="space-y-4">
-                                        <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="text-2xl font-bold w-full p-2 rounded bg-gray-100 dark:bg-gray-700" placeholder="Tên hiển thị"/>
+                                        <input type="text" name="name" value={formData.username} onChange={handleInputChange} className="text-2xl font-bold w-full p-2 rounded bg-gray-100 dark:bg-gray-700" placeholder="Tên hiển thị"/>
                                         <input type="text" name="username" value={formData.username} onChange={handleInputChange} className="text-lg text-gray-500 w-full p-2 rounded bg-gray-100 dark:bg-gray-700" placeholder="Username"/>
                                     </div>
                                 ) : (

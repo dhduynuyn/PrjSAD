@@ -12,6 +12,8 @@ export default function ChatbotPage() {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [imageMode, setImageMode] = useState(false);
+
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -35,24 +37,39 @@ export default function ChatbotPage() {
     setIsLoading(true);
 
     try {
-      // Gọi API backend sử dụng phương thức GET với query
-      const response = await fetch(`http://localhost:5000/chatbot/ai?query=${encodeURIComponent(userMessage)}`);
+          // Gọi API backend sử dụng phương thức GET với query
+          const endpoint = imageMode
+      ? `http://localhost:5000/chatbot/image?query=${encodeURIComponent(userMessage)}`
+      : `http://localhost:5000/chatbot/ai?query=${encodeURIComponent(userMessage)}`;
 
-      if (!response.ok) {
-        throw new Error(`Lỗi từ server: ${response.statusText}`);
-      }
+    const response = await fetch(endpoint);
 
-      const data = await response.json();
-      const textResponse = data.response; // Lấy phần nội dung trả về
+    if (!response.ok) {
+      throw new Error(`Lỗi từ server: ${response.statusText}`);
+    }
 
-      
-      // Xử lý xuống dòng trong phản hồi của bot
-      const formattedReply = textResponse.reply.replace(/\n/g, '<br />');
+    const data = await response.json();
+
+    if (imageMode) {
+      // Xử lý ảnh từ base64
+      const base64Image = data.response; // Giả sử backend trả về chuỗi base64
+      const imageUrl = `data:image/png;base64,${base64Image}`;
+
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, sender: 'bot', image: imageUrl },
+      ]);
+    } else {
+      // Xử lý văn bản
+      const textResponse = data.response;
+      const formattedReply = textResponse.trim().replace(/\n/g, '<br />').replaceAll("**", "");
 
       setMessages((prev) => [
         ...prev,
         { id: Date.now() + 1, sender: 'bot', text: formattedReply, isHtml: true },
       ]);
+    }
+
 
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -124,6 +141,16 @@ export default function ChatbotPage() {
         {/* Input */}
         <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800">
           <form onSubmit={handleSendMessage} className="flex gap-3 items-center">
+            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <input
+              type="checkbox"
+              checked={imageMode}
+              onChange={(e) => setImageMode(e.target.checked)}
+              className="accent-sky-600"
+            />
+            Tạo hình ảnh
+          </label>
+
             <input
               type="text"
               value={inputValue}

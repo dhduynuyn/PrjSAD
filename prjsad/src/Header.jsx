@@ -212,9 +212,9 @@ export default function Header() {
                       <Link to="/user/dang-truyen" className="text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center px-4 py-2 text-sm gap-2" role="menuitem" tabIndex="-1">
                         <FiChevronsUp /><span>Đăng truyện</span>
                       </Link>
-                      <Link to="/user/dich-gia-dang-theo-doi" className="text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center px-4 py-2 text-sm gap-2" role="menuitem" tabIndex="-1">
+                      {/* <Link to="/user/dich-gia-dang-theo-doi" className="text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center px-4 py-2 text-sm gap-2" role="menuitem" tabIndex="-1">
                         <FiBell /><span>Đang theo dõi</span>
-                      </Link>
+                      </Link> */}
                        {/* <Link to="/user/lich-su-doc-truyen" className="text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center px-4 py-2 text-sm gap-2" role="menuitem" tabIndex="-1">
                         <FiEye /><span>Truyện đã đọc</span>
                       </Link> */}

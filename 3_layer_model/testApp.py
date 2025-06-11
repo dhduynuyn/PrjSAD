@@ -4,13 +4,18 @@ from flask_cors import CORS
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from BUS.userBUS import UserBUS
-import jwt
+import jwt 
 from datetime import datetime, timedelta
 from flask import request, jsonify
 from functools import wraps
 import threading
 import jwt
+import sys
+import os 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from crawling_copy.chatbot_v5 import chat
+from crawling_copy.gen_image_v2 import gen_image
 
 SECRET_KEY = "your_secret_key"
 
@@ -68,7 +73,7 @@ def get_all_stories(force=False):
     stories = story_bus.get_all_stories(force)
     return jsonify(stories), 200
 
-@app.route('/api/chatbot', methods=['GET'])
+@app.route('/chatbot/ai', methods=['GET'])
 def get_text_response():
     query = request.args.get('query')
     if not query:
@@ -76,6 +81,19 @@ def get_text_response():
 
     response = chat(query)
     return jsonify({'response': response})
+
+@app.route('/chatbot/image', methods=['GET'])
+def get_image_response():
+    query = request.args.get('query')
+    if not query:
+        return jsonify({'error': 'Missing query parameter'}), 400
+
+    try:
+        image_base64 = gen_image(query)
+        return jsonify({'response': image_base64})
+    except Exception as e:
+        print("Image generation error:", e)
+        return jsonify({'error': 'Failed to generate image'}), 500
 
 @app.route('/users/info', methods=['GET'])
 @token_required

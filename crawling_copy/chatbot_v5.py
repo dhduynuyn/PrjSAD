@@ -6,6 +6,11 @@ import psycopg2
 from dotenv import load_dotenv
 from sklearn.preprocessing import normalize
 from sentence_transformers import SentenceTransformer
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
+
 from gen_reanswer_from_AI import gen_response
 load_dotenv()
 
@@ -136,6 +141,7 @@ def chat(query):
     query = gen_query(user_want, answer)
     AI_answer = gen_response(query)
     print(f"🤖 AI trả lời: {AI_answer}")
+    return AI_answer
 
 # ========== RUN ========== 
 # if __name__ == "__main__":
