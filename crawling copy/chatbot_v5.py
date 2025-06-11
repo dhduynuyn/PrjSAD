@@ -6,6 +6,7 @@ import psycopg2
 from dotenv import load_dotenv
 from sklearn.preprocessing import normalize
 from sentence_transformers import SentenceTransformer
+from gen_reanswer_from_AI import gen_response
 load_dotenv()
 
 # ========== CONFIG ========== 
@@ -78,6 +79,7 @@ def build_index(embeddings):
     index = faiss.IndexFlatL2(dim)
     index.add(embeddings)
     return index
+    
 
 # ========== MAIN ========== 
 def setup():
@@ -93,6 +95,19 @@ def setup():
     save_index_and_data(index, texts)
     print("✅ Đã tạo và lưu index mới.")
     return index, texts
+
+def gen_query(user_want, answer):
+    prompt = (
+        "Đây là một cuộc trò chuyện, trong đó người dùng đang tìm truyện để đọc.\n"
+        "Đây là câu hỏi của người dùng: " f"{user_want}\n\n"
+        "Hệ thống đã tìm được một số truyện phù hợp thông qua truy vấn embedding.\n\n"
+        "Nhiệm vụ của bạn là: Viết lại một câu trả lời phù hợp với người dùng, giới thiệu truyện một cách tự nhiên, "
+        "không quá dài dòng, và chỉ giới thiệu những truyện bạn nghĩ phù hợp nhất do model emdedding còn khá nhiều lỗi.\n"
+        "\n\n"
+        f"Dưới đây là kết quả truy vấn:\n{answer}\n\n"
+        "Hãy tạo ra một đoạn phản hồi mạch lạc, thân thiện và phù hợp ngữ cảnh hội thoại."
+    )
+    return prompt
 
 # ========== CHAT ========== 
 def chat(index, texts):
@@ -112,11 +127,19 @@ def chat(index, texts):
         query_vector = np.array([query_vector]).astype("float32")
 
         # Tìm kiếm trong index
-        D, I = index.search(query_vector, k=5)
-        print("\n📚 Gợi ý truyện phù hợp:")
+        D, I = index.search(query_vector, k=15)
+        user_want = query.strip().lower()
+        answer = "📚 Gợi ý truyện phù hợp:"
         for i in I[0]:
             full_text, summary, genre = texts[i]
-            print(f" - {full_text}\n  👉 Tóm tắt: {summary}\n  🔖 Thể loại: {genre}\n")
+            answer += f"👉 Tóm tắt: {summary}\n 🔖 Thể loại: {genre}\n"
+
+            
+        print(answer)
+        query = gen_query(user_want, answer)
+        AI_answer = gen_response(query)
+        print(f"🤖 AI trả lời: {AI_answer}")
+        print
 
 # ========== RUN ========== 
 if __name__ == "__main__":
